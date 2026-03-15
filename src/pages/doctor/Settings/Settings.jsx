@@ -199,20 +199,6 @@ const Settings = () => {
                 <span>Meeting link is set</span>
               </div>
             )}
-
-            {/* Supported Platforms */}
-            <div className="mt-4 flex flex-wrap gap-2">
-              {["Google Meet", "Zoom", "Microsoft Teams", "Webex"].map(
-                (platform) => (
-                  <span
-                    key={platform}
-                    className="px-2 py-1 bg-white rounded-md text-xs text-gray-500 border"
-                  >
-                    {platform}
-                  </span>
-                )
-              )}
-            </div>
           </div>
         </div>
       </Card>
@@ -251,38 +237,6 @@ const Settings = () => {
             tabIndex={1}
             onBlur={(newContent) => updateField("instructions", newContent)}
           />
-        </div>
-      </Card>
-
-      {/* Quick Stats */}
-      <Card className="!shadow-sm !bg-gradient-to-r from-emerald-50 to-teal-50 border-emerald-100">
-        <div className="flex items-center gap-3 mb-4">
-          <Clock size={20} className="text-emerald-600" />
-          <h3 className="font-semibold text-emerald-900">
-            Current Configuration
-          </h3>
-        </div>
-        <div className="grid grid-cols-3 gap-4">
-          <div className="p-4 bg-white/60 rounded-xl text-center">
-            <div className="text-2xl font-bold text-emerald-700">
-              {settings.maxMeetingsPerDay}
-            </div>
-            <div className="text-xs text-emerald-600 mt-1">
-              Max Daily Meetings
-            </div>
-          </div>
-          <div className="p-4 bg-white/60 rounded-xl text-center">
-            <div className="text-2xl font-bold text-emerald-700">
-              {settings.meetingLink ? "✓" : "✗"}
-            </div>
-            <div className="text-xs text-emerald-600 mt-1">Meeting Link</div>
-          </div>
-          <div className="p-4 bg-white/60 rounded-xl text-center">
-            <div className="text-2xl font-bold text-emerald-700">
-              {settings.instructions ? "✓" : "✗"}
-            </div>
-            <div className="text-xs text-emerald-600 mt-1">Instructions</div>
-          </div>
         </div>
       </Card>
 

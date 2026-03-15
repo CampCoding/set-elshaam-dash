@@ -1,17 +1,113 @@
-import { NavLink } from "react-router-dom";
-import { LogOut } from "lucide-react";
+// src/components/layout/Sidebar.jsx
+import { NavLink, useLocation } from "react-router-dom";
+import { LogOut, ChevronDown, ChevronRight } from "lucide-react";
+import { useState, useEffect } from "react";
 import { useAuth } from "../../hooks/useAuth";
 import { getSidebarItems } from "../../routes/routes-data";
 
 const Sidebar = () => {
   const { logout, user, isDoctor } = useAuth();
+  const location = useLocation();
   const sidebarItems = getSidebarItems(user?.role);
 
-  // Different colors based on role
-  const sidebarBg = isDoctor ? "bg-primary" : "bg-primary";
-  const activeItemBg = isDoctor ? "text-primary" : "text-primary";
+  // Track expanded groups
+  const [expandedGroups, setExpandedGroups] = useState([]);
+
+  // Auto-expand group if current path is in children
+  useEffect(() => {
+    sidebarItems.forEach((item) => {
+      if (item.isGroup && item.children) {
+        const isChildActive = item.children.some(
+          (child) => location.pathname === child.path
+        );
+        if (isChildActive && !expandedGroups.includes(item.key)) {
+          setExpandedGroups((prev) => [...prev, item.key]);
+        }
+      }
+    });
+  }, [location.pathname, sidebarItems]);
+
+  // Toggle group expansion
+  const toggleGroup = (key) => {
+    setExpandedGroups((prev) =>
+      prev.includes(key) ? prev.filter((k) => k !== key) : [...prev, key]
+    );
+  };
+
+  // Check if group has active child
+  const hasActiveChild = (children) => {
+    return children?.some((child) => location.pathname === child.path);
+  };
+
+  // Styles
+  const sidebarBg = "bg-primary";
+  const activeItemBg = "text-primary";
   const hoverBg = "hover:bg-white/10";
-  const logoutHover = isDoctor ? "hover:bg-red-500" : "hover:bg-accent";
+
+  // Render single nav item
+  const renderNavItem = (item, isChild = false) => {
+    const Icon = item.icon;
+
+    return (
+      <li key={item.path}>
+        <NavLink
+          to={item.path}
+          className={({ isActive }) =>
+            `flex items-center gap-3 px-4 py-2.5 rounded-lg transition-all duration-300 ${
+              isChild ? "ml-4 text-sm" : ""
+            } ${
+              isActive
+                ? `bg-white ${activeItemBg} font-semibold shadow-lg`
+                : `text-white/80 ${hoverBg}`
+            }`
+          }
+        >
+          <Icon className={`${isChild ? "w-4 h-4" : "w-5 h-5"}`} />
+          <span>{item.label}</span>
+        </NavLink>
+      </li>
+    );
+  };
+
+  // Render group with children
+  const renderGroup = (item) => {
+    const Icon = item.icon;
+    const isExpanded = expandedGroups.includes(item.key);
+    const isActive = hasActiveChild(item.children);
+
+    return (
+      <li key={item.key}>
+        {/* Group Header */}
+        <button
+          onClick={() => toggleGroup(item.key)}
+          className={`flex items-center justify-between w-full px-4 py-2.5 rounded-lg transition-all duration-300 ${
+            isActive
+              ? "bg-white/20 text-white font-semibold"
+              : `text-white/80 ${hoverBg}`
+          }`}
+        >
+          <div className="flex items-center gap-3">
+            <Icon className="w-5 h-5" />
+            <span>{item.label}</span>
+          </div>
+          {isExpanded ? (
+            <ChevronDown className="w-4 h-4" />
+          ) : (
+            <ChevronRight className="w-4 h-4" />
+          )}
+        </button>
+
+        {/* Children */}
+        <ul
+          className={`mt-1 space-y-1 overflow-hidden transition-all duration-300 ${
+            isExpanded ? "max-h-96 opacity-100" : "max-h-0 opacity-0"
+          }`}
+        >
+          {item.children?.map((child) => renderNavItem(child, true))}
+        </ul>
+      </li>
+    );
+  };
 
   return (
     <aside
@@ -27,7 +123,9 @@ const Sidebar = () => {
         {/* Role Badge */}
         <div className="mt-3 text-center">
           <span
-            className={`text-xs px-3 py-1 rounded-full ${isDoctor ? "bg-emerald-600" : "bg-primary-light"}`}
+            className={`text-xs px-3 py-1 rounded-full ${
+              isDoctor ? "bg-emerald-600" : "bg-primary-light"
+            }`}
           >
             {isDoctor ? "Doctor Portal" : "Admin Dashboard"}
           </span>
@@ -39,24 +137,10 @@ const Sidebar = () => {
         <nav className="h-full p-4 overflow-y-auto">
           <ul className="space-y-2">
             {sidebarItems.map((item) => {
-              const Icon = item.icon;
-              return (
-                <li key={item.path}>
-                  <NavLink
-                    to={item.path}
-                    className={({ isActive }) =>
-                      `flex items-center gap-3 px-4 py-3 rounded-lg transition-all duration-300 ${
-                        isActive
-                          ? `bg-white ${activeItemBg} font-semibold shadow-lg`
-                          : `text-white/80 ${hoverBg}`
-                      }`
-                    }
-                  >
-                    <Icon className="w-5 h-5" />
-                    <span>{item.label}</span>
-                  </NavLink>
-                </li>
-              );
+              if (item.isGroup) {
+                return renderGroup(item);
+              }
+              return renderNavItem(item);
             })}
           </ul>
         </nav>
@@ -83,7 +167,7 @@ const Sidebar = () => {
         <div className="p-4">
           <button
             onClick={logout}
-            className={`flex items-center gap-3 w-full px-4 py-3 rounded-lg text-white/80 ${logoutHover} hover:text-white transition-all duration-300 cursor-pointer`}
+            className={`flex items-center gap-3 w-full px-4 py-3 rounded-lg text-white/80 hover:bg-red-500 hover:text-white transition-all duration-300 cursor-pointer`}
           >
             <LogOut className="w-5 h-5" />
             <span>Logout</span>

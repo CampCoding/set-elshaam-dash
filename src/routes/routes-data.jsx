@@ -1,3 +1,4 @@
+// src/routes/routes-data.jsx
 import {
   LayoutDashboard,
   Video,
@@ -5,6 +6,9 @@ import {
   Users,
   Stethoscope,
   Settings,
+  Clock,
+  CalendarOff,
+  Settings2,
 } from "lucide-react";
 
 import { lazy } from "react";
@@ -29,6 +33,9 @@ const DoctorCalendarPage = lazy(
   () => import("../pages/doctor/Calendar/Calendar")
 );
 const GeneralSettings = lazy(() => import("../pages/doctor/Settings/Settings"));
+const DoctorDashboard = lazy(
+  () => import("../pages/doctor/Dashboard/Dashboard")
+);
 
 // ============ AUTH ROUTES ============
 export const authRoutes = [
@@ -78,46 +85,65 @@ export const adminRoutes = [
 export const doctorRoutes = [
   {
     path: "/dashboard",
-    label: "Meetings",
-    icon: Video,
-    element: <DoctorMeetings />,
+    label: "Dashboard",
+    icon: LayoutDashboard,
+    element: <DoctorDashboard />,
   },
-  {
-    path: "/calendar",
-    label: "Calendar",
-    icon: Calendar,
-    element: <DoctorCalendarPage />,
-  },
-
   {
     path: "/settings",
-    label: "Settings",
-    icon: Settings, // من lucide-react
+    label: "General Settings",
+    icon: Settings2,
     element: <GeneralSettings />,
+  },
+  {
+    key: "settings",
+    label: "Settings",
+    icon: Settings,
+    isGroup: true, // This indicates it's a group with children
+    children: [
+      {
+        path: "/settings/availability",
+        label: "Daily Available Time",
+        icon: Clock,
+        element: <DoctorMeetings />,
+      },
+      {
+        path: "/settings/days-off",
+        label: "Days Off",
+        icon: CalendarOff,
+        element: <DoctorCalendarPage />,
+      },
+    ],
   },
 ];
 
 // ============ HELPER FUNCTIONS ============
 
-// Get routes by role
+// Get routes by role (flattened for routing)
 export const getRoutesByRole = (role) => {
-  switch (role) {
-    case "admin":
-      return adminRoutes;
-    case "doctor":
-      return doctorRoutes;
-    default:
-      return [];
-  }
+  const routes =
+    role === "admin" ? adminRoutes : role === "doctor" ? doctorRoutes : [];
+
+  const flattenedRoutes = [];
+  routes.forEach((route) => {
+    if (route.children) {
+      route.children.forEach((child) => {
+        flattenedRoutes.push(child);
+      });
+    } else if (route.path) {
+      flattenedRoutes.push(route);
+    }
+  });
+
+  return flattenedRoutes;
 };
 
-// Get sidebar items by role
 export const getSidebarItems = (role) => {
-  const routes = getRoutesByRole(role);
+  const routes =
+    role === "admin" ? adminRoutes : role === "doctor" ? doctorRoutes : [];
   return routes.filter((route) => !route.hidden);
 };
 
-// Get home path by role
 export const getHomePath = (role) => {
   return "/dashboard";
 };

@@ -211,7 +211,7 @@ const DoctorCalendar = () => {
           className={`
             ant-picker-calendar-date-value
             ${hasLectures ? "font-bold text-primary" : ""}
-            ${isToday ? "bg-primary text-white rounded-full w-7 h-7 flex items-center justify-center mx-auto" : ""}
+            ${isToday ? "bg-primary text-white! rounded-full w-7 h-7 flex items-center justify-center mx-auto" : ""}
           `}
         >
           {date.date()}

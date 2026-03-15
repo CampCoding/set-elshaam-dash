@@ -79,9 +79,6 @@ const Home = () => {
 
   const quickActions = [
     { icon: Plus, label: "New Meeting", color: "bg-primary" },
-    { icon: Calendar, label: "Schedule Meeting", color: "bg-blue-500" },
-    { icon: Users, label: "Invite Team", color: "bg-green-500" },
-    { icon: BarChart3, label: "View Reports", color: "bg-orange-500" },
   ];
 
   return (

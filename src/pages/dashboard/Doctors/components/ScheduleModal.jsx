@@ -136,25 +136,6 @@ const ScheduleModal = ({
           <Input placeholder="e.g., Hall A - Building 2" size="large" />
         </Form.Item>
 
-        <Form.Item name="students" label="Students">
-          <Select
-            mode="multiple"
-            size="large"
-            placeholder="Select students"
-            allowClear
-            showSearch
-            filterOption={(input, option) =>
-              option.children.toLowerCase().includes(input.toLowerCase())
-            }
-          >
-            {studentsList.map((student) => (
-              <Select.Option key={student} value={student}>
-                {student}
-              </Select.Option>
-            ))}
-          </Select>
-        </Form.Item>
-
         {isEdit && (
           <Form.Item name="status" label="Status" rules={[{ required: true }]}>
             <Select size="large">
