@@ -96,19 +96,19 @@ const Doctors = () => {
           handleEdit(record, e.domEvent);
         },
       },
-      {
-        type: "divider",
-      },
-      {
-        key: "delete",
-        label: "Delete",
-        icon: <Trash2 className="w-4 h-4" />,
-        danger: true,
-        onClick: (e) => {
-          e.domEvent.stopPropagation();
-          handleDelete(record, e.domEvent);
-        },
-      },
+      // {
+      //   type: "divider",
+      // },
+      // {
+      //   key: "delete",
+      //   label: "Delete",
+      //   icon: <Trash2 className="w-4 h-4" />,
+      //   danger: true,
+      //   onClick: (e) => {
+      //     e.domEvent.stopPropagation();
+      //     handleDelete(record, e.domEvent);
+      //   },
+      // },
     ],
   });
 

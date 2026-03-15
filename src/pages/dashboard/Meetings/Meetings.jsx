@@ -61,15 +61,15 @@ const Meetings = () => {
         openModal("view", record);
       },
     },
-    {
-      key: "edit",
-      label: "Edit",
-      icon: <Edit className="w-4 h-4" />,
-      onClick: ({ domEvent }) => {
-        domEvent.stopPropagation();
-        openModal("edit", record);
-      },
-    },
+    // {
+    //   key: "edit",
+    //   label: "Edit",
+    //   icon: <Edit className="w-4 h-4" />,
+    //   onClick: ({ domEvent }) => {
+    //     domEvent.stopPropagation();
+    //     openModal("edit", record);
+    //   },
+    // },
     {
       key: "copy",
       label: "Copy Link",
@@ -79,42 +79,42 @@ const Meetings = () => {
         copyMeetingLink(record);
       },
     },
-    {
-      key: "duplicate",
-      label: "Duplicate",
-      icon: <Copy className="w-4 h-4" />,
-      onClick: ({ domEvent }) => {
-        domEvent.stopPropagation();
-        duplicateMeeting(record);
-      },
-    },
+    // {
+    //   key: "duplicate",
+    //   label: "Duplicate",
+    //   icon: <Copy className="w-4 h-4" />,
+    //   onClick: ({ domEvent }) => {
+    //     domEvent.stopPropagation();
+    //     duplicateMeeting(record);
+    //   },
+    // },
     { type: "divider" },
-    ...(record.status !== "ongoing"
-      ? [
-          {
-            key: "ongoing",
-            label: "Mark as Ongoing",
-            icon: <Play className="w-4 h-4" />,
-            onClick: ({ domEvent }) => {
-              domEvent.stopPropagation();
-              changeStatus(record, "ongoing");
-            },
-          },
-        ]
-      : []),
-    ...(record.status !== "completed"
-      ? [
-          {
-            key: "complete",
-            label: "Mark as Completed",
-            icon: <CheckCircle className="w-4 h-4" />,
-            onClick: ({ domEvent }) => {
-              domEvent.stopPropagation();
-              changeStatus(record, "completed");
-            },
-          },
-        ]
-      : []),
+    // ...(record.status !== "ongoing"
+    //   ? [
+    //       {
+    //         key: "ongoing",
+    //         label: "Mark as Ongoing",
+    //         icon: <Play className="w-4 h-4" />,
+    //         onClick: ({ domEvent }) => {
+    //           domEvent.stopPropagation();
+    //           changeStatus(record, "ongoing");
+    //         },
+    //       },
+    //     ]
+    //   : []),
+    // ...(record.status !== "completed"
+    //   ? [
+    //       {
+    //         key: "complete",
+    //         label: "Mark as Completed",
+    //         icon: <CheckCircle className="w-4 h-4" />,
+    //         onClick: ({ domEvent }) => {
+    //           domEvent.stopPropagation();
+    //           changeStatus(record, "completed");
+    //         },
+    //       },
+    //     ]
+    //   : []),
     ...(record.status !== "cancelled"
       ? [
           {
@@ -128,17 +128,6 @@ const Meetings = () => {
           },
         ]
       : []),
-    { type: "divider" },
-    {
-      key: "delete",
-      label: "Delete",
-      icon: <Trash2 className="w-4 h-4" />,
-      danger: true,
-      onClick: ({ domEvent }) => {
-        domEvent.stopPropagation();
-        openModal("delete", record);
-      },
-    },
   ];
 
   // Table Columns
@@ -252,14 +241,14 @@ const Meetings = () => {
       }),
       render: (_, record) => (
         <div className="flex items-center justify-center gap-1">
-          <Tooltip title="Edit">
+          {/* <Tooltip title="Edit">
             <button
               onClick={() => openModal("edit", record)}
               className="p-2 hover:bg-gray-100 rounded-lg transition-colors cursor-pointer"
             >
               <Edit className="w-4 h-4 text-gray-600" />
             </button>
-          </Tooltip>
+          </Tooltip> */}
           <Dropdown
             menu={{ items: getActionItems(record) }}
             trigger={["click"]}
