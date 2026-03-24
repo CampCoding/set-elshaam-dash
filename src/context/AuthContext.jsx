@@ -1,71 +1,63 @@
 import { createContext, useState, useEffect } from "react";
+import { authService } from "../api/services/auth.service";
+import { getUser, getToken, clearAuth } from "../utils/token";
 
 export const AuthContext = createContext(null);
-
-// Mock users data
-const mockUsers = {
-  admin: {
-    id: 1,
-    name: "Admin User",
-    email: "admin@matary.com",
-    role: "admin",
-    avatar: null,
-  },
-  doctor: {
-    id: 2,
-    name: "Dr. Ahmed Hassan",
-    email: "dr.ahmed@hospital.com",
-    role: "doctor",
-    specialization: "Cardiology",
-    department: "Internal Medicine",
-    phone: "+966 50 123 4567",
-    avatar: null,
-  },
-};
 
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
 
+  // Initialize auth state from localStorage
   useEffect(() => {
-    // Check for saved session
-    const savedUser = localStorage.getItem("user");
-    if (savedUser) {
-      setUser(JSON.parse(savedUser));
-    }
-    setLoading(false);
+    const initAuth = () => {
+      const token = getToken();
+      const storedUser = getUser();
+
+      if (token && storedUser) {
+        setUser(storedUser);
+      }
+      setLoading(false);
+    };
+
+    initAuth();
   }, []);
 
-  const login = (credentials) => {
-    // Mock login - replace with API call
-    // For demo: admin@matary.com = admin, any other email = doctor
-    if (credentials.email && credentials.password) {
-      let userData;
+  // ============ LOGIN ============
+  const login = async (email, password) => {
+    const result = await authService.login(email, password);
 
-      if (credentials.email.includes("admin")) {
-        userData = { ...mockUsers.admin, email: credentials.email };
-      } else {
-        userData = { ...mockUsers.doctor, email: credentials.email };
-      }
-
-      setUser(userData);
-      localStorage.setItem("user", JSON.stringify(userData));
-      localStorage.setItem("token", "mock-token");
-
-      return { success: true, role: userData.role };
+    if (result.success) {
+      setUser(result.user);
+      return {
+        success: true,
+        user: result.user,
+        role: "doctor",
+      };
     }
-    return { success: false, error: "Invalid credentials" };
+
+    return {
+      success: false,
+      error: result.message,
+    };
   };
 
+  // ============ LOGOUT ============
   const logout = () => {
+    authService.logout();
     setUser(null);
-    localStorage.removeItem("user");
-    localStorage.removeItem("token");
   };
 
+  // ============ COMPUTED VALUES ============
   const isAuthenticated = !!user;
-  const isAdmin = user?.role === "admin";
-  const isDoctor = user?.role === "doctor";
+  const isAdmin = false; // This API is for doctors only
+  const isDoctor = !!user;
+
+  // ============ DOCTOR TYPE HELPERS ============
+  const getDoctorType = () => user?.doctor_type || null;
+  const isPrivateDoctor = user?.doctor_type === "private";
+  const isGroupDoctor = user?.doctor_type === "group";
+  const isSessionsDoctor = user?.doctor_type === "sessions";
 
   return (
     <AuthContext.Provider
@@ -77,6 +69,11 @@ export const AuthProvider = ({ children }) => {
         isDoctor,
         login,
         logout,
+        // Doctor type helpers
+        getDoctorType,
+        isPrivateDoctor,
+        isGroupDoctor,
+        isSessionsDoctor,
       }}
     >
       {children}

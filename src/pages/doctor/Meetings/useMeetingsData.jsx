@@ -1,9 +1,8 @@
-// src/pages/doctor/Meetings/useMeetingsData.jsx
 import { useState, useMemo, useCallback, useEffect } from "react";
 import { message } from "antd";
 import dayjs from "dayjs";
+import api from "../../../api/axios";
 
-// Days of the week
 export const weekDays = [
   { key: "saturday", label: "Saturday", short: "Sat" },
   { key: "sunday", label: "Sunday", short: "Sun" },
@@ -14,21 +13,14 @@ export const weekDays = [
   { key: "friday", label: "Friday", short: "Fri" },
 ];
 
-// Slot status config
 export const slotStatusConfig = {
-  available: {
-    color: "#52c41a",
-    bg: "#f6ffed",
-    label: "Available",
-    description: "Open for booking",
-  },
+  available: { color: "#52c41a", bg: "#f6ffed", label: "Available" },
 };
 
-// Helper functions
 export const calculateDuration = (startTime, endTime) => {
   const [startH, startM] = startTime.split(":").map(Number);
   let [endH, endM] = endTime.split(":").map(Number);
-  if (endH === 0) endH = 24; // Handle midnight
+  if (endH === 0) endH = 24;
   return endH * 60 + endM - (startH * 60 + startM);
 };
 
@@ -39,7 +31,6 @@ export const formatDuration = (minutes) => {
   return mins > 0 ? `${hours}h ${mins}m` : `${hours}h`;
 };
 
-// Format time to 12-hour format
 export const formatTimeTo12Hour = (time24) => {
   const [hours] = time24.split(":").map(Number);
   if (hours === 0) return "12 AM";
@@ -48,114 +39,106 @@ export const formatTimeTo12Hour = (time24) => {
   return `${hours} AM`;
 };
 
-// Storage key - This is PERSISTENT (doesn't reset weekly)
-const STORAGE_KEY = "doctor_weekly_schedule";
-
-// =====================================================
-// 📊 Default Schedule (الجدول الأسبوعي الثابت)
-// =====================================================
-const getDefaultSchedule = () => ({
-  saturday: [
-    { id: 1, startTime: "09:00", endTime: "10:00", status: "available" },
-    { id: 2, startTime: "10:00", endTime: "11:00", status: "available" },
-    { id: 3, startTime: "14:00", endTime: "15:00", status: "available" },
-  ],
-  sunday: [
-    { id: 4, startTime: "10:00", endTime: "11:00", status: "available" },
-    { id: 5, startTime: "11:00", endTime: "12:00", status: "available" },
-  ],
-  monday: [
-    { id: 6, startTime: "09:00", endTime: "10:00", status: "available" },
-    { id: 7, startTime: "15:00", endTime: "16:00", status: "available" },
-  ],
-  tuesday: [
-    { id: 8, startTime: "13:00", endTime: "14:00", status: "available" },
-    { id: 9, startTime: "14:00", endTime: "15:00", status: "available" },
-  ],
-  wednesday: [
-    { id: 10, startTime: "10:00", endTime: "11:00", status: "available" },
-    { id: 11, startTime: "11:00", endTime: "12:00", status: "available" },
-    { id: 12, startTime: "16:00", endTime: "17:00", status: "available" },
-  ],
-  thursday: [
-    { id: 13, startTime: "09:00", endTime: "10:00", status: "available" },
-  ],
-  friday: [], // Day off
-});
-
-// Get empty schedule
-const getEmptySchedule = () => ({
-  saturday: [],
-  sunday: [],
-  monday: [],
-  tuesday: [],
-  wednesday: [],
-  thursday: [],
-  friday: [],
-});
-
-// Load schedule from localStorage
-const loadSchedule = () => {
-  try {
-    const saved = localStorage.getItem(STORAGE_KEY);
-    if (saved) {
-      return JSON.parse(saved);
-    }
-    return getDefaultSchedule();
-  } catch (error) {
-    console.error("Error loading schedule:", error);
-    return getDefaultSchedule();
-  }
-};
-
-// Get current week's Saturday
-const getCurrentWeekSaturday = () => {
-  const today = dayjs();
-  const dayOfWeek = today.day();
-  if (dayOfWeek === 6) {
-    return today.startOf("day");
-  } else {
-    const daysToSubtract = dayOfWeek + 1;
-    return today.subtract(daysToSubtract, "day").startOf("day");
-  }
-};
-
-// =====================================================
-// 🎣 Main Hook
-// =====================================================
 export const useMeetingsData = () => {
-  // Weekly schedule (persistent - الجدول الثابت)
-  const [schedule, setSchedule] = useState(() => loadSchedule());
+  // 💡 المواعيد أصبحت تُحفظ بالتاريخ وليس باليوم {"2026-03-18": [...slots]}
+  const [schedule, setSchedule] = useState({});
+  const [loading, setLoading] = useState(false);
 
-  // Current week Saturday (for display)
-  const [currentWeekSaturday] = useState(() => getCurrentWeekSaturday());
+  // نظام التنقل بالأسابيع
+  const [currentWeekSaturday, setCurrentWeekSaturday] = useState(() => {
+    const today = dayjs();
+    const dayOfWeek = today.day();
+    return dayOfWeek === 6
+      ? today.startOf("day")
+      : today.subtract(dayOfWeek + 1, "day").startOf("day");
+  });
 
-  // Drawer states
   const [drawerOpen, setDrawerOpen] = useState(false);
-  const [selectedDay, setSelectedDay] = useState(null);
+  const [selectedDate, setSelectedDate] = useState(null); // الاعتماد الكلي على التاريخ
   const [selectedDayLabel, setSelectedDayLabel] = useState("");
 
-  // Slot details modal
   const [slotDetailsModalOpen, setSlotDetailsModalOpen] = useState(false);
   const [selectedSlot, setSelectedSlot] = useState(null);
 
-  // Save to localStorage whenever schedule changes
-  useEffect(() => {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(schedule));
-    console.log("💾 Schedule saved");
-  }, [schedule]);
+  const currentMonthStart = dayjs().startOf("month");
+  const currentMonthEnd = dayjs().endOf("month");
 
-  // Week dates (for display only)
-  const weekDates = useMemo(() => {
-    return weekDays.map((day, index) => ({
-      ...day,
-      date: currentWeekSaturday.add(index, "day"),
-      dateFormatted: currentWeekSaturday.add(index, "day").format("MMM D"),
-      fullLabel: `${day.label}`,
-    }));
+  const isPrevDisabled = currentWeekSaturday
+    .subtract(1, "day")
+    .isBefore(currentMonthStart, "day");
+  // تعطيل زر التالي لو يوم السبت بتاع الأسبوع الجاي يتخطى نهاية الشهر
+  const isNextDisabled = currentWeekSaturday
+    .add(7, "day")
+    .isAfter(currentMonthEnd, "day");
+
+  // 1️⃣ Fetch API Data
+  const fetchWeeklySlots = async () => {
+    setLoading(true);
+    try {
+      const response = await api.get("/slots/list");
+      const apiData = response.data.data;
+
+      const formattedSchedule = {};
+
+      if (apiData && Array.isArray(apiData)) {
+        apiData.forEach((dayData) => {
+          const dateKey = dayData.date; // 💡 نستخدم التاريخ كمفتاح
+          formattedSchedule[dateKey] = dayData.slots.map((s) => {
+            const [start, end] = s.time.split("-");
+            return {
+              id: s.id,
+              startTime: start.substring(0, 5),
+              endTime: end.substring(0, 5),
+              status: "available",
+              date: dateKey,
+            };
+          });
+        });
+      }
+      setSchedule(formattedSchedule);
+    } catch (error) {
+      console.error("Error fetching slots:", error);
+      message.error("Failed to load schedule");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchWeeklySlots();
   }, [currentWeekSaturday]);
 
-  // Week info
+  // Week Navigation
+  const nextWeek = () => {
+    if (!isNextDisabled) setCurrentWeekSaturday((prev) => prev.add(7, "day"));
+  };
+  const prevWeek = () => {
+    if (!isPrevDisabled)
+      setCurrentWeekSaturday((prev) => prev.subtract(7, "day"));
+  };
+  const currentWeek = () => {
+    const today = dayjs();
+    const dayOfWeek = today.day();
+    setCurrentWeekSaturday(
+      dayOfWeek === 6
+        ? today.startOf("day")
+        : today.subtract(dayOfWeek + 1, "day").startOf("day")
+    );
+  };
+
+  const weekDates = useMemo(() => {
+    return weekDays.map((day, index) => {
+      const dateObj = currentWeekSaturday.add(index, "day");
+      return {
+        ...day,
+        dateObj,
+        fullDate: dateObj.format("YYYY-MM-DD"),
+        dateFormatted: dateObj.format("MMM D"),
+        fullLabel: `${day.label}, ${dateObj.format("MMM D")}`,
+      };
+    });
+  }, [currentWeekSaturday]);
+
   const weekInfo = useMemo(() => {
     const endOfWeek = currentWeekSaturday.add(6, "day");
     return {
@@ -164,90 +147,109 @@ export const useMeetingsData = () => {
     };
   }, [currentWeekSaturday]);
 
-  // Get slots for day
-  const getSlotsForDay = useCallback(
-    (dayKey) => {
-      return (schedule[dayKey] || []).sort((a, b) =>
+  // 💡 جلب المواعيد بناءً على التاريخ
+  const getSlotsForDate = useCallback(
+    (dateStr) => {
+      return (schedule[dateStr] || []).sort((a, b) =>
         a.startTime.localeCompare(b.startTime)
       );
     },
     [schedule]
   );
 
-  // Save slots for a day (from drawer)
-  const saveDaySlots = useCallback((dayKey, slots) => {
-    const newSlots = slots.map((slot, index) => ({
-      id: Date.now() + index,
-      startTime: slot.startTime,
-      endTime: slot.endTime,
-      status: "available",
-    }));
+  // 2️⃣ Create & Delete Slots via API
+  const saveDaySlots = async (dateStr, newSelectedSlots) => {
+    setLoading(true);
+    try {
+      const existingSlots = schedule[dateStr] || [];
+      const existingStarts = existingSlots?.map((s) => s.startTime);
+      const newStarts = newSelectedSlots?.map((s) => s.startTime);
 
-    setSchedule((prev) => ({
-      ...prev,
-      [dayKey]: newSlots,
-    }));
+      const slotsToCreate = newSelectedSlots?.filter(
+        (s) => !existingStarts.includes(s.startTime)
+      );
+      const slotsToDelete = existingSlots?.filter(
+        (s) => !newStarts.includes(s.startTime)
+      );
 
-    message.success(
-      `${dayKey.charAt(0).toUpperCase() + dayKey.slice(1)} schedule updated!`
-    );
-  }, []);
+      const createPromises = slotsToCreate.map((slot) =>
+        api.post("/slots/create", {
+          start_time: `${slot.startTime}:00`,
+          end_time: `${slot.endTime}:00`,
+          slot_date: dateStr,
+        })
+      );
 
-  // Remove single slot
-  const removeTimeSlot = useCallback((dayKey, slotId) => {
-    setSchedule((prev) => ({
-      ...prev,
-      [dayKey]: prev[dayKey].filter((slot) => slot.id !== slotId),
-    }));
-    message.success("Time slot removed");
-  }, []);
+      const deletePromises = slotsToDelete.map((slot) =>
+        api.delete("/slots/delete", { data: { slot_id: slot.id } })
+      );
 
-  // Open drawer for a day
-  const openDrawer = useCallback((dayKey, dayLabel) => {
-    setSelectedDay(dayKey);
+      await Promise.all([...createPromises, ...deletePromises]);
+
+      if (slotsToCreate.length > 0 || slotsToDelete.length > 0) {
+        message.success(`Schedule updated for ${dateStr}!`);
+        fetchWeeklySlots();
+      } else {
+        message.info("No changes were made.");
+      }
+    } catch (error) {
+      console.error("Error saving slots:", error);
+      message.error("Failed to update schedule");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // 3️⃣ Delete Single Slot via API
+  const removeTimeSlot = async (slotId) => {
+    try {
+      await api.delete(`/slots/delete`, { data: { slot_id: slotId } });
+      message.success("Time slot removed");
+      fetchWeeklySlots();
+    } catch (error) {
+      console.error("Error deleting slot:", error);
+      message.error("Failed to delete slot");
+    }
+  };
+
+  const openDrawer = useCallback((fullDateStr, dayLabel) => {
+    setSelectedDate(fullDateStr);
     setSelectedDayLabel(dayLabel);
     setDrawerOpen(true);
   }, []);
 
-  // Close drawer
   const closeDrawer = useCallback(() => {
     setDrawerOpen(false);
-    setSelectedDay(null);
+    setSelectedDate(null);
     setSelectedDayLabel("");
   }, []);
 
-  // Open slot details
-  const openSlotDetailsModal = useCallback((dayKey, slot, dayLabel) => {
-    setSelectedDay(dayKey);
+  const openSlotDetailsModal = useCallback((slot, dayLabel, fullDateStr) => {
     setSelectedSlot(slot);
     setSelectedDayLabel(dayLabel);
+    setSelectedDate(fullDateStr);
     setSlotDetailsModalOpen(true);
   }, []);
 
-  // Close modals
   const closeModals = useCallback(() => {
     setSlotDetailsModalOpen(false);
     setSelectedSlot(null);
-    setSelectedDay(null);
+    setSelectedDate(null);
     setSelectedDayLabel("");
   }, []);
 
-  // Statistics
   const stats = useMemo(() => {
     let totalSlots = 0;
     let totalHours = 0;
-
     Object.values(schedule).forEach((slots) => {
       slots.forEach((slot) => {
         totalSlots++;
         totalHours += calculateDuration(slot.startTime, slot.endTime) / 60;
       });
     });
-
     const daysWithSlots = Object.values(schedule).filter(
       (slots) => slots.length > 0
     ).length;
-
     return {
       totalSlots,
       totalHours: Math.round(totalHours * 10) / 10,
@@ -256,45 +258,30 @@ export const useMeetingsData = () => {
     };
   }, [schedule]);
 
-  // Reset to default
-  const resetToDefault = useCallback(() => {
-    setSchedule(getDefaultSchedule());
-    message.success("Reset to default schedule!");
-  }, []);
-
-  // Clear all
-  const clearAllSlots = useCallback(() => {
-    setSchedule(getEmptySchedule());
-    message.success("All slots cleared!");
-  }, []);
-
   return {
     schedule,
+    loading,
     weekDates,
     weekInfo,
     stats,
-    getSlotsForDay,
+    getSlotsForDate,
     saveDaySlots,
     removeTimeSlot,
-
-    // Drawer
+    nextWeek,
+    prevWeek,
+    currentWeek,
+    isPrevDisabled,
+    isNextDisabled, // 🛡️ تم التصدير للـ UI
     drawerOpen,
-    selectedDay,
+    selectedDate,
     selectedDayLabel,
     openDrawer,
     closeDrawer,
-
-    // Slot details modal
     slotDetailsModalOpen,
     selectedSlot,
     openSlotDetailsModal,
     closeModals,
-
-    // Helpers
-    resetToDefault,
-    clearAllSlots,
   };
 };
 
-export const meetingStatusConfig = slotStatusConfig;
 export default useMeetingsData;

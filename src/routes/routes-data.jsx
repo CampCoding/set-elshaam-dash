@@ -9,13 +9,15 @@ import {
   Clock,
   CalendarOff,
   Settings2,
+  BookOpen,
 } from "lucide-react";
 
 import { lazy } from "react";
 
-// ============ AUTH PAGES ============
-const Login = lazy(() => import("../pages/auth/Login"));
-const Signup = lazy(() => import("../pages/auth/Signup"));
+// ============ AUTH PAGES (NO LAZY - Important!) ============
+import Login from "../pages/auth/Login";
+import Signup from "../pages/auth/Signup";
+import ReservedMeetings from "../pages/doctor/ReservedMeetings/ReservedMeetings";
 
 // ============ ADMIN PAGES ============
 const Home = lazy(() => import("../pages/dashboard/Home/Home"));
@@ -35,6 +37,11 @@ const DoctorCalendarPage = lazy(
 const GeneralSettings = lazy(() => import("../pages/doctor/Settings/Settings"));
 const DoctorDashboard = lazy(
   () => import("../pages/doctor/Dashboard/Dashboard")
+);
+
+// ============ SESSIONS DOCTOR PAGES (Placeholder - هننشئهم بعدين) ============
+const SessionsList = lazy(
+  () => import("../pages/doctor/Sessions/SessionsList")
 );
 
 // ============ AUTH ROUTES ============
@@ -81,8 +88,8 @@ export const adminRoutes = [
   },
 ];
 
-// ============ DOCTOR ROUTES ============
-export const doctorRoutes = [
+// ============ DOCTOR ROUTES (Private Doctor - Meetings) ============
+export const privateDoctorRoutes = [
   {
     path: "/dashboard",
     label: "Dashboard",
@@ -90,16 +97,16 @@ export const doctorRoutes = [
     element: <DoctorDashboard />,
   },
   {
-    path: "/settings",
-    label: "General Settings",
-    icon: Settings2,
-    element: <GeneralSettings />,
+    path: "/reserved-meetings",
+    label: "Reserved Meetings",
+    icon: Video,
+    element: <ReservedMeetings />,
   },
   {
     key: "settings",
     label: "Settings",
     icon: Settings,
-    isGroup: true, // This indicates it's a group with children
+    isGroup: true,
     children: [
       {
         path: "/settings/availability",
@@ -108,22 +115,52 @@ export const doctorRoutes = [
         element: <DoctorMeetings />,
       },
       {
-        path: "/settings/days-off",
-        label: "Days Off",
-        icon: CalendarOff,
-        element: <DoctorCalendarPage />,
+        path: "/settings/general-setting",
+        label: "General Settings",
+        icon: Settings2,
+        element: <GeneralSettings />,
       },
     ],
   },
 ];
 
+// ============ SESSIONS DOCTOR ROUTES (Group Sessions) ============
+export const sessionsDoctorRoutes = [
+  {
+    path: "/dashboard",
+    label: "Dashboard",
+    icon: LayoutDashboard,
+    element: <DoctorDashboard />,
+  },
+  {
+    path: "/sessions",
+    label: "Sessions",
+    icon: BookOpen,
+    element: <SessionsList />,
+  },
+];
+
 // ============ HELPER FUNCTIONS ============
+export const getRoutesByRole = (role, doctorType = null) => {
+  let routes = [];
 
-// Get routes by role (flattened for routing)
-export const getRoutesByRole = (role) => {
-  const routes =
-    role === "admin" ? adminRoutes : role === "doctor" ? doctorRoutes : [];
+  if (role === "admin") {
+    routes = adminRoutes;
+  } else if (role === "doctor") {
+    // اختيار Routes حسب نوع الدكتور
+    switch (doctorType) {
+      case "sessions":
+      case "group":
+        routes = sessionsDoctorRoutes;
+        break;
+      case "private":
+      default:
+        routes = privateDoctorRoutes;
+        break;
+    }
+  }
 
+  // Flatten routes for React Router
   const flattenedRoutes = [];
   routes.forEach((route) => {
     if (route.children) {
@@ -138,9 +175,24 @@ export const getRoutesByRole = (role) => {
   return flattenedRoutes;
 };
 
-export const getSidebarItems = (role) => {
-  const routes =
-    role === "admin" ? adminRoutes : role === "doctor" ? doctorRoutes : [];
+export const getSidebarItems = (role, doctorType = null) => {
+  let routes = [];
+
+  if (role === "admin") {
+    routes = adminRoutes;
+  } else if (role === "doctor") {
+    switch (doctorType) {
+      case "sessions":
+      case "group":
+        routes = sessionsDoctorRoutes;
+        break;
+      case "private":
+      default:
+        routes = privateDoctorRoutes;
+        break;
+    }
+  }
+
   return routes.filter((route) => !route.hidden);
 };
 

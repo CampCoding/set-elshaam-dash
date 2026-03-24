@@ -1,12 +1,8 @@
-// src/pages/doctor/Settings/Settings.jsx
-import { Card, InputNumber, Input, Divider, Alert } from "antd";
+import { Card, Input, Alert, Spin } from "antd"; // ⬅️ إضافة Spin
 import {
-  Hash,
   Link,
   FileText,
-  RefreshCw,
   Video,
-  Clock,
   CheckCircle,
   ExternalLink,
   Save,
@@ -24,15 +20,14 @@ const Settings = () => {
     settings,
     hasChanges,
     saving,
+    loadingFetch, // ⬅️ استقبال حالة التحميل
     updateField,
     saveChanges,
     discardChanges,
-    resetToDefaults,
   } = useSettingsData();
 
   const editorRef = useRef(null);
 
-  // Jodit config
   const editorConfig = useMemo(
     () => ({
       readonly: false,
@@ -77,24 +72,30 @@ const Settings = () => {
     []
   );
 
+  // ⬅️ إذا كان بيحمل الداتا، نعرض شاشة تحميل
+  if (loadingFetch) {
+    return (
+      <div className="flex flex-col items-center justify-center min-h-[60vh] gap-4">
+        <Spin size="large" />
+        <p className="text-gray-500 font-medium animate-pulse">
+          Loading settings...
+        </p>
+      </div>
+    );
+  }
+
   return (
-    <div className="flex flex-col gap-6 max-w-4xl">
+    <div className="flex flex-col gap-6 landscape:gap-4 max-w-4xl pb-20 landscape:pb-16">
       {/* Header */}
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col sm:flex-row landscape:flex-row items-start sm:items-center justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">Settings</h1>
-          <p className="text-gray-600">
-            Manage your meeting preferences and configurations
+          <h1 className="text-2xl landscape:text-xl font-bold text-gray-900">
+            Settings
+          </h1>
+          <p className="text-gray-600 text-sm landscape:text-xs">
+            Manage your meeting preferences and instructions
           </p>
         </div>
-        <Button
-          variant="ghost"
-          onClick={resetToDefaults}
-          className="!text-gray-500"
-        >
-          <RefreshCw size={16} className="mr-2" />
-          Reset to Defaults
-        </Button>
       </div>
 
       {/* Unsaved Changes Alert */}
@@ -102,129 +103,120 @@ const Settings = () => {
         <Alert
           type="warning"
           showIcon
-          icon={<AlertCircle size={18} />}
-          message="You have unsaved changes"
-          description="Don't forget to save your changes before leaving this page."
+          icon={
+            <AlertCircle size={18} className="landscape:w-4 landscape:h-4" />
+          }
+          message={
+            <span className="landscape:text-sm">You have unsaved changes</span>
+          }
+          description={
+            <span className="landscape:text-xs">
+              Don't forget to save your changes before leaving this page.
+            </span>
+          }
           className="!border-amber-200 !bg-amber-50"
         />
       )}
 
-      {/* Meeting Settings */}
+      {/* Meeting Settings Card */}
       <Card className="!shadow-sm">
-        <div className="flex items-center gap-3 mb-6">
-          <div className="w-10 h-10 bg-emerald-100 rounded-xl flex items-center justify-center">
-            <Video size={20} className="text-emerald-600" />
+        <div className="flex items-center gap-3 mb-6 landscape:mb-4">
+          <div className="w-10 h-10 landscape:w-8 landscape:h-8 bg-emerald-100 rounded-xl flex items-center justify-center">
+            <Video
+              size={20}
+              className="text-emerald-600 landscape:w-4 landscape:h-4"
+            />
           </div>
           <div>
-            <h2 className="text-lg font-semibold text-gray-900">
+            <h2 className="text-lg landscape:text-base font-semibold text-gray-900">
               Meeting Configuration
             </h2>
-            <p className="text-sm text-gray-500">
+            <p className="text-sm landscape:text-xs text-gray-500">
               Set up your meeting preferences
             </p>
           </div>
         </div>
 
-        <div className="space-y-6">
-          {/* Max Meetings Per Day */}
-          <div className="flex items-start justify-between p-4 bg-gray-50 rounded-xl">
-            <div className="flex items-start gap-4">
-              <div className="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center mt-1">
-                <Hash size={18} className="text-blue-600" />
-              </div>
-              <div>
-                <h3 className="font-medium text-gray-900">
-                  Maximum Meetings Per Day
-                </h3>
-                <p className="text-sm text-gray-500 mt-1">
-                  Limit the number of meetings you can have in a single day.
-                  This helps manage your workload.
-                </p>
-              </div>
+        {/* Static Meeting Link */}
+        <div className="p-4 landscape:p-3 bg-gray-50 rounded-xl">
+          <div className="flex items-start gap-4 mb-4 landscape:mb-2">
+            <div className="w-10 h-10 landscape:w-8 landscape:h-8 bg-purple-100 rounded-lg flex items-center justify-center flex-shrink-0">
+              <Link
+                size={18}
+                className="text-purple-600 landscape:w-4 landscape:h-4"
+              />
             </div>
-            <InputNumber
-              min={1}
-              max={20}
-              value={settings.maxMeetingsPerDay}
-              onChange={(value) => updateField("maxMeetingsPerDay", value)}
-              size="large"
-              className="!w-24"
-              controls
-            />
+            <div className="flex-1">
+              <h3 className="font-medium text-gray-900 landscape:text-sm">
+                Static Meeting Link
+              </h3>
+              <p className="text-sm landscape:text-xs text-gray-500 mt-1">
+                Your permanent meeting room link. This will be shared with
+                students when they book appointments.
+              </p>
+            </div>
           </div>
 
-          <Divider className="my-0" />
-
-          {/* Static Meeting Link */}
-          <div className="p-4 bg-gray-50 rounded-xl">
-            <div className="flex items-start gap-4 mb-4">
-              <div className="w-10 h-10 bg-purple-100 rounded-lg flex items-center justify-center">
-                <Link size={18} className="text-purple-600" />
-              </div>
-              <div className="flex-1">
-                <h3 className="font-medium text-gray-900">
-                  Static Meeting Link
-                </h3>
-                <p className="text-sm text-gray-500 mt-1">
-                  Your permanent meeting room link. This will be shared with
-                  students when they book appointments.
-                </p>
-              </div>
-            </div>
-
-            <div className="flex gap-3">
-              <Input
-                size="large"
-                placeholder="https://meet.google.com/xxx-xxxx-xxx or https://zoom.us/j/xxxxxxxxx"
-                value={settings.meetingLink}
-                onChange={(e) => updateField("meetingLink", e.target.value)}
-                prefix={<Video size={16} className="text-gray-400" />}
-                className="flex-1"
-              />
-              {settings.meetingLink && (
-                <Button
-                  variant="ghost"
-                  onClick={() => window.open(settings.meetingLink, "_blank")}
-                  className="!px-3"
-                >
-                  <ExternalLink size={18} />
-                </Button>
-              )}
-            </div>
-
-            {/* Link Status */}
-            {settings.meetingLink && (
-              <div className="mt-3 flex items-center gap-2 text-sm text-green-600">
-                <CheckCircle size={14} />
-                <span>Meeting link is set</span>
-              </div>
+          <div className="flex gap-3">
+            <Input
+              size="large"
+              placeholder="https://meet.google.com/xxx-xxxx-xxx"
+              value={settings.fixed_meeting_url}
+              onChange={(e) => updateField("fixed_meeting_url", e.target.value)}
+              prefix={<Video size={16} className="text-gray-400" />}
+              className="flex-1 landscape:text-sm"
+            />
+            {settings.fixed_meeting_url && (
+              <Button
+                variant="ghost"
+                onClick={() =>
+                  window.open(settings.fixed_meeting_url, "_blank")
+                }
+                className="!px-3 landscape:h-auto"
+              >
+                <ExternalLink
+                  size={18}
+                  className="landscape:w-4 landscape:h-4"
+                />
+              </Button>
             )}
           </div>
+
+          {/* Link Status */}
+          {settings.fixed_meeting_url && (
+            <div className="mt-3 flex items-center gap-2 text-sm landscape:text-xs text-green-600">
+              <CheckCircle size={14} />
+              <span>Meeting link is set</span>
+            </div>
+          )}
         </div>
       </Card>
 
       {/* Instructions Card */}
       <Card className="!shadow-sm">
-        <div className="flex items-center gap-3 mb-6">
-          <div className="w-10 h-10 bg-amber-100 rounded-xl flex items-center justify-center">
-            <FileText size={20} className="text-amber-600" />
+        <div className="flex items-center gap-3 mb-6 landscape:mb-4">
+          <div className="w-10 h-10 landscape:w-8 landscape:h-8 bg-amber-100 rounded-xl flex items-center justify-center">
+            <FileText
+              size={20}
+              className="text-amber-600 landscape:w-4 landscape:h-4"
+            />
           </div>
           <div>
-            <h2 className="text-lg font-semibold text-gray-900">
+            <h2 className="text-lg landscape:text-base font-semibold text-gray-900">
               Meeting Instructions
             </h2>
-            <p className="text-sm text-gray-500">
+            <p className="text-sm landscape:text-xs text-gray-500">
               Guidelines shown to students before meetings
             </p>
           </div>
         </div>
 
-        {/* Info */}
-        <div className="p-4 bg-amber-50 rounded-xl border border-amber-100 mb-4">
-          <p className="text-sm text-amber-700">
+        {/* Tip Info */}
+        <div className="p-4 landscape:p-3 bg-amber-50 rounded-xl border border-amber-100 mb-4 landscape:mb-3">
+          <p className="text-sm landscape:text-xs text-amber-700">
             <strong>💡 Tip:</strong> These instructions will be shown to
-            students when they book a meeting with you. Include any preparation
-            requirements, rules, or important information.
+            students when they book a meeting. Include any preparation
+            requirements or rules.
           </p>
         </div>
 
@@ -232,30 +224,35 @@ const Settings = () => {
         <div className="border rounded-xl overflow-hidden">
           <JoditEditor
             ref={editorRef}
-            value={settings.instructions}
+            value={settings.description}
             config={editorConfig}
             tabIndex={1}
-            onBlur={(newContent) => updateField("instructions", newContent)}
+            onBlur={(newContent) => updateField("description", newContent)}
           />
         </div>
       </Card>
 
       {/* Save Actions - Sticky Footer */}
       <div
-        className={`sticky bottom-0 -mx-6 px-6 py-4 bg-white border-t shadow-lg transition-all duration-300 ${
+        className={`fixed bottom-0 right-0 lg:left-64 left-0 px-6 py-4 landscape:py-2 bg-white border-t border-gray-200 shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.05)] z-40 transition-all duration-300 ${
           hasChanges
             ? "translate-y-0 opacity-100"
             : "translate-y-full opacity-0 pointer-events-none"
         }`}
       >
-        <div className="max-w-4xl mx-auto flex items-center justify-between">
-          <p className="text-sm text-gray-600">
+        <div className="max-w-4xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-3">
+          <p className="text-sm landscape:text-xs text-gray-600 hidden sm:block">
             <span className="inline-block w-2 h-2 bg-amber-500 rounded-full mr-2"></span>
             You have unsaved changes
           </p>
-          <div className="flex gap-3">
-            <Button variant="ghost" onClick={discardChanges} disabled={saving}>
-              <X size={16} className="mr-2" />
+          <div className="flex gap-3 w-full sm:w-auto">
+            <Button
+              variant="ghost"
+              onClick={discardChanges}
+              disabled={saving}
+              className="flex-1 sm:flex-none justify-center landscape:h-8 landscape:text-xs"
+            >
+              <X size={16} className="mr-2 landscape:w-3 landscape:h-3" />
               Discard
             </Button>
             <Button
@@ -263,8 +260,9 @@ const Settings = () => {
               onClick={saveChanges}
               loading={saving}
               disabled={saving}
+              className="flex-1 sm:flex-none justify-center landscape:h-8 landscape:text-xs"
             >
-              <Save size={16} className="mr-2" />
+              <Save size={16} className="mr-2 landscape:w-3 landscape:h-3" />
               Save Changes
             </Button>
           </div>

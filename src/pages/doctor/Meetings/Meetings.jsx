@@ -1,7 +1,13 @@
-// src/pages/doctor/Meetings/Meetings.jsx
-import { Card, Tooltip } from "antd";
-import { Plus, Clock, CalendarDays, Timer, Settings } from "lucide-react";
-
+import { Card, Tooltip, Spin } from "antd";
+import {
+  Plus,
+  Clock,
+  CalendarDays,
+  Timer,
+  ChevronLeft,
+  ChevronRight,
+  Calendar,
+} from "lucide-react";
 import useMeetingsData, {
   slotStatusConfig,
   calculateDuration,
@@ -16,32 +22,28 @@ const Meetings = () => {
     weekDates,
     weekInfo,
     stats,
-    getSlotsForDay,
+    loading,
+    getSlotsForDate,
     saveDaySlots,
     removeTimeSlot,
-
-    // Drawer
+    nextWeek,
+    prevWeek,
+    currentWeek,
+    isPrevDisabled,
+    isNextDisabled, // 🛡️ استقبال حالة تعطيل الأزرار
     drawerOpen,
-    selectedDay,
+    selectedDate,
     selectedDayLabel,
     openDrawer,
     closeDrawer,
-
-    // Slot details modal
     slotDetailsModalOpen,
     selectedSlot,
     openSlotDetailsModal,
     closeModals,
-
-    // Helpers
-    resetToDefault,
-    clearAllSlots,
   } = useMeetingsData();
 
-  // Compact slot card
-  const renderCompactSlot = (slot, dayKey, dayLabel) => {
+  const renderCompactSlot = (slot, dayLabel, fullDate) => {
     const config = slotStatusConfig[slot.status];
-
     return (
       <Tooltip
         key={slot.id}
@@ -49,21 +51,23 @@ const Meetings = () => {
         placement="top"
       >
         <div
-          onClick={() => openSlotDetailsModal(dayKey, slot, dayLabel)}
-          className="relative p-2.5 rounded-lg border-2 cursor-pointer transition-all duration-200 hover:scale-[1.02] hover:shadow-md"
-          style={{
-            backgroundColor: config.bg,
-            borderColor: config.color,
-          }}
+          onClick={() => openSlotDetailsModal(slot, dayLabel, fullDate)}
+          className="relative p-2.5 landscape:p-1.5 rounded-lg border-2 cursor-pointer transition-all duration-200 hover:scale-[1.02] hover:shadow-md"
+          style={{ backgroundColor: config.bg, borderColor: config.color }}
         >
-          {/* Time Range */}
-          <div className="flex items-center gap-1.5">
-            <Clock size={12} style={{ color: config.color }} />
-            <span className="text-xs font-bold text-gray-800">
+          <div className="flex items-center justify-center gap-1.5 landscape:gap-1">
+            <Clock
+              size={12}
+              className="landscape:w-3 landscape:h-3"
+              style={{ color: config.color }}
+            />
+            <span className="text-xs landscape:text-[10px] font-bold text-gray-800">
               {formatTimeTo12Hour(slot.startTime)}
             </span>
-            <span className="text-gray-400 text-xs">→</span>
-            <span className="text-xs font-bold text-gray-800">
+            <span className="text-gray-400 text-xs landscape:text-[10px]">
+              →
+            </span>
+            <span className="text-xs landscape:text-[10px] font-bold text-gray-800">
               {formatTimeTo12Hour(slot.endTime)}
             </span>
           </div>
@@ -73,136 +77,186 @@ const Meetings = () => {
   };
 
   return (
-    <div className="space-y-6">
-      {/* Header */}
-      <div className="flex items-center justify-between">
+    <div className="space-y-6 landscape:space-y-4">
+      {/* Header with Navigation */}
+      <div className="flex flex-col sm:flex-row landscape:flex-row items-start sm:items-center justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">Weekly Schedule</h1>
-          <p className="text-gray-600">
-            Set your recurring weekly availability
+          <h1 className="text-2xl landscape:text-xl font-bold text-gray-900">
+            Weekly Schedule
+          </h1>
+          <p className="text-gray-600 text-sm landscape:text-xs">
+            Manage your appointments week by week
           </p>
         </div>
-        <div className="flex items-center gap-2 text-sm text-gray-500">
-          <Settings size={16} />
-          <span>This schedule repeats every week</span>
+
+        {/* Navigation Controls */}
+        <div className="flex items-center gap-2 bg-white p-1.5 rounded-xl border border-gray-200 shadow-sm">
+          <button
+            onClick={prevWeek}
+            disabled={isPrevDisabled}
+            className={`p-2 rounded-lg transition-colors ${
+              isPrevDisabled
+                ? "text-gray-300 bg-gray-50 cursor-not-allowed"
+                : "hover:bg-gray-100 text-gray-700"
+            }`}
+          >
+            <ChevronLeft size={18} />
+          </button>
+
+          <button
+            onClick={currentWeek}
+            className="flex items-center gap-2 px-3 py-1.5 hover:bg-gray-100 rounded-lg transition-colors"
+          >
+            <Calendar size={16} className="text-primary" />
+            <span className="text-sm font-semibold text-gray-700 min-w-[130px] text-center">
+              {weekInfo.start} - {weekInfo.end}
+            </span>
+          </button>
+
+          <button
+            onClick={nextWeek}
+            disabled={isNextDisabled}
+            className={`p-2 rounded-lg transition-colors ${
+              isNextDisabled
+                ? "text-gray-300 bg-gray-50 cursor-not-allowed"
+                : "hover:bg-gray-100 text-gray-700"
+            }`}
+          >
+            <ChevronRight size={18} />
+          </button>
         </div>
       </div>
 
       {/* Stats */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-4 landscape:gap-2">
         <Card className="!bg-gradient-to-br from-emerald-50 to-green-100 border-0">
           <div className="text-center">
-            <div className="text-3xl font-bold text-emerald-700">
+            <div className="text-3xl landscape:text-xl font-bold text-emerald-700">
               {stats.totalSlots}
             </div>
-            <div className="text-sm text-emerald-600/80 mt-1">Time Slots</div>
+            <div className="text-sm landscape:text-xs text-emerald-600/80 mt-1">
+              Time Slots
+            </div>
           </div>
         </Card>
         <Card className="!bg-gradient-to-br from-blue-50 to-blue-100 border-0">
           <div className="text-center">
-            <div className="text-3xl font-bold text-blue-700">
+            <div className="text-3xl landscape:text-xl font-bold text-blue-700">
               {stats.totalHours}h
             </div>
-            <div className="text-sm text-blue-600/80 mt-1">Weekly Hours</div>
+            <div className="text-sm landscape:text-xs text-blue-600/80 mt-1">
+              Weekly Hours
+            </div>
           </div>
         </Card>
         <Card className="!bg-gradient-to-br from-purple-50 to-purple-100 border-0">
           <div className="text-center">
-            <div className="text-3xl font-bold text-purple-700">
+            <div className="text-3xl landscape:text-xl font-bold text-purple-700">
               {stats.daysWithSlots}
             </div>
-            <div className="text-sm text-purple-600/80 mt-1">Working Days</div>
+            <div className="text-sm landscape:text-xs text-purple-600/80 mt-1">
+              Working Days
+            </div>
           </div>
         </Card>
         <Card className="!bg-gradient-to-br from-gray-50 to-slate-100 border-0">
           <div className="text-center">
-            <div className="text-3xl font-bold text-gray-600">
+            <div className="text-3xl landscape:text-xl font-bold text-gray-600">
               {stats.emptyDays}
             </div>
-            <div className="text-sm text-gray-500 mt-1">Days Off</div>
+            <div className="text-sm landscape:text-xs text-gray-500 mt-1">
+              Days Off
+            </div>
           </div>
         </Card>
       </div>
 
-      {/* Weekly Calendar */}
-      <div className="grid grid-cols-7 gap-3">
-        {weekDates.map((day) => {
-          const slots = getSlotsForDay(day.key);
-          const totalMinutes = slots.reduce(
-            (acc, slot) =>
-              acc + calculateDuration(slot.startTime, slot.endTime),
-            0
-          );
+      {/* Loading Wrapper */}
+      <Spin spinning={loading} tip="Loading schedule...">
+        <div className="overflow-x-auto pb-4 custom-scrollbar">
+          <div className="grid grid-cols-7 gap-3 min-w-[800px]">
+            {weekDates.map((day) => {
+              // 💡 سحب الداتا بناءً على التاريخ الفعلي مش اسم اليوم
+              const slots = getSlotsForDate(day.fullDate);
+              const totalMinutes = slots.reduce(
+                (acc, slot) =>
+                  acc + calculateDuration(slot.startTime, slot.endTime),
+                0
+              );
 
-          return (
-            <Card
-              key={day.key}
-              className="relative overflow-hidden transition-all hover:shadow-md"
-              styles={{ body: { padding: 12 } }}
-            >
-              {/* Day Header */}
-              <div className="text-center mb-3 pb-3 border-b border-gray-100">
-                <p className="text-sm font-semibold text-gray-700">
-                  {day.label}
-                </p>
-                {slots.length > 0 && (
-                  <div className="mt-1 flex items-center justify-center gap-1 text-xs text-emerald-600">
-                    <Timer size={10} />
-                    <span>{formatDuration(totalMinutes)}</span>
+              return (
+                <Card
+                  key={day.fullDate}
+                  className="relative overflow-hidden transition-all hover:shadow-md h-full"
+                  styles={{ body: { padding: 12 } }}
+                >
+                  <div className="text-center mb-3 pb-3 border-b border-gray-100">
+                    <p className="text-sm font-semibold text-gray-700">
+                      {day.label}
+                    </p>
+                    <p className="text-xs text-gray-400 mt-0.5">
+                      {day.dateFormatted}
+                    </p>
+                    {slots.length > 0 && (
+                      <div className="mt-2 flex items-center justify-center gap-1 text-xs text-emerald-600">
+                        <Timer size={10} />
+                        <span>{formatDuration(totalMinutes)}</span>
+                      </div>
+                    )}
                   </div>
-                )}
-              </div>
 
-              {/* Slots */}
-              <div className="space-y-2 min-h-[120px]">
-                {slots.length === 0 ? (
-                  <div className="flex flex-col items-center justify-center h-[120px] text-gray-300">
-                    <CalendarDays size={24} className="mb-2" />
-                    <p className="text-xs">Day Off</p>
+                  <div className="space-y-2 min-h-[120px] landscape:min-h-[80px]">
+                    {slots.length === 0 ? (
+                      <div className="flex flex-col items-center justify-center h-[120px] landscape:h-[80px] text-gray-300">
+                        <CalendarDays
+                          size={24}
+                          className="mb-2 landscape:w-5 landscape:h-5"
+                        />
+                        <p className="text-xs">Day Off</p>
+                      </div>
+                    ) : (
+                      slots.map((slot) =>
+                        renderCompactSlot(slot, day.fullLabel, day.fullDate)
+                      )
+                    )}
                   </div>
-                ) : (
-                  slots.map((slot) =>
-                    renderCompactSlot(slot, day.key, day.fullLabel)
-                  )
-                )}
-              </div>
 
-              {/* Edit Button */}
-              <button
-                onClick={() => openDrawer(day.key, day.label)}
-                className="w-full mt-3 p-2 rounded-lg border-2 border-dashed border-gray-200 text-gray-400 text-xs font-medium hover:border-emerald-400 hover:text-emerald-500 hover:bg-emerald-50 transition-all duration-200 flex items-center justify-center gap-1"
-              >
-                <Plus size={14} />
-                {slots.length > 0 ? "Edit" : "Add Times"}
-              </button>
-            </Card>
-          );
-        })}
-      </div>
+                  <button
+                    onClick={() => openDrawer(day.fullDate, day.fullLabel)}
+                    className="w-full mt-3 p-2 rounded-lg border-2 border-dashed border-gray-200 text-gray-400 text-xs font-medium hover:border-emerald-400 hover:text-emerald-500 hover:bg-emerald-50 transition-all duration-200 flex items-center justify-center gap-1"
+                  >
+                    <Plus size={14} />
+                    {slots.length > 0 ? "Edit" : "Add"}
+                  </button>
+                </Card>
+              );
+            })}
+          </div>
+        </div>
+      </Spin>
 
-      {/* Drawer */}
+      {/* Models & Drawers */}
       <TimeSlotDrawer
         open={drawerOpen}
         onClose={closeDrawer}
-        dayKey={selectedDay}
+        selectedDate={selectedDate}
         dayLabel={selectedDayLabel}
-        selectedSlots={selectedDay ? getSlotsForDay(selectedDay) : []}
-        onSave={saveDaySlots}
+        selectedSlots={selectedDate ? getSlotsForDate(selectedDate) : []}
+        onSave={(newSlots) => saveDaySlots(selectedDate, newSlots)}
       />
 
-      {/* Slot Details Modal */}
       <SlotDetailsModal
         open={slotDetailsModalOpen}
         onClose={closeModals}
         slot={selectedSlot}
-        dayKey={selectedDay}
         dayLabel={selectedDayLabel}
-        onRemoveSlot={removeTimeSlot}
+        onRemoveSlot={() => {
+          removeTimeSlot(selectedSlot.id);
+          closeModals();
+        }}
         onEditSlot={() => {
           closeModals();
-          if (selectedDay) {
-            openDrawer(selectedDay, selectedDayLabel);
-          }
+          if (selectedDate) openDrawer(selectedDate, selectedDayLabel);
         }}
       />
     </div>

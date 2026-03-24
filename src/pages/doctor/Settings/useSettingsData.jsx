@@ -1,46 +1,55 @@
-// src/pages/doctor/Settings/useSettingsData.jsx
-import { useState, useEffect, useCallback, useMemo } from "react";
+import { useState, useCallback, useMemo, useEffect } from "react";
 import { message } from "antd";
+import api from "../../../api/axios";
 
-const STORAGE_KEY = "doctor_settings";
-
-// Default settings
 const defaultSettings = {
-  maxMeetingsPerDay: 8,
-  meetingLink: "",
-  instructions: "",
-};
-
-// Load settings from localStorage
-const loadSettings = () => {
-  try {
-    const saved = localStorage.getItem(STORAGE_KEY);
-    if (saved) {
-      return { ...defaultSettings, ...JSON.parse(saved) };
-    }
-    return defaultSettings;
-  } catch (error) {
-    console.error("Error loading settings:", error);
-    return defaultSettings;
-  }
+  fixed_meeting_url: "",
+  description: "",
 };
 
 export const useSettingsData = () => {
-  // Saved settings (from localStorage)
-  const [savedSettings, setSavedSettings] = useState(() => loadSettings());
+  const [savedSettings, setSavedSettings] = useState(defaultSettings);
+  const [formValues, setFormValues] = useState(defaultSettings);
 
-  // Current form values (may have unsaved changes)
-  const [formValues, setFormValues] = useState(() => loadSettings());
+  const [loadingFetch, setLoadingFetch] = useState(true); // State للتحميل المبدئي
+  const [saving, setSaving] = useState(false); // State لحفظ التعديلات
 
-  // Loading state
-  const [saving, setSaving] = useState(false);
+  // 1️⃣ جلب البيانات عند فتح الصفحة
+  const fetchProfileSettings = async () => {
+    setLoadingFetch(true);
+    try {
+      const response = await api.get("/auth/profile");
 
-  // Check if there are unsaved changes
+      if (response.data.status === "success") {
+        const profileData = response.data.data;
+
+        // تجهيز الداتا اللي محتاجينها للفورم
+        const initialData = {
+          fixed_meeting_url: profileData.fixed_meeting_url || "",
+          description: profileData.description || "",
+        };
+
+        setSavedSettings(initialData);
+        setFormValues(initialData);
+      }
+    } catch (error) {
+      console.error("Error fetching profile:", error);
+      message.error("Failed to load settings data");
+    } finally {
+      setLoadingFetch(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchProfileSettings();
+  }, []);
+
+  // التحقق من وجود تغييرات لم يتم حفظها
   const hasChanges = useMemo(() => {
     return JSON.stringify(savedSettings) !== JSON.stringify(formValues);
   }, [savedSettings, formValues]);
 
-  // Update form field
+  // تحديث الحقول في الـ Form
   const updateField = useCallback((key, value) => {
     setFormValues((prev) => ({
       ...prev,
@@ -48,52 +57,48 @@ export const useSettingsData = () => {
     }));
   }, []);
 
-  // Save all changes
-  const saveChanges = useCallback(async () => {
+  // 2️⃣ حفظ التعديلات
+  const saveChanges = async () => {
     setSaving(true);
-
     try {
-      // Simulate API call delay
-      await new Promise((resolve) => setTimeout(resolve, 500));
+      const payload = {
+        description: formValues.description,
+        fixed_meeting_url: formValues.fixed_meeting_url,
+      };
 
-      // Save to localStorage
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(formValues));
+      const response = await api.patch("/settings/update", payload);
 
-      // Update saved settings
-      setSavedSettings(formValues);
-
-      message.success("Settings saved successfully!");
+      if (response.data.status === "success") {
+        message.success(
+          response.data.message || "Settings updated successfully!"
+        );
+        setSavedSettings(formValues);
+      } else {
+        message.error("Failed to update settings");
+      }
     } catch (error) {
       console.error("Error saving settings:", error);
-      message.error("Failed to save settings");
+      message.error("Something went wrong while saving.");
     } finally {
       setSaving(false);
     }
-  }, [formValues]);
+  };
 
-  // Discard changes
+  // تجاهل التعديلات
   const discardChanges = useCallback(() => {
     setFormValues(savedSettings);
     message.info("Changes discarded");
   }, [savedSettings]);
-
-  // Reset to defaults
-  const resetToDefaults = useCallback(() => {
-    setFormValues(defaultSettings);
-    setSavedSettings(defaultSettings);
-    localStorage.removeItem(STORAGE_KEY);
-    message.success("Settings reset to defaults");
-  }, []);
 
   return {
     settings: formValues,
     savedSettings,
     hasChanges,
     saving,
+    loadingFetch, // تصدير حالة التحميل
     updateField,
     saveChanges,
     discardChanges,
-    resetToDefaults,
   };
 };
 
