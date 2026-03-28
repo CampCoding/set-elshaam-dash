@@ -2,54 +2,27 @@
 import { Routes, Route, Navigate } from "react-router-dom";
 import { Suspense } from "react";
 import { useAuth } from "../hooks/useAuth";
-import { authRoutes, getRoutesByRole, getHomePath } from "./routes-data";
+import { authRoutes, getAppRoutes, adminRoutes } from "./routes-data"; // <-- أضفنا استدعاء adminRoutes
 import DashboardLayout from "../components/layout/DashboardLayout";
 import Loading from "../components/common/Loading";
+import ProtectedRoute from "./ProtectedRoute";
 
-// ============ PROTECTED ROUTE WRAPPER ============
-const ProtectedRoute = ({ children }) => {
-  const { isAuthenticated, loading } = useAuth();
-
-  if (loading) {
-    return <Loading />;
-  }
-
-  if (!isAuthenticated) {
-    return <Navigate to="/login" replace />;
-  }
-
-  return children;
-};
-
-// ============ PUBLIC ROUTE WRAPPER ============
 const PublicRoute = ({ children }) => {
   const { isAuthenticated, loading } = useAuth();
 
-  if (loading) {
-    return <Loading />;
-  }
-
-  if (isAuthenticated) {
-    const homePath = getHomePath("doctor");
-    return <Navigate to={homePath} replace />;
-  }
+  if (loading) return <Loading />;
+  if (isAuthenticated) return <Navigate to="/dashboard" replace />;
 
   return children;
 };
 
-// ============ MAIN ROUTES ============
 const AppRoutes = () => {
-  const { user, getDoctorType } = useAuth();
-
-  // ✅ استخدام getDoctorType() من الـ context
-  const doctorType = getDoctorType();
-  const protectedRoutes = getRoutesByRole("doctor", doctorType);
-
-  console.log(protectedRoutes, "protectedRoutes");
+  // جلب كل المسارات الخاصة بالأدمن (المسطحة/Flattened)
+  const protectedRoutes = getAppRoutes();
 
   return (
     <Routes>
-      {/* Auth Routes (Public) */}
+      {/* Auth Routes */}
       {authRoutes.map((route) => (
         <Route
           key={route.path}
@@ -58,7 +31,7 @@ const AppRoutes = () => {
         />
       ))}
 
-      {/* Protected Routes - Nested under DashboardLayout */}
+      {/* Protected Routes */}
       <Route
         path="/"
         element={
@@ -67,10 +40,29 @@ const AppRoutes = () => {
           </ProtectedRoute>
         }
       >
-        {/* Dashboard Home */}
+        {/* 1. التوجيه الافتراضي للرئيسية */}
         <Route index element={<Navigate to="/dashboard" replace />} />
 
-        {/* Dynamic Protected Routes */}
+        {/* 2. ✅ إعادة التوجيه للمسارات الأب (مثل /gallery إلى /gallery/categories) */}
+        {adminRoutes.map((route) => {
+          if (route.children && route.children.length > 0) {
+            return (
+              <Route
+                key={`${route.path}-redirect`}
+                path={route.path}
+                element={
+                  <Navigate
+                    to={`${route.path}/${route.children[0].path}`}
+                    replace
+                  />
+                }
+              />
+            );
+          }
+          return null;
+        })}
+
+        {/* 3. توليد المسارات المحمية الفعلية */}
         {protectedRoutes.map((route) => (
           <Route
             key={route.path}
@@ -82,7 +74,7 @@ const AppRoutes = () => {
         ))}
       </Route>
 
-      {/* 404 - Catch all */}
+      {/* 4. معالجة الصفحات غير الموجودة (404) */}
       <Route path="*" element={<Navigate to="/login" replace />} />
     </Routes>
   );

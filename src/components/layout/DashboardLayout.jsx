@@ -26,7 +26,7 @@ const DashboardLayout = () => {
   }, [location.pathname, isMobile]);
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gray-50" dir="rtl">
       {/* Overlay - خلفية سوداء تظهر في الموبايل لما القائمة تفتح */}
       {isMobile && isSidebarOpen && (
         <div
@@ -35,15 +35,15 @@ const DashboardLayout = () => {
         />
       )}
 
-      {/* Sidebar - تم تمرير الـ Props زي ما انت كنت مجهزها */}
+      {/* Sidebar */}
       <Sidebar
         isOpen={isSidebarOpen}
         onClose={() => setIsSidebarOpen(false)}
         isMobile={isMobile}
       />
 
-      {/* Main Content - هنا الـ lg:ml-64 عشان مياخدش مساحة في الموبايل */}
-      <div className="transition-all duration-300 lg:ml-64">
+      {/* Main Content - mr بدل ml عشان RTL */}
+      <div className="transition-all duration-300 lg:mr-64">
         <Header
           onMenuClick={() => setIsSidebarOpen(true)}
           isMobile={isMobile}

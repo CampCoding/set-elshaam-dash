@@ -1,22 +1,21 @@
-// src/components/common/DataTable.jsx
 import { useState, useMemo } from "react";
 import { Table, Input, Button, Space, DatePicker, ConfigProvider } from "antd";
 import { Search, Plus, RotateCcw, Filter } from "lucide-react";
-import enUS from "antd/locale/en_US";
+import arEG from "antd/locale/ar_EG";
 
 const { RangePicker } = DatePicker;
 
 // ============ Filter Helpers ============
 
 // Text Search Filter
-export const getColumnSearchProps = (dataIndex, placeholder = "Search...") => ({
+export const getColumnSearchProps = (dataIndex, placeholder = "بحث...") => ({
   filterDropdown: ({
     setSelectedKeys,
     selectedKeys,
     confirm,
     clearFilters,
   }) => (
-    <div className="p-3 min-w-[200px]" style={{ direction: "ltr" }}>
+    <div className="p-3 min-w-[200px]" dir="rtl">
       <Input
         placeholder={placeholder}
         value={selectedKeys[0]}
@@ -36,7 +35,7 @@ export const getColumnSearchProps = (dataIndex, placeholder = "Search...") => ({
           size="small"
           icon={<RotateCcw className="w-4 h-4" />}
         >
-          Reset
+          إعادة تعيين
         </Button>
         <Button
           type="primary"
@@ -44,7 +43,7 @@ export const getColumnSearchProps = (dataIndex, placeholder = "Search...") => ({
           icon={<Search className="w-4 h-4" />}
           size="small"
         >
-          Search
+          بحث
         </Button>
       </Space>
     </div>
@@ -69,10 +68,10 @@ export const getColumnNumberRangeProps = (dataIndex) => ({
     confirm,
     clearFilters,
   }) => (
-    <div className="p-3 min-w-[200px]" style={{ direction: "ltr" }}>
+    <div className="p-3 min-w-[200px]" dir="rtl">
       <div className="flex gap-2 mb-2">
         <Input
-          placeholder="Min"
+          placeholder="من"
           type="number"
           value={selectedKeys[0]?.min}
           onChange={(e) => {
@@ -85,7 +84,7 @@ export const getColumnNumberRangeProps = (dataIndex) => ({
           size="middle"
         />
         <Input
-          placeholder="Max"
+          placeholder="إلى"
           type="number"
           value={selectedKeys[0]?.max}
           onChange={(e) => {
@@ -107,7 +106,7 @@ export const getColumnNumberRangeProps = (dataIndex) => ({
           size="small"
           icon={<RotateCcw className="w-4 h-4" />}
         >
-          Reset
+          إعادة تعيين
         </Button>
         <Button
           type="primary"
@@ -115,7 +114,7 @@ export const getColumnNumberRangeProps = (dataIndex) => ({
           icon={<Search className="w-4 h-4" />}
           size="small"
         >
-          Search
+          بحث
         </Button>
       </Space>
     </div>
@@ -142,7 +141,7 @@ export const getColumnDateRangeProps = (dataIndex) => ({
     confirm,
     clearFilters,
   }) => (
-    <div className="p-3" style={{ direction: "ltr" }}>
+    <div className="p-3" dir="rtl">
       <RangePicker
         onChange={(dates, dateStrings) => {
           if (dateStrings && dateStrings[0] && dateStrings[1]) {
@@ -152,7 +151,7 @@ export const getColumnDateRangeProps = (dataIndex) => ({
           }
         }}
         className="mb-2 w-full"
-        placeholder={["Start date", "End date"]}
+        placeholder={["تاريخ البداية", "تاريخ النهاية"]}
       />
       <Space className="flex justify-end mt-2 gap-2">
         <Button
@@ -162,10 +161,10 @@ export const getColumnDateRangeProps = (dataIndex) => ({
           }}
           size="small"
         >
-          Reset
+          إعادة تعيين
         </Button>
         <Button type="primary" onClick={() => confirm()} size="small">
-          Apply
+          تطبيق
         </Button>
       </Space>
     </div>
@@ -201,17 +200,17 @@ const DataTable = ({
   data = [],
   loading = false,
   searchable = true,
-  searchPlaceholder = "Search in table...",
+  searchPlaceholder = "بحث في الجدول...",
   onSearch,
   addButton = false,
-  addButtonText = "Add",
+  addButtonText = "إضافة",
   onAddClick,
   rowKey = "id",
   pageSize = 10,
   showPagination = true,
   rowClassName,
   onRowClick,
-  emptyText = "No data available",
+  emptyText = "لا توجد بيانات",
   emptyIcon: EmptyIcon,
   headerExtra,
   ...rest
@@ -258,8 +257,8 @@ const DataTable = ({
   };
 
   return (
-    <ConfigProvider locale={enUS} direction="ltr">
-      <div className="data-table-wrapper" style={{ direction: "ltr" }}>
+    <ConfigProvider locale={arEG} direction="rtl">
+      <div className="data-table-wrapper" dir="rtl">
         {/* Header Section */}
         {(searchable || addButton || headerExtra) && (
           <div className="flex flex-col sm:flex-row gap-3 justify-between items-start sm:items-center mb-4">
@@ -273,7 +272,6 @@ const DataTable = ({
                   prefix={<Search className="w-5 h-5 text-gray-400" />}
                   allowClear
                   size="large"
-                  style={{ direction: "ltr", textAlign: "left" }}
                 />
               </div>
             )}
@@ -312,9 +310,10 @@ const DataTable = ({
                     pageSize: pageSize,
                     showSizeChanger: true,
                     showTotal: (total, range) =>
-                      `${range[0]}-${range[1]} of ${total} items`,
+                      `${range[0]}-${range[1]} من ${total} عنصر`,
                     pageSizeOptions: ["10", "20", "50", "100"],
-                    locale: { items_per_page: "/ page" },
+                    locale: { items_per_page: "/ صفحة" },
+                    position: ["bottomCenter"], // مكان الـ pagination
                   }
                 : false
             }

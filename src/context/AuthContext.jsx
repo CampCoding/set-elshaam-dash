@@ -1,63 +1,67 @@
 import { createContext, useState, useEffect } from "react";
-import { authService } from "../api/services/auth.service";
-import { getUser, getToken, clearAuth } from "../utils/token";
 
 export const AuthContext = createContext(null);
+
+// ✅ Sample Admin للتجربة
+const ADMIN_USER = {
+  email: "admin@setsham.com",
+  password: "123456",
+  full_name: "مدير النظام",
+  role: "admin",
+};
 
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
 
-  // Initialize auth state from localStorage
+  // Initialize from localStorage
   useEffect(() => {
-    const initAuth = () => {
-      const token = getToken();
-      const storedUser = getUser();
-
-      if (token && storedUser) {
-        setUser(storedUser);
+    const storedUser = localStorage.getItem("setsham_user");
+    if (storedUser) {
+      try {
+        setUser(JSON.parse(storedUser));
+      } catch (error) {
+        localStorage.removeItem("setsham_user");
       }
-      setLoading(false);
-    };
-
-    initAuth();
+    }
+    setLoading(false);
   }, []);
 
   // ============ LOGIN ============
   const login = async (email, password) => {
-    const result = await authService.login(email, password);
+    return new Promise((resolve) => {
+      setTimeout(() => {
+        if (email === ADMIN_USER.email && password === ADMIN_USER.password) {
+          const userData = {
+            email: ADMIN_USER.email,
+            full_name: ADMIN_USER.full_name,
+            role: ADMIN_USER.role,
+          };
 
-    if (result.success) {
-      setUser(result.user);
-      return {
-        success: true,
-        user: result.user,
-        role: "doctor",
-      };
-    }
+          setUser(userData);
+          localStorage.setItem("setsham_user", JSON.stringify(userData));
 
-    return {
-      success: false,
-      error: result.message,
-    };
+          resolve({
+            success: true,
+            user: userData,
+          });
+        } else {
+          resolve({
+            success: false,
+            error: "البريد الإلكتروني أو كلمة المرور غير صحيحة",
+          });
+        }
+      }, 1000);
+    });
   };
 
   // ============ LOGOUT ============
   const logout = () => {
-    authService.logout();
     setUser(null);
+    localStorage.removeItem("setsham_user");
   };
 
-  // ============ COMPUTED VALUES ============
   const isAuthenticated = !!user;
-  const isAdmin = false; // This API is for doctors only
-  const isDoctor = !!user;
-
-  // ============ DOCTOR TYPE HELPERS ============
-  const getDoctorType = () => user?.doctor_type || null;
-  const isPrivateDoctor = user?.doctor_type === "private";
-  const isGroupDoctor = user?.doctor_type === "group";
-  const isSessionsDoctor = user?.doctor_type === "sessions";
 
   return (
     <AuthContext.Provider
@@ -65,15 +69,8 @@ export const AuthProvider = ({ children }) => {
         user,
         loading,
         isAuthenticated,
-        isAdmin,
-        isDoctor,
         login,
         logout,
-        // Doctor type helpers
-        getDoctorType,
-        isPrivateDoctor,
-        isGroupDoctor,
-        isSessionsDoctor,
       }}
     >
       {children}

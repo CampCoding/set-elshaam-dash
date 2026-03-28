@@ -1,171 +1,103 @@
 // src/routes/routes-data.jsx
+import { lazy } from "react";
 import {
   LayoutDashboard,
-  Video,
-  Calendar,
   Users,
-  Stethoscope,
+  LayoutList,
+  Heart,
+  MessageSquare,
   Settings,
-  Clock,
-  CalendarOff,
-  Settings2,
-  BookOpen,
+  FileText,
+  Bell,
+  Package,
+  MessageCircleQuestion,
+  Image as ImageIcon,
+  Images,
+  Layers,
 } from "lucide-react";
 
-import { lazy } from "react";
-
-// ============ AUTH PAGES (NO LAZY - Important!) ============
+// Auth Pages (No Lazy)
 import Login from "../pages/auth/Login";
-import Signup from "../pages/auth/Signup";
-import ReservedMeetings from "../pages/doctor/ReservedMeetings/ReservedMeetings";
 
-// ============ ADMIN PAGES ============
-const Home = lazy(() => import("../pages/dashboard/Home/Home"));
-const Meetings = lazy(() => import("../pages/dashboard/Meetings"));
-const UsersPage = lazy(() => import("../pages/dashboard/Users"));
-const UserCalendar = lazy(() => import("../pages/dashboard/UserCalendar"));
-const Doctors = lazy(() => import("../pages/dashboard/Doctors/Doctors"));
-const DoctorCalendar = lazy(
-  () => import("../pages/dashboard/Doctors/DoctorCalendar")
+// Admin Pages (Lazy)
+const Dashboard = lazy(() => import("../pages/dashboard/Home/Home"));
+const Services = lazy(() => import("../pages/dashboard/Services/Services"));
+const Packages = lazy(() => import("../pages/dashboard/packages/Packages"));
+const Faqs = lazy(() => import("../pages/dashboard/faqs/Faqs"));
+const GalleryItems = lazy(
+  () => import("../pages/dashboard/gallery/items/GalleryItems")
 );
-
-// ============ DOCTOR PAGES ============
-const DoctorMeetings = lazy(() => import("../pages/doctor/Meetings/Meetings"));
-const DoctorCalendarPage = lazy(
-  () => import("../pages/doctor/Calendar/Calendar")
-);
-const GeneralSettings = lazy(() => import("../pages/doctor/Settings/Settings"));
-const DoctorDashboard = lazy(
-  () => import("../pages/doctor/Dashboard/Dashboard")
-);
-
-// ============ SESSIONS DOCTOR PAGES (Placeholder - هننشئهم بعدين) ============
-const SessionsList = lazy(
-  () => import("../pages/doctor/Sessions/SessionsList")
+const Categories = lazy(
+  () => import("../pages/dashboard/gallery/categories/Categories")
 );
 
 // ============ AUTH ROUTES ============
-export const authRoutes = [
-  { path: "/login", element: <Login /> },
-  { path: "/signup", element: <Signup /> },
-];
+export const authRoutes = [{ path: "/login", element: <Login /> }];
 
-// ============ ADMIN ROUTES ============
+// ============ ADMIN ROUTES (Single Source of Truth) ============
+// المصفوفة دي بتشغل الـ Router و الـ Sidebar مع بعض
 export const adminRoutes = [
   {
     path: "/dashboard",
-    label: "Dashboard",
+    label: "الرئيسية",
     icon: LayoutDashboard,
-    element: <Home />,
+    element: <Dashboard />,
   },
   {
-    path: "/meetings",
-    label: "Meetings",
-    icon: Video,
-    element: <Meetings />,
+    path: "/services",
+    label: "الخدمات",
+    icon: LayoutList,
+    element: <Services />,
   },
-  {
-    path: "/doctors",
-    label: "Doctors",
-    icon: Stethoscope,
-    element: <Doctors />,
-  },
-  {
-    path: "/doctors/:doctorId/calendar",
-    element: <DoctorCalendar />,
-    hidden: true,
-  },
-  {
-    path: "/users",
-    label: "Students",
-    icon: Users,
-    element: <UsersPage />,
-  },
-  {
-    path: "/users/:userId/calendar",
-    element: <UserCalendar />,
-    hidden: true,
-  },
-];
 
-// ============ DOCTOR ROUTES (Private Doctor - Meetings) ============
-export const privateDoctorRoutes = [
   {
-    path: "/dashboard",
-    label: "Dashboard",
-    icon: LayoutDashboard,
-    element: <DoctorDashboard />,
+    path: "/packages",
+    label: "باقات الأفراح",
+    icon: Package,
+    element: <Packages />,
+  },
+
+  {
+    path: "/faqs",
+    label: "الأسئلة الشائعة",
+    icon: MessageCircleQuestion,
+    element: <Faqs />,
   },
   {
-    path: "/reserved-meetings",
-    label: "Reserved Meetings",
-    icon: Video,
-    element: <ReservedMeetings />,
-  },
-  {
-    key: "settings",
-    label: "Settings",
-    icon: Settings,
-    isGroup: true,
+    path: "/gallery",
+    label: "إدارة المعرض",
+    icon: Images,
     children: [
       {
-        path: "/settings/availability",
-        label: "Daily Available Time",
-        icon: Clock,
-        element: <DoctorMeetings />,
+        path: "categories",
+        element: <Categories />,
+        label: "التصنيفات",
+        icon: Layers,
       },
       {
-        path: "/settings/general-setting",
-        label: "General Settings",
-        icon: Settings2,
-        element: <GeneralSettings />,
+        path: "items",
+        element: <GalleryItems />,
+        label: "عناصر المعرض",
+        icon: ImageIcon,
       },
     ],
   },
 ];
 
-// ============ SESSIONS DOCTOR ROUTES (Group Sessions) ============
-export const sessionsDoctorRoutes = [
-  {
-    path: "/dashboard",
-    label: "Dashboard",
-    icon: LayoutDashboard,
-    element: <DoctorDashboard />,
-  },
-  {
-    path: "/sessions",
-    label: "Sessions",
-    icon: BookOpen,
-    element: <SessionsList />,
-  },
-];
-
 // ============ HELPER FUNCTIONS ============
-export const getRoutesByRole = (role, doctorType = null) => {
-  let routes = [];
 
-  if (role === "admin") {
-    routes = adminRoutes;
-  } else if (role === "doctor") {
-    // اختيار Routes حسب نوع الدكتور
-    switch (doctorType) {
-      case "sessions":
-      case "group":
-        routes = sessionsDoctorRoutes;
-        break;
-      case "private":
-      default:
-        routes = privateDoctorRoutes;
-        break;
-    }
-  }
-
-  // Flatten routes for React Router
+// 1. الدالة دي بتجيب كل المسارات عشان الـ AppRoutes (الراوتر)
+export const getAppRoutes = () => {
   const flattenedRoutes = [];
-  routes.forEach((route) => {
+
+  adminRoutes.forEach((route) => {
     if (route.children) {
+      // ✅ التعديل هنا: دمج مسار الأب مع مسار الابن
       route.children.forEach((child) => {
-        flattenedRoutes.push(child);
+        flattenedRoutes.push({
+          ...child,
+          path: `${route.path}/${child.path}`, // هيخليها /gallery/categories
+        });
       });
     } else if (route.path) {
       flattenedRoutes.push(route);
@@ -175,27 +107,7 @@ export const getRoutesByRole = (role, doctorType = null) => {
   return flattenedRoutes;
 };
 
-export const getSidebarItems = (role, doctorType = null) => {
-  let routes = [];
-
-  if (role === "admin") {
-    routes = adminRoutes;
-  } else if (role === "doctor") {
-    switch (doctorType) {
-      case "sessions":
-      case "group":
-        routes = sessionsDoctorRoutes;
-        break;
-      case "private":
-      default:
-        routes = privateDoctorRoutes;
-        break;
-    }
-  }
-
-  return routes.filter((route) => !route.hidden);
-};
-
-export const getHomePath = (role) => {
-  return "/dashboard";
+// 2. الدالة دي بتجيب العناصر اللي هتظهر في الـ Sidebar بس
+export const getSidebarItems = () => {
+  return adminRoutes.filter((route) => !route.hidden);
 };

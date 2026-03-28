@@ -1,9 +1,8 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { Checkbox, message } from "antd";
-import { Loader2, Mail, Lock, Stethoscope } from "lucide-react";
+import { Loader2, Mail, Lock, Heart } from "lucide-react";
 import { useAuth } from "../../hooks/useAuth";
-import { getHomePath } from "../../routes/routes-data";
 
 const Login = () => {
   const [formData, setFormData] = useState({
@@ -27,14 +26,14 @@ const Login = () => {
   const validate = () => {
     const newErrors = {};
     if (!formData.email) {
-      newErrors.email = "Email is required";
+      newErrors.email = "البريد الإلكتروني مطلوب";
     } else if (!/\S+@\S+\.\S+/.test(formData.email)) {
-      newErrors.email = "Invalid email format";
+      newErrors.email = "صيغة البريد الإلكتروني غير صحيحة";
     }
     if (!formData.password) {
-      newErrors.password = "Password is required";
+      newErrors.password = "كلمة المرور مطلوبة";
     } else if (formData.password.length < 6) {
-      newErrors.password = "Password must be at least 6 characters";
+      newErrors.password = "كلمة المرور يجب أن تكون 6 أحرف على الأقل";
     }
     return newErrors;
   };
@@ -56,24 +55,26 @@ const Login = () => {
       const result = await login(formData.email, formData.password);
 
       if (result.success) {
-        message.success(`Welcome, ${result.user.full_name}!`);
-        const homePath = getHomePath(result.role);
-        navigate(homePath, { replace: true });
+        message.success(`أهلاً بك، ${result.user.full_name}!`);
+        navigate("/dashboard", { replace: true });
       } else {
-        setErrors({ general: result.error || "Invalid email or password" });
-        message.error(result.error || "Login failed");
+        setErrors({ general: result.error });
+        message.error(result.error);
       }
     } catch (error) {
       console.error("Login error:", error);
-      setErrors({ general: "Something went wrong. Please try again." });
-      message.error("Something went wrong");
+      setErrors({ general: "حدث خطأ ما. يرجى المحاولة مرة أخرى." });
+      message.error("حدث خطأ ما");
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <div className="min-h-screen flex flex-col landscape:flex-row lg:flex-row">
+    <div
+      className="min-h-screen flex flex-col landscape:flex-row lg:flex-row"
+      dir="rtl"
+    >
       {/* Form Side */}
       <div
         className="
@@ -83,45 +84,39 @@ const Login = () => {
           lg:p-8
         "
       >
-        <div
-          className="
-            w-full
-            max-w-sm landscape:max-w-md lg:max-w-md
-          "
-        >
+        <div className="w-full max-w-sm landscape:max-w-md lg:max-w-md">
           {/* Header */}
           <div className="text-center mb-4 landscape:mb-4 lg:mb-8">
-            <div className="landscape:hidden lg:hidden inline-flex items-center justify-center w-12 h-12 bg-primary rounded-xl mb-3">
-              <Stethoscope className="w-6 h-6 text-white" />
+            <div className="landscape:hidden lg:hidden inline-flex items-center justify-center w-12 h-12 bg-primary rounded-xl mb-3 border border-accent/20 shadow-lg shadow-accent/10">
+              <Heart className="w-6 h-6 text-accent" />
             </div>
 
-            <h1
-              className="
-                font-bold text-gray-800
-                text-xl landscape:text-2xl lg:text-3xl
-                mb-1 landscape:mb-1 lg:mb-2
-              "
-            >
-              Welcome Back
+            <h1 className="font-bold text-gray-800 text-xl landscape:text-2xl lg:text-3xl mb-1 landscape:mb-1 lg:mb-2">
+              أهلاً بعودتك
             </h1>
             <p className="text-gray-600 text-sm landscape:text-sm lg:text-base">
-              Sign in to continue to Matary
+              سجّل دخولك للمتابعة إلى{" "}
+              <span className="text-primary font-bold">ست الشام</span>
             </p>
           </div>
 
           {/* Error Alert */}
           {errors.general && (
-            <div
-              className="
-                bg-red-50 border border-red-200 text-red-600 rounded-lg
-                p-3 mb-4 text-sm
-                landscape:p-2 landscape:mb-3 landscape:text-xs
-                lg:p-4 lg:mb-6 lg:text-sm
-              "
-            >
+            <div className="bg-red-50 border border-red-200 text-red-600 rounded-lg p-3 mb-4 text-sm landscape:p-2 landscape:mb-3 landscape:text-xs lg:p-4 lg:mb-6 lg:text-sm">
               {errors.general}
             </div>
           )}
+
+          {/* Sample Login Info */}
+          <div className="bg-accent/10 border border-accent/30 rounded-lg p-3 mb-4 text-xs lg:text-sm">
+            <p className="font-semibold text-primary mb-2">🔐 للتجربة:</p>
+            <p className="text-gray-700">
+              <strong>البريد:</strong> admin@setsham.com
+            </p>
+            <p className="text-gray-700">
+              <strong>كلمة المرور:</strong> 123456
+            </p>
+          </div>
 
           {/* Form */}
           <form
@@ -130,18 +125,11 @@ const Login = () => {
           >
             {/* Email Field */}
             <div>
-              <label
-                className="
-                  block font-medium text-gray-700
-                  text-sm mb-1.5
-                  landscape:text-xs landscape:mb-1
-                  lg:text-sm lg:mb-2
-                "
-              >
-                Email
+              <label className="block font-medium text-gray-700 text-sm mb-1.5 landscape:text-xs landscape:mb-1 lg:text-sm lg:mb-2">
+                البريد الإلكتروني
               </label>
               <div className="relative">
-                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                <div className="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
                   <Mail className="h-4 w-4 landscape:h-3.5 landscape:w-3.5 lg:h-5 lg:w-5 text-gray-400" />
                 </div>
                 <input
@@ -149,17 +137,19 @@ const Login = () => {
                   name="email"
                   value={formData.email}
                   onChange={handleChange}
-                  placeholder="Enter your email"
+                  placeholder="أدخل بريدك الإلكتروني"
                   disabled={loading}
                   autoComplete="email"
                   className={`
-                    w-full border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-colors
-                    pl-9 pr-4 py-2.5 text-sm
-                    landscape:pl-8 landscape:py-2 landscape:text-xs
-                    lg:pl-10 lg:py-3 lg:text-base
+                    w-full border rounded-lg focus:outline-none focus:ring-2 focus:ring-accent/20 focus:border-accent transition-colors
+                    pr-9 pl-4 py-2.5 text-sm
+                    landscape:pr-8 landscape:py-2 landscape:text-xs
+                    lg:pr-10 lg:py-3 lg:text-base
                     ${errors.email ? "border-red-500" : "border-gray-300"}
                     ${loading ? "bg-gray-100 cursor-not-allowed" : "bg-white"}
                   `}
+                  dir="ltr"
+                  style={{ textAlign: "left" }}
                 />
               </div>
               {errors.email && (
@@ -171,18 +161,11 @@ const Login = () => {
 
             {/* Password Field */}
             <div>
-              <label
-                className="
-                  block font-medium text-gray-700
-                  text-sm mb-1.5
-                  landscape:text-xs landscape:mb-1
-                  lg:text-sm lg:mb-2
-                "
-              >
-                Password
+              <label className="block font-medium text-gray-700 text-sm mb-1.5 landscape:text-xs landscape:mb-1 lg:text-sm lg:mb-2">
+                كلمة المرور
               </label>
               <div className="relative">
-                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                <div className="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
                   <Lock className="h-4 w-4 landscape:h-3.5 landscape:w-3.5 lg:h-5 lg:w-5 text-gray-400" />
                 </div>
                 <input
@@ -190,17 +173,19 @@ const Login = () => {
                   name="password"
                   value={formData.password}
                   onChange={handleChange}
-                  placeholder="Enter your password"
+                  placeholder="أدخل كلمة المرور"
                   disabled={loading}
                   autoComplete="current-password"
                   className={`
-                    w-full border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-colors
-                    pl-9 pr-4 py-2.5 text-sm
-                    landscape:pl-8 landscape:py-2 landscape:text-xs
-                    lg:pl-10 lg:py-3 lg:text-base
+                    w-full border rounded-lg focus:outline-none focus:ring-2 focus:ring-accent/20 focus:border-accent transition-colors
+                    pr-9 pl-4 py-2.5 text-sm
+                    landscape:pr-8 landscape:py-2 landscape:text-xs
+                    lg:pr-10 lg:py-3 lg:text-base
                     ${errors.password ? "border-red-500" : "border-gray-300"}
                     ${loading ? "bg-gray-100 cursor-not-allowed" : "bg-white"}
                   `}
+                  dir="ltr"
+                  style={{ textAlign: "left" }}
                 />
               </div>
               {errors.password && (
@@ -219,14 +204,14 @@ const Login = () => {
                 className="text-xs landscape:text-[10px] lg:text-sm"
               >
                 <span className="text-gray-600 text-xs landscape:text-[10px] lg:text-sm">
-                  Remember me
+                  تذكرني
                 </span>
               </Checkbox>
               <Link
                 to="/forgot-password"
-                className="text-primary text-xs landscape:text-[10px] lg:text-sm hover:underline font-medium"
+                className="text-accent text-xs landscape:text-[10px] lg:text-sm hover:underline font-medium transition-colors hover:text-accent-dark"
               >
-                Forgot password?
+                نسيت كلمة المرور؟
               </Link>
             </div>
 
@@ -237,7 +222,7 @@ const Login = () => {
               className="
                 w-full bg-primary hover:bg-primary-dark text-white font-medium rounded-lg 
                 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed 
-                flex items-center justify-center gap-2
+                flex items-center justify-center gap-2 shadow-lg shadow-primary/20
                 h-10 text-sm mt-4
                 landscape:h-9 landscape:text-xs landscape:mt-2
                 lg:h-12 lg:text-base lg:mt-6
@@ -246,24 +231,17 @@ const Login = () => {
               {loading ? (
                 <>
                   <Loader2 className="w-4 h-4 landscape:w-3.5 landscape:h-3.5 lg:w-5 lg:h-5 animate-spin" />
-                  Signing in...
+                  جاري تسجيل الدخول...
                 </>
               ) : (
-                "Sign In"
+                "تسجيل الدخول"
               )}
             </button>
           </form>
 
           {/* Footer */}
-          <p
-            className="
-              text-center text-gray-500
-              text-xs mt-4
-              landscape:text-[10px] landscape:mt-3
-              lg:text-sm lg:mt-6
-            "
-          >
-            © 2026 Matary. All rights reserved.
+          <p className="text-center text-gray-500 text-xs mt-4 landscape:text-[10px] landscape:mt-3 lg:text-sm lg:mt-6">
+            © 2026 ست الشام. جميع الحقوق محفوظة.
           </p>
         </div>
       </div>
@@ -279,36 +257,33 @@ const Login = () => {
           lg:flex-1 lg:p-12
         "
       >
-        {/* Background Decoration */}
         <div className="absolute inset-0 pointer-events-none">
-          <div className="absolute top-10 left-10 w-32 h-32 landscape:w-48 landscape:h-48 lg:w-72 lg:h-72 bg-white/5 rounded-full blur-3xl" />
-          <div className="absolute bottom-10 right-10 w-40 h-40 landscape:w-56 landscape:h-56 lg:w-96 lg:h-96 bg-white/5 rounded-full blur-3xl" />
+          <div className="absolute top-10 left-10 w-32 h-32 landscape:w-48 landscape:h-48 lg:w-72 lg:h-72 bg-accent/10 rounded-full blur-3xl" />
+          <div className="absolute bottom-10 right-10 w-40 h-40 landscape:w-56 landscape:h-56 lg:w-96 lg:h-96 bg-accent/5 rounded-full blur-3xl" />
         </div>
 
-        {/* Content */}
         <div className="relative z-10 text-center">
           <div
             className="
-              mx-auto bg-white/10 backdrop-blur-md rounded-2xl border border-white/20 shadow-2xl
+              mx-auto bg-white/5 backdrop-blur-md rounded-2xl border border-accent/30 shadow-2xl
               w-32 p-3
               landscape:w-40 landscape:p-4 landscape:rounded-3xl
               lg:w-56 lg:p-6 lg:rounded-3xl
             "
           >
             <img
-              src="https://res.cloudinary.com/dp7jfs375/image/upload/v1773481084/Matary_basic_media_20250220_213011_0000.cdaa37d3f760260f3bda29df14569fe8_eblvca.svg"
+              src="https://res.cloudinary.com/dhgp9dzdt/image/upload/v1772620899/logo_udnowq.png"
               className="w-full h-auto"
-              alt="Matary Logo"
+              alt="ست الشام"
             />
           </div>
 
           <div className="hidden landscape:block lg:block mt-4 landscape:mt-6 lg:mt-8">
-            <h2 className="text-lg landscape:text-xl lg:text-2xl font-bold mb-2 lg:mb-4">
-              Matary Platform
+            <h2 className="text-lg landscape:text-xl lg:text-2xl font-bold mb-2 lg:mb-4 text-accent">
+              منصة ست الشام
             </h2>
-            <p className="text-sm landscape:text-base lg:text-lg text-white/80 leading-relaxed max-w-md">
-              Your complete platform for managing meetings, schedules, and team
-              collaboration
+            <p className="text-sm landscape:text-base lg:text-lg text-white/90 leading-relaxed max-w-md">
+              أفضل مكان للعثور على شريك حياتك وبدء رحلتك في الحب والرفقة.
             </p>
           </div>
         </div>

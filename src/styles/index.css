@@ -1,14 +1,21 @@
-/* src/styles/index.css */
-@import url("https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;500;600;700;800;900&family=Tajawal:wght@400;500;700;800&display=swap");
 @import "tailwindcss";
 
 @custom-variant landscape (@media (max-width: 1023px) and (orientation: landscape));
+
 /* ========== Theme Configuration ========== */
 @theme {
-  --color-primary: #5046c4;
-  --color-primary-light: #6c69fa;
-  --color-primary-dark: #3d35a0;
-  --color-accent: #ff005c;
+  /* Primary Colors - Dark Blue */
+  --color-primary: #023048;
+  --color-primary-light: #034569;
+  --color-primary-dark: #011d2c;
+
+  /* Accent Colors - Gold */
+  --color-accent: #dcb56d;
+  --color-accent-light: #e5c98a;
+  --color-accent-dark: #c9a050;
+
+  /* Status Colors */
   --color-success: #10b981;
   --color-warning: #f59e0b;
   --color-error: #ef4444;
@@ -26,12 +33,17 @@
 
   html,
   body {
-    direction: ltr !important;
-    text-align: left !important;
+    direction: rtl !important;
+    text-align: right !important;
+    font-family:
+      "Cairo",
+      "Tajawal",
+      -apple-system,
+      BlinkMacSystemFont,
+      sans-serif !important;
   }
 
   body {
-    font-family: var(--font-family-inter);
     background-color: #ffffff;
     color: #1f2937;
   }
@@ -39,42 +51,6 @@
   button {
     cursor: pointer;
   }
-}
-
-/* ========== Force LTR on Ant Design ========== */
-.ant-table,
-.ant-table-wrapper,
-.ant-table-container,
-.ant-table-content,
-.ant-table-thead,
-.ant-table-tbody,
-.ant-table-row,
-.ant-table-cell,
-.ant-pagination,
-.ant-input,
-.ant-input-affix-wrapper,
-.ant-select,
-.ant-modal,
-.ant-form,
-.ant-dropdown {
-  direction: ltr !important;
-  text-align: left !important;
-}
-
-/* ========== Ant Design Global Overrides ========== */
-.ant-input,
-.ant-input-password,
-.ant-input-affix-wrapper,
-.ant-select-selector,
-.ant-picker,
-.ant-modal-title,
-.ant-modal-body,
-.ant-form-item-label,
-.ant-descriptions-item-label,
-.ant-descriptions-item-content {
-  font-family: var(--font-family-inter) !important;
-  direction: ltr !important;
-  text-align: left !important;
 }
 
 .ant-input,
@@ -92,7 +68,7 @@
 .ant-select-focused .ant-select-selector,
 .ant-picker-focused {
   border-color: var(--color-primary) !important;
-  box-shadow: 0 0 0 3px rgba(80, 70, 196, 0.15) !important;
+  box-shadow: 0 0 0 3px rgba(2, 48, 72, 0.15) !important;
 }
 
 .ant-input:hover,
@@ -102,13 +78,32 @@
   border-color: var(--color-primary) !important;
 }
 
+/* Primary Button - Dark Blue with Gold hover */
 .ant-btn-primary {
   background-color: var(--color-primary) !important;
+  border-color: var(--color-primary) !important;
   font-family: var(--font-family-inter) !important;
 }
 
 .ant-btn-primary:hover {
-  background-color: var(--color-primary-dark) !important;
+  background-color: var(--color-primary-light) !important;
+  border-color: var(--color-primary-light) !important;
+}
+
+/* Gold/Accent Button */
+.ant-btn-gold,
+.btn-gold {
+  background-color: var(--color-accent) !important;
+  border-color: var(--color-accent) !important;
+  color: var(--color-primary) !important;
+  font-weight: 600 !important;
+}
+
+.ant-btn-gold:hover,
+.btn-gold:hover {
+  background-color: var(--color-accent-dark) !important;
+  border-color: var(--color-accent-dark) !important;
+  color: var(--color-primary) !important;
 }
 
 .ant-checkbox-wrapper,
@@ -121,26 +116,43 @@
   font-family: var(--font-family-inter) !important;
 }
 
-/* ========== Data Table Styles ========== */
-.data-table-wrapper {
-  width: 100%;
-  direction: ltr !important;
+/* Checkbox with new colors */
+.ant-checkbox-checked .ant-checkbox-inner {
+  background-color: var(--color-primary) !important;
+  border-color: var(--color-primary) !important;
 }
 
-/* Table Header */
-.ant-table {
-  font-family: var(--font-family-inter) !important;
-  direction: ltr !important;
+.ant-checkbox:hover .ant-checkbox-inner {
+  border-color: var(--color-primary) !important;
+}
+
+/* Switch with new colors */
+.ant-switch-checked {
+  background-color: var(--color-primary) !important;
+}
+
+/* Radio with new colors */
+.ant-radio-checked .ant-radio-inner {
+  border-color: var(--color-primary) !important;
+}
+
+.ant-radio-checked .ant-radio-inner::after {
+  background-color: var(--color-primary) !important;
+}
+
+.ant-table-thead .ant-dropdown-trigger {
+  color: #ffffff !important;
 }
 
 .ant-table-thead > tr > th {
-  background-color: #f8fafc !important;
-  color: #374151 !important;
+  background-color: var(--color-primary) !important;
+  color: #ffffff !important;
   font-weight: 600 !important;
   font-size: 14px !important;
   padding: 16px !important;
-  border-bottom: 2px solid #e5e7eb !important;
-  text-align: left !important;
+  border-bottom: 2px solid var(--color-accent) !important;
+  text-align: right !important;
+  border-radius: 0 !important;
 }
 
 .ant-table-thead > tr > th::before {
@@ -153,7 +165,7 @@
   font-size: 14px !important;
   border-bottom: 1px solid #f3f4f6 !important;
   transition: all 0.2s ease !important;
-  text-align: left !important;
+  text-align: right !important;
 }
 
 /* Zebra Striping */
@@ -165,9 +177,9 @@
   background-color: #f9fafb !important;
 }
 
-/* Row Hover */
+/* Row Hover - Light gold tint */
 .ant-table-tbody > tr:hover > td {
-  background-color: #f0f0ff !important;
+  background-color: rgba(220, 181, 109, 0.1) !important;
 }
 
 /* Row with cursor pointer */
@@ -188,29 +200,22 @@
   background-color: rgba(239, 68, 68, 0.1) !important;
 }
 
-/* Selected Row */
+/* Selected Row - Primary color tint */
 .ant-table-tbody > tr.ant-table-row-selected > td {
-  background-color: rgba(80, 70, 196, 0.1) !important;
-}
-
-/* Pagination - LTR */
-.ant-pagination {
-  padding: 16px !important;
-  margin: 0 !important;
-  direction: ltr !important;
-  text-align: right !important;
+  background-color: rgba(2, 48, 72, 0.1) !important;
 }
 
 .ant-pagination-item-active {
   border-color: var(--color-primary) !important;
+  background-color: var(--color-primary) !important;
 }
 
 .ant-pagination-item-active a {
-  color: var(--color-primary) !important;
+  color: #ffffff !important;
 }
 
 .ant-pagination-item:hover {
-  border-color: var(--color-primary) !important;
+  border-color: var(--color-accent) !important;
 }
 
 .ant-pagination-item:hover a {
@@ -223,29 +228,14 @@
   color: var(--color-primary) !important;
 }
 
-/* Filter Dropdown - LTR */
-.ant-table-filter-dropdown {
-  font-family: var(--font-family-inter) !important;
-  border-radius: 8px !important;
-  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1) !important;
-  direction: ltr !important;
-}
-
-/* Dropdown Menu - LTR */
-.ant-dropdown,
-.ant-dropdown-menu {
-  direction: ltr !important;
-  text-align: left !important;
-}
-
 /* Sorter */
 .ant-table-column-sorter {
-  color: #9ca3af !important;
+  color: rgba(255, 255, 255, 0.5) !important;
 }
 
 .ant-table-column-sorter-up.active,
 .ant-table-column-sorter-down.active {
-  color: var(--color-primary) !important;
+  color: var(--color-accent) !important;
 }
 
 /* Empty State */
@@ -263,46 +253,73 @@
   color: var(--color-primary) !important;
 }
 
-/* ========== Modal - LTR ========== */
-.ant-modal,
-.ant-modal-content,
-.ant-modal-header,
-.ant-modal-body,
-.ant-modal-footer {
-  direction: ltr !important;
-  text-align: left !important;
+.ant-spin-dot-item {
+  background-color: var(--color-primary) !important;
 }
 
-/* ========== Form - LTR ========== */
-.ant-form,
-.ant-form-item,
-.ant-form-item-label {
-  direction: ltr !important;
-  text-align: left !important;
+.ant-modal-title {
+  color: #ffffff !important;
 }
 
 .ant-form-item-label > label {
   text-align: left !important;
+  color: var(--color-primary) !important;
+  font-weight: 500 !important;
 }
 
-/* ========== Calendar Styles ========== */
-.ant-picker-calendar {
-  font-family: var(--font-family-inter) !important;
-  direction: ltr !important;
+/* ========== Tabs ========== */
+.ant-tabs-tab-active .ant-tabs-tab-btn {
+  color: var(--color-primary) !important;
+}
+
+.ant-tabs-ink-bar {
+  background-color: var(--color-accent) !important;
+}
+
+.ant-tabs-tab:hover {
+  color: var(--color-primary) !important;
+}
+
+/* ========== Menu/Sidebar ========== */
+.ant-menu-item-selected {
+  background-color: rgba(220, 181, 109, 0.2) !important;
+  color: var(--color-accent) !important;
+}
+
+.ant-menu-item:hover {
+  background-color: rgba(220, 181, 109, 0.1) !important;
 }
 
 .calendar-card .ant-picker-cell-selected .ant-picker-calendar-date {
-  background: transparent !important;
+  background: var(--color-primary) !important;
+  color: #ffffff !important;
+  border-radius: 8px !important;
 }
 
 .calendar-card .ant-picker-cell-selected .ant-picker-calendar-date-value {
-  color: inherit;
+  color: #ffffff !important;
 }
 
 .calendar-card .ant-picker-calendar-date:hover {
-  background-color: #fafafa !important;
+  background-color: rgba(220, 181, 109, 0.2) !important;
   transform: scale(1.02);
   transition: all 0.2s;
+}
+
+.ant-picker-cell-today .ant-picker-cell-inner {
+  border-color: var(--color-accent) !important;
+}
+
+/* ========== Tags ========== */
+.ant-tag-blue {
+  background-color: rgba(2, 48, 72, 0.1) !important;
+  border-color: var(--color-primary) !important;
+  color: var(--color-primary) !important;
+}
+
+/* ========== Progress ========== */
+.ant-progress-bg {
+  background-color: var(--color-accent) !important;
 }
 
 /* ========== Scrollbar ========== */
@@ -317,18 +334,107 @@
 }
 
 .ant-table-body::-webkit-scrollbar-thumb {
-  background: #c1c1c1;
+  background: var(--color-primary);
   border-radius: 4px;
 }
 
 .ant-table-body::-webkit-scrollbar-thumb:hover {
-  background: #a1a1a1;
+  background: var(--color-primary-light);
 }
 
 /* ========== Component Classes ========== */
 @layer components {
   .card {
     @apply bg-white rounded-xl shadow-sm border border-gray-100 p-6;
+  }
+
+  /* Primary Background */
+  .bg-primary {
+    background-color: var(--color-primary) !important;
+  }
+
+  .bg-primary-light {
+    background-color: var(--color-primary-light) !important;
+  }
+
+  .bg-primary-dark {
+    background-color: var(--color-primary-dark) !important;
+  }
+
+  /* Accent/Gold Background */
+  .bg-accent {
+    background-color: var(--color-accent) !important;
+  }
+
+  .bg-accent-light {
+    background-color: var(--color-accent-light) !important;
+  }
+
+  /* Text Colors */
+  .text-primary {
+    color: var(--color-primary) !important;
+  }
+
+  .text-accent {
+    color: var(--color-accent) !important;
+  }
+
+  /* Border Colors */
+  .border-primary {
+    border-color: var(--color-primary) !important;
+  }
+
+  .border-accent {
+    border-color: var(--color-accent) !important;
+  }
+
+  /* Gradient */
+  .gradient-primary {
+    background: linear-gradient(
+      135deg,
+      var(--color-primary) 0%,
+      var(--color-primary-light) 100%
+    );
+  }
+
+  .gradient-accent {
+    background: linear-gradient(
+      135deg,
+      var(--color-accent) 0%,
+      var(--color-accent-dark) 100%
+    );
+  }
+
+  /* Button Styles */
+  .btn-primary {
+    @apply px-4 py-2 rounded-lg font-semibold transition-all duration-200;
+    background-color: var(--color-primary);
+    color: #ffffff;
+  }
+
+  .btn-primary:hover {
+    background-color: var(--color-primary-light);
+  }
+
+  .btn-accent {
+    @apply px-4 py-2 rounded-lg font-semibold transition-all duration-200;
+    background-color: var(--color-accent);
+    color: var(--color-primary);
+  }
+
+  .btn-accent:hover {
+    background-color: var(--color-accent-dark);
+  }
+
+  .btn-outline-primary {
+    @apply px-4 py-2 rounded-lg font-semibold transition-all duration-200 bg-transparent;
+    border: 2px solid var(--color-primary);
+    color: var(--color-primary);
+  }
+
+  .btn-outline-primary:hover {
+    background-color: var(--color-primary);
+    color: #ffffff;
   }
 }
 
@@ -344,10 +450,10 @@
   }
 }
 
-/* Custom Scrollbar for Sidebar */
+/* Custom Scrollbar for Sidebar - Updated colors */
 .scrollbar-thin {
   scrollbar-width: thin;
-  scrollbar-color: rgba(255, 255, 255, 0.2) transparent;
+  scrollbar-color: var(--color-accent) transparent;
 }
 
 .scrollbar-thin::-webkit-scrollbar {
@@ -359,12 +465,12 @@
 }
 
 .scrollbar-thin::-webkit-scrollbar-thumb {
-  background-color: rgba(255, 255, 255, 0.2);
+  background-color: var(--color-accent);
   border-radius: 20px;
 }
 
 .scrollbar-thin::-webkit-scrollbar-thumb:hover {
-  background-color: rgba(255, 255, 255, 0.4);
+  background-color: var(--color-accent-dark);
 }
 
 /* Hide scrollbar but keep functionality */
@@ -397,7 +503,7 @@
 }
 
 .scrollbar-on-hover:hover::-webkit-scrollbar-thumb {
-  background-color: rgba(255, 255, 255, 0.3);
+  background-color: var(--color-accent);
   border-radius: 20px;
 }
 
@@ -407,24 +513,45 @@
 
 /* Ended Meetings - Red/Gray */
 .ant-table-tbody > tr.row-ended > td {
-  background-color: rgb(254 242 242) !important; /* red-50 */
+  background-color: rgb(254 242 242) !important;
 }
 .ant-table-tbody > tr.row-ended:hover > td {
-  background-color: rgb(254 226 226) !important; /* red-100 */
+  background-color: rgb(254 226 226) !important;
 }
 
 /* Ongoing Meetings - Green */
 .ant-table-tbody > tr.row-ongoing > td {
-  background-color: rgb(240 253 244) !important; /* green-50 */
+  background-color: rgb(240 253 244) !important;
 }
 .ant-table-tbody > tr.row-ongoing:hover > td {
-  background-color: rgb(220 252 231) !important; /* green-100 */
+  background-color: rgb(220 252 231) !important;
 }
 
-/* Pending Meetings - Blue (optional) */
+/* Pending Meetings - Primary color tint */
 .ant-table-tbody > tr.row-pending > td {
-  background-color: rgb(239 246 255) !important; /* blue-50 */
+  background-color: rgba(2, 48, 72, 0.05) !important;
 }
 .ant-table-tbody > tr.row-pending:hover > td {
-  background-color: rgb(219 234 254) !important; /* blue-100 */
+  background-color: rgba(2, 48, 72, 0.1) !important;
+}
+
+/* ========== Link Colors ========== */
+a {
+  color: var(--color-primary);
+}
+
+a:hover {
+  color: var(--color-accent);
+}
+
+/* ========== Selection Color ========== */
+::selection {
+  background-color: var(--color-accent);
+  color: var(--color-primary);
+}
+
+/* ========== Focus Ring ========== */
+*:focus-visible {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 2px;
 }
