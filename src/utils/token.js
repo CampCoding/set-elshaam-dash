@@ -1,5 +1,5 @@
-const TOKEN_KEY = "matary_token";
-const USER_KEY = "matary_user";
+const TOKEN_KEY = "set_elsham_admin_token";
+const USER_KEY = "set_elsham_admin_user";
 
 // ============ TOKEN ============
 export const getToken = () => {

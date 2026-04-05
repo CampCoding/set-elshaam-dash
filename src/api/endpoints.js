@@ -1,56 +1,24 @@
-// ============ AUTH ============
-export const AUTH_ENDPOINTS = {
-  LOGIN: "/auth/login",
+// ============ ADMIN AUTH ============
+export const ADMIN_AUTH_ENDPOINTS = {
+  LOGIN: "/admin/auth/login",
+  PROFILE: "/admin/auth/profile",
 };
 
-// ============ DOCTOR ============
-export const DOCTOR_ENDPOINTS = {
-  // Profile
-  PROFILE: "/doctor/profile",
-  UPDATE_PROFILE: "/doctor/profile",
-
-  // Schedule / Availability
-  SCHEDULE: "/doctor/schedule",
-  UPDATE_SCHEDULE: "/doctor/schedule",
-
-  // Days Off
-  DAYS_OFF: "/doctor/days-off",
-  ADD_DAY_OFF: "/doctor/days-off",
-  REMOVE_DAY_OFF: (id) => `/doctor/days-off/${id}`,
-
-  // Settings
-  SETTINGS: "/doctor/settings",
-  UPDATE_SETTINGS: "/doctor/settings",
-
-  // Meetings (Old - if needed)
-  MEETINGS: "/doctor/meetings",
-  MEETING_DETAILS: (id) => `/doctor/meetings/${id}`,
+// ============ ADMIN USER MANAGEMENT ============
+export const ADMIN_USER_ENDPOINTS = {
+  GET_USERS: (page = 1, limit = 10) => `/admin/users?page=${page}&limit=${limit}`,
+  GET_USER_DETAILS: (id) => `/admin/users/${id}`,
+  CREATE_USER: "/admin/users",
+  UPDATE_USER: (id) => `/admin/users/${id}`,
+  DELETE_USER: (id) => `/admin/users/${id}`,
+  TOGGLE_BLOCK: (id) => `/admin/users/${id}/block`,
 };
 
-// ============ MEETINGS (Reserved) ============
-export const MEETINGS_ENDPOINTS = {
-  LIST: "/meetings/list",
-  ACTION: "/meetings/action",
-  CANCEL: "/meetings/cancel",
-};
-
-export const SESSIONS_ENDPOINTS = {
-  LIST: "/sessions/list",
-  CREATE: "/sessions/create",
-  UPDATE: "/sessions/update",
-  DELETE: "/sessions/delete",
-};
-
-// ============ ADMIN ============
-export const ADMIN_ENDPOINTS = {
-  // Doctors
-  DOCTORS: "/admin/doctors",
-  DOCTOR_DETAILS: (id) => `/admin/doctors/${id}`,
-
-  // Users/Students
-  USERS: "/admin/users",
-  USER_DETAILS: (id) => `/admin/users/${id}`,
-
-  // Meetings
-  MEETINGS: "/admin/meetings",
+// ============ PROFILE MANAGEMENT ============
+export const PROFILE_MANAGEMENT_ENDPOINTS = {
+  GET_PROFILE: (id, type = "main") => `/admin/users/${id}/profile?type=${type}`,
+  UPSERT_PROFILE: (id, type = "main") => `/admin/users/${id}/profile?type=${type}`,
+  DELETE_FILE: (id) => `/admin/users/${id}/profile/file`,
+  GET_TARGET_PROFILE: (id) => `/admin/users/${id}/profile/target`,
+  UPSERT_TARGET_PROFILE: (id) => `/admin/users/${id}/profile/target`,
 };

@@ -21,6 +21,8 @@ import Login from "../pages/auth/Login";
 
 // Admin Pages (Lazy)
 const Dashboard = lazy(() => import("../pages/dashboard/Home/Home"));
+const UsersPage = lazy(() => import("../pages/dashboard/Users/UsersPage"));
+const UserProfilePage = lazy(() => import("../pages/dashboard/Users/UserProfilePage"));
 const Services = lazy(() => import("../pages/dashboard/Services/Services"));
 const Packages = lazy(() => import("../pages/dashboard/packages/Packages"));
 const Faqs = lazy(() => import("../pages/dashboard/faqs/Faqs"));
@@ -42,6 +44,17 @@ export const adminRoutes = [
     label: "الرئيسية",
     icon: LayoutDashboard,
     element: <Dashboard />,
+  },
+  {
+    path: "/users",
+    label: "المستخدمين",
+    icon: Users,
+    element: <UsersPage />,
+  },
+  {
+    path: "/users/:id",
+    element: <UserProfilePage />,
+    hidden: true,
   },
   {
     path: "/services",

@@ -1,26 +1,26 @@
 import api from "../axios";
-import { AUTH_ENDPOINTS } from "../endpoints";
+import { ADMIN_AUTH_ENDPOINTS } from "../endpoints";
 import { setToken, setUser, clearAuth } from "../../utils/token";
 
 export const authService = {
   // ============ LOGIN ============
   login: async (email, password) => {
     try {
-      const response = await api.post(AUTH_ENDPOINTS.LOGIN, {
+      const response = await api.post(ADMIN_AUTH_ENDPOINTS.LOGIN, {
         email,
         password,
       });
 
-      const { status, token, data, message } = response.data;
+      const { data, message } = response.data;
 
-      if (status === "success" && token) {
-        setToken(token);
-        setUser(data);
+      if (data && data.token) {
+        setToken(data.token);
+        setUser(data.admin || data.user || data);
 
         return {
           success: true,
-          user: data,
-          message,
+          user: data.admin || data.user || data,
+          message: message || "Login successful",
         };
       }
 

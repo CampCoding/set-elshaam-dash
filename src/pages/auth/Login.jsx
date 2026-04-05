@@ -52,7 +52,7 @@ const Login = () => {
     setErrors({});
 
     try {
-      const result = await login(formData.email, formData.password);
+      const result = await login(formData.email, formData.password, remember);
 
       if (result.success) {
         message.success(`أهلاً بك، ${result.user.full_name}!`);
@@ -78,11 +78,11 @@ const Login = () => {
       {/* Form Side */}
       <div
         className="
-          flex-1 flex items-center justify-center bg-white
-          p-4 py-6
-          landscape:p-4 landscape:py-4
-          lg:p-8
-        "
+            flex-1 flex items-center justify-center bg-white
+            p-4 py-6
+            landscape:p-4 landscape:py-4
+            lg:p-8
+          "
       >
         <div className="w-full max-w-sm landscape:max-w-md lg:max-w-md">
           {/* Header */}
@@ -107,16 +107,7 @@ const Login = () => {
             </div>
           )}
 
-          {/* Sample Login Info */}
-          <div className="bg-accent/10 border border-accent/30 rounded-lg p-3 mb-4 text-xs lg:text-sm">
-            <p className="font-semibold text-primary mb-2">🔐 للتجربة:</p>
-            <p className="text-gray-700">
-              <strong>البريد:</strong> admin@setsham.com
-            </p>
-            <p className="text-gray-700">
-              <strong>كلمة المرور:</strong> 123456
-            </p>
-          </div>
+       
 
           {/* Form */}
           <form
@@ -141,13 +132,13 @@ const Login = () => {
                   disabled={loading}
                   autoComplete="email"
                   className={`
-                    w-full border rounded-lg focus:outline-none focus:ring-2 focus:ring-accent/20 focus:border-accent transition-colors
-                    pr-9 pl-4 py-2.5 text-sm
-                    landscape:pr-8 landscape:py-2 landscape:text-xs
-                    lg:pr-10 lg:py-3 lg:text-base
-                    ${errors.email ? "border-red-500" : "border-gray-300"}
-                    ${loading ? "bg-gray-100 cursor-not-allowed" : "bg-white"}
-                  `}
+                      w-full border rounded-lg focus:outline-none focus:ring-2 focus:ring-accent/20 focus:border-accent transition-colors
+                      pr-9 pl-4 py-2.5 text-sm
+                      landscape:pr-8 landscape:py-2 landscape:text-xs
+                      lg:pr-10 lg:py-3 lg:text-base
+                      ${errors.email ? "border-red-500" : "border-gray-300"}
+                      ${loading ? "bg-gray-100 cursor-not-allowed" : "bg-white"}
+                    `}
                   dir="ltr"
                   style={{ textAlign: "left" }}
                 />
@@ -177,13 +168,13 @@ const Login = () => {
                   disabled={loading}
                   autoComplete="current-password"
                   className={`
-                    w-full border rounded-lg focus:outline-none focus:ring-2 focus:ring-accent/20 focus:border-accent transition-colors
-                    pr-9 pl-4 py-2.5 text-sm
-                    landscape:pr-8 landscape:py-2 landscape:text-xs
-                    lg:pr-10 lg:py-3 lg:text-base
-                    ${errors.password ? "border-red-500" : "border-gray-300"}
-                    ${loading ? "bg-gray-100 cursor-not-allowed" : "bg-white"}
-                  `}
+                      w-full border rounded-lg focus:outline-none focus:ring-2 focus:ring-accent/20 focus:border-accent transition-colors
+                      pr-9 pl-4 py-2.5 text-sm
+                      landscape:pr-8 landscape:py-2 landscape:text-xs
+                      lg:pr-10 lg:py-3 lg:text-base
+                      ${errors.password ? "border-red-500" : "border-gray-300"}
+                      ${loading ? "bg-gray-100 cursor-not-allowed" : "bg-white"}
+                    `}
                   dir="ltr"
                   style={{ textAlign: "left" }}
                 />
@@ -220,13 +211,13 @@ const Login = () => {
               type="submit"
               disabled={loading}
               className="
-                w-full bg-primary hover:bg-primary-dark text-white font-medium rounded-lg 
-                transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed 
-                flex items-center justify-center gap-2 shadow-lg shadow-primary/20
-                h-10 text-sm mt-4
-                landscape:h-9 landscape:text-xs landscape:mt-2
-                lg:h-12 lg:text-base lg:mt-6
-              "
+                  w-full bg-primary hover:bg-primary-dark text-white font-medium rounded-lg 
+                  transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed 
+                  flex items-center justify-center gap-2 shadow-lg shadow-primary/20
+                  h-10 text-sm mt-4
+                  landscape:h-9 landscape:text-xs landscape:mt-2
+                  lg:h-12 lg:text-base lg:mt-6
+                "
             >
               {loading ? (
                 <>
@@ -249,13 +240,13 @@ const Login = () => {
       {/* Branding Side */}
       <div
         className="
-          bg-primary-dark text-white
-          flex items-center justify-center
-          relative overflow-hidden
-          p-4 
-          landscape:flex-1 landscape:p-6
-          lg:flex-1 lg:p-12
-        "
+            bg-primary-dark text-white
+            flex items-center justify-center
+            relative overflow-hidden
+            p-4 
+            landscape:flex-1 landscape:p-6
+            lg:flex-1 lg:p-12
+          "
       >
         <div className="absolute inset-0 pointer-events-none">
           <div className="absolute top-10 left-10 w-32 h-32 landscape:w-48 landscape:h-48 lg:w-72 lg:h-72 bg-accent/10 rounded-full blur-3xl" />
@@ -265,11 +256,11 @@ const Login = () => {
         <div className="relative z-10 text-center">
           <div
             className="
-              mx-auto bg-white/5 backdrop-blur-md rounded-2xl border border-accent/30 shadow-2xl
-              w-32 p-3
-              landscape:w-40 landscape:p-4 landscape:rounded-3xl
-              lg:w-56 lg:p-6 lg:rounded-3xl
-            "
+                mx-auto bg-white/5 backdrop-blur-md rounded-2xl border border-accent/30 shadow-2xl
+                w-32 p-3
+                landscape:w-40 landscape:p-4 landscape:rounded-3xl
+                lg:w-56 lg:p-6 lg:rounded-3xl
+              "
           >
             <img
               src="https://res.cloudinary.com/dhgp9dzdt/image/upload/v1772620899/logo_udnowq.png"

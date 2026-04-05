@@ -1,13 +1,10 @@
 import axios from "axios";
 import { getToken, clearAuth } from "../utils/token";
 
-const BASE_URL = "https://dr-elmatary.com/mtrymting/doctor";
+const BASE_URL = "https://api.setalshaam.com/api";
 
 const api = axios.create({
   baseURL: BASE_URL,
-  headers: {
-    "Content-Type": "application/json",
-  },
   timeout: 30000, // 30 seconds
 });
 

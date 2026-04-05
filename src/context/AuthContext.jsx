@@ -1,76 +1,137 @@
 import { createContext, useState, useEffect } from "react";
+import { API_BASE_URL } from "../utils/Baseurl";
+import { setToken, setUser as setStoredUser, getToken, getUser, clearAuth } from "../utils/token";
 
 export const AuthContext = createContext(null);
-
-// ✅ Sample Admin للتجربة
-const ADMIN_USER = {
-  email: "admin@setsham.com",
-  password: "123456",
-  full_name: "مدير النظام",
-  role: "admin",
-};
 
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [token, setAuthToken] = useState(null);
 
-  // Initialize from localStorage
+  // Initialize from storage
   useEffect(() => {
-    const storedUser = localStorage.getItem("setsham_user");
-    if (storedUser) {
-      try {
-        setUser(JSON.parse(storedUser));
-      } catch (error) {
-        localStorage.removeItem("setsham_user");
-      }
+    const storedUser = getUser();
+    const storedToken = getToken();
+
+    if (storedUser && storedToken) {
+      setUser(storedUser);
+      setAuthToken(storedToken);
     }
     setLoading(false);
   }, []);
 
   // ============ LOGIN ============
-  const login = async (email, password) => {
-    return new Promise((resolve) => {
-      setTimeout(() => {
-        if (email === ADMIN_USER.email && password === ADMIN_USER.password) {
-          const userData = {
-            email: ADMIN_USER.email,
-            full_name: ADMIN_USER.full_name,
-            role: ADMIN_USER.role,
-          };
+  const login = async (email, password, persist = true) => {
+    try {
+      const response = await fetch(`${API_BASE_URL}/api/admin/auth/login`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "Accept": "application/json",
+        },
+        body: JSON.stringify({ email, password }),
+      });
 
-          setUser(userData);
-          localStorage.setItem("setsham_user", JSON.stringify(userData));
+      const result = await response.json();
 
-          resolve({
-            success: true,
-            user: userData,
-          });
-        } else {
-          resolve({
-            success: false,
-            error: "البريد الإلكتروني أو كلمة المرور غير صحيحة",
-          });
-        }
-      }, 1000);
-    });
+      if (response.ok && result.data && result.data.token) {
+        const adminData = result.data.admin;
+        const tokenValue = result.data.token;
+
+        const userData = {
+          id: adminData.id,
+          username: adminData.username,
+          email: adminData.email,
+          full_name: adminData.full_name,
+          role: adminData.role,
+          status: adminData.status,
+          token: tokenValue,
+        };
+
+        setUser(userData);
+        setAuthToken(tokenValue);
+
+        // Store using utility
+        setStoredUser(userData);
+        setToken(tokenValue);
+
+        return {
+          success: true,
+          user: userData,
+        };
+      } else {
+        return {
+          success: false,
+          error: result.message || "البريد الإلكتروني أو كلمة المرور غير صحيحة",
+        };
+      }
+    } catch (error) {
+      console.error("Login error:", error);
+      return {
+        success: false,
+        error: "فشل الاتصال بالخادم. يرجى التأكد من اتصال الإنترنت.",
+      };
+    }
   };
 
   // ============ LOGOUT ============
-  const logout = () => {
-    setUser(null);
-    localStorage.removeItem("setsham_user");
+  const logout = async () => {
+    try {
+      if (token) {
+        await fetch(`${API_BASE_URL}/api/admin/auth/logout`, {
+          method: "POST",
+          headers: {
+            "Authorization": `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+        });
+      }
+    } catch (error) {
+      console.error("Logout error:", error);
+    } finally {
+      // Clear all state
+      setUser(null);
+      setAuthToken(null);
+      clearAuth();
+    }
   };
 
-  const isAuthenticated = !!user;
+  // ============ VERIFY TOKEN ============
+  const verifyToken = async () => {
+    if (!token) return false;
+
+    try {
+      const response = await fetch(`${API_BASE_URL}/api/admin/auth/verify`, {
+        method: "GET",
+        headers: {
+          "Authorization": `Bearer ${token}`,
+        },
+      });
+
+      if (!response.ok) {
+        logout();
+        return false;
+      }
+      return true;
+    } catch (error) {
+      logout();
+      return false;
+    }
+  };
+
+  const isAuthenticated = !!user && !!token;
 
   return (
     <AuthContext.Provider
       value={{
         user,
+        token,
         loading,
         isAuthenticated,
         login,
         logout,
+        verifyToken,
       }}
     >
       {children}
