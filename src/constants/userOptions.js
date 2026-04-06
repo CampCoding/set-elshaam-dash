@@ -21,16 +21,23 @@ export const COUNTRIES = [
   { value: "morocco", label: "المغرب" },
   { value: "sudan", label: "السودان" },
   { value: "somalia", label: "الصومال" },
+  { value: "djibouti", label: "جيبوتي" },
   { value: "mauritania", label: "موريتانيا" },
+  { value: "comoros", label: "جزر القمر" },
   { value: "finland", label: "فنلندا" },
   { value: "sweden", label: "السويد" },
   { value: "norway", label: "النرويج" },
   { value: "germany", label: "ألمانيا" },
   { value: "france", label: "فرنسا" },
   { value: "uk", label: "بريطانيا" },
-  { value: "usa", label: "أمريكا" },
-  { value: "canada", label: "كندا" },
+  { value: "usa", label: "الولايات المتحدة" },
   { value: "turkey", label: "تركيا" },
+  { value: "iran", label: "إيران" },
+  { value: "pakistan", label: "باكستان" },
+  { value: "india", label: "الهند" },
+  { value: "bangladesh", label: "بنغلاديش" },
+  { value: "afghanistan", label: "أفغانستان" },
+  { value: "other", label: "أخرى" },
 ];
 
 // ============ الجنسيات (صفات) ============
@@ -54,7 +61,9 @@ export const NATIONALITIES = [
   { value: "moroccan", label: "مغربي" },
   { value: "sudanese", label: "سوداني" },
   { value: "somali", label: "صومالي" },
+  { value: "djiboutian", label: "جيبوتي" },
   { value: "mauritanian", label: "موريتاني" },
+  { value: "comoran", label: "قمري" },
   { value: "finnish", label: "فنلندي" },
   { value: "swedish", label: "سويدي" },
   { value: "norwegian", label: "نرويجي" },
@@ -62,17 +71,41 @@ export const NATIONALITIES = [
   { value: "french", label: "فرنسي" },
   { value: "british", label: "بريطاني" },
   { value: "american", label: "أمريكي" },
-  { value: "canadian", label: "كندي" },
   { value: "turkish", label: "تركي" },
+  { value: "iranian", label: "إيراني" },
+  { value: "pakistani", label: "باكستاني" },
+  { value: "indian", label: "هندي" },
+  { value: "bangladeshi", label: "بنغلاديشي" },
+  { value: "afghan", label: "أفغاني" },
+  { value: "other", label: "أخرى" },
 ];
 
 // ============ الديانات ============
 export const RELIGIONS = [
   { value: "muslim", label: "مسلم" },
   { value: "christian", label: "مسيحي" },
-  { value: "jewish", label: "يهودي" },
   { value: "other", label: "أخرى" },
 ];
+
+// ============ المذاهب ============
+export const SECTS_BY_RELIGION = {
+  muslim: [
+    { value: "sunni", label: "سني" },
+    { value: "shia", label: "شيعي" },
+    { value: "ibadi", label: "إباضي" },
+    { value: "sufi", label: "صوفي" },
+    { value: "other", label: "أخرى" },
+  ],
+  christian: [
+    { value: "catholic", label: "كاثوليكي" },
+    { value: "orthodox", label: "أرثوذكسي" },
+    { value: "protestant", label: "بروتستانتي" },
+    { value: "coptic", label: "قبطي" },
+    { value: "maronite", label: "ماروني" },
+    { value: "other", label: "أخرى" },
+  ],
+  other: [{ value: "other", label: "أخرى" }],
+};
 
 // ============ الجنس ============
 export const GENDERS = [
@@ -91,18 +124,18 @@ export const MARITAL_STATUS = [
 
 // ============ نوع الإقامة ============
 export const RESIDENCY_TYPES = [
-  { value: "temporary", label: "إقامة مؤقتة" },
-  { value: "permanent", label: "إقامة دائمة" },
-  { value: "citizen", label: "مواطن (جنسية)" },
-  { value: "none", label: "بدون إقامة" },
+  { value: "temporary", label: "مؤقتة" },
+  { value: "permanent", label: "دائمة" },
+  { value: "finnish_citizenship", label: "الجنسية الفنلندية" },
+  { value: "no_residency", label: "بدون إقامة" },
 ];
 
 // ============ المستوى التعليمي ============
 export const EDUCATION_LEVELS = [
-  { value: "primary", label: "ابتدائي" },
-  { value: "middle", label: "إعدادي" },
-  { value: "high_school", label: "ثانوي" },
-  { value: "diploma", label: "دبلوم" },
+  { value: "no_education", label: "بدون تعليم رسمي" },
+  { value: "basic", label: "تعليم أساسي (ابتدائي وإعدادي)" },
+  { value: "secondary", label: "ثانوي عام" },
+  { value: "vocational", label: "دبلوم / معهد مهني" },
   { value: "bachelor", label: "بكالوريوس" },
   { value: "master", label: "ماجستير" },
   { value: "doctorate", label: "دكتوراه" },
@@ -112,18 +145,25 @@ export const EDUCATION_LEVELS = [
 // ============ مصدر الدخل ============
 export const INCOME_SOURCES = [
   { value: "government", label: "من الحكومة" },
-  { value: "private_work", label: "عمل خاص" },
-  { value: "business", label: "تجارة" },
-  { value: "freelance", label: "عمل حر" },
-  { value: "unemployed", label: "بدون دخل" },
+  { value: "private_work", label: "من عملي الخاص" },
+  { value: "unemployment_benefit", label: "إعانة بطالة" },
+  { value: "student_allowance", label: "منحة طالب" },
+  { value: "pension", label: "معاش تقاعدي" },
+  { value: "other", label: "أخرى" },
 ];
 
 // ============ درجة الالتزام الديني ============
 export const RELIGION_COMMITMENT = [
-  { value: "committed", label: "ملتزم" },
-  { value: "moderate", label: "متوسط الالتزام" },
-  { value: "sometimes", label: "أحياناً" },
-  { value: "not_committed", label: "غير ملتزم" },
+  { value: "committed", label: "ملتزم بالصلاة" },
+  { value: "sometimes", label: "بعض الأحيان" },
+  { value: "never", label: "أبداً" },
+];
+
+// ============ حالة الحجاب ============
+export const HIJAB_STATUS = [
+  { value: "hijab_committed", label: "ملتزمة محجبة" },
+  { value: "hijab_with_makeup", label: "محجبة مع مكياج" },
+  { value: "no_hijab", label: "بدون حجاب" },
 ];
 
 // ============ نعم/لا ============
@@ -149,8 +189,10 @@ export const AGE_RANGES = [
 export const SKIN_COLORS = [
   { value: "white", label: "أبيض" },
   { value: "wheat", label: "قمحي" },
-  { value: "brown", label: "أسمر" },
-  { value: "dark", label: "داكن" },
+  { value: "light_brown", label: "بني فاتح" },
+  { value: "brown", label: "بني" },
+  { value: "dark_brown", label: "بني غامق" },
+  { value: "black", label: "أسود" },
 ];
 
 // ============ ألوان العيون ============
@@ -173,11 +215,17 @@ export const HAIR_TYPES = [
 
 // ============ Helper Functions ============
 export const getLabelByValue = (options, value) => {
-  const option = options.find((opt) => opt.value === value);
-  return option?.label || value || "غير محدد";
+  if (Array.isArray(options)) {
+    const option = options.find((opt) => opt.value === value);
+    return option?.label || value || "غير محدد";
+  }
+  return value || "غير محدد";
 };
 
 export const getValueByLabel = (options, label) => {
-  const option = options.find((opt) => opt.label === label);
-  return option?.value || label;
+  if (Array.isArray(options)) {
+    const option = options.find((opt) => opt.label === label);
+    return option?.value || label;
+  }
+  return label;
 };
