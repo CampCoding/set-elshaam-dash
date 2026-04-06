@@ -2,7 +2,6 @@
 import {
   Tabs,
   Card,
-  Descriptions,
   Image,
   Tag,
   Button,
@@ -11,18 +10,8 @@ import {
   Col,
   Empty,
   Spin,
-  Alert,
   Divider,
   List,
-  Modal,
-  Form,
-  Input,
-  Select,
-  InputNumber,
-  Radio,
-  Checkbox,
-  DatePicker,
-  Upload,
 } from "antd";
 import {
   User,
@@ -36,15 +25,48 @@ import {
   Briefcase,
   GraduationCap,
   Scale,
-  CloudUpload,
   ArrowRight,
-  Download,
   Info,
+  Download,
+  ExternalLink,
+  Eye,
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import dayjs from "dayjs";
 import { useUserProfile } from "./useUserProfile";
 import UpdateProfileModal from "./components/UpdateProfileModal";
+import {
+  getLabelByValue,
+  NATIONALITIES,
+  RELIGIONS,
+  MARITAL_STATUS,
+  RESIDENCY_TYPES,
+  EDUCATION_LEVELS,
+  INCOME_SOURCES,
+  RELIGION_COMMITMENT,
+  SKIN_COLORS,
+  EYE_COLORS,
+  HAIR_TYPES,
+  AGE_RANGES,
+  COUNTRIES,
+} from "../../../constants/userOptions";
+
+// Document Sections Config
+const DOCUMENT_SECTIONS = [
+  {
+    key: "marital_status_docs",
+    label: "وثائق الحالة الاجتماعية",
+    color: "blue",
+  },
+  { key: "education_docs", label: "وثائق التعليم", color: "green" },
+  { key: "experience_docs", label: "وثائق الخبرة العملية", color: "purple" },
+  {
+    key: "criminal_record_docs",
+    label: "وثائق السجل الجنائي",
+    color: "orange",
+  },
+  { key: "debt_docs", label: "وثائق الديون", color: "red" },
+];
 
 const UserProfilePage = () => {
   const {
@@ -60,6 +82,7 @@ const UserProfilePage = () => {
     handleUpdateProfile,
     handleDeleteFile,
     handleDeleteUser,
+    isSaving,
   } = useUserProfile();
   const navigate = useNavigate();
 
@@ -71,6 +94,7 @@ const UserProfilePage = () => {
     );
   }
 
+  // Helper Functions
   const renderInfoItem = (label, value, icon) => (
     <div className="flex items-start gap-3 p-3 rounded-lg hover:bg-gray-50 transition-colors">
       <div className="mt-1 p-1.5 bg-primary/5 rounded-md text-primary">
@@ -85,15 +109,12 @@ const UserProfilePage = () => {
     </div>
   );
 
-  const documentSections = [
-    { label: "وثائق الحالة الاجتماعية", key: "marital_status_docs", data: mainProfile?.marital_status_docs },
-    { label: "وثائق التعليم", key: "education_docs", data: mainProfile?.education_docs },
-    { label: "وثائق الخبرة", key: "experience_docs", data: mainProfile?.experience_docs },
-    { label: "وثائق السجل الجنائي", key: "criminal_record_docs", data: mainProfile?.criminal_record_docs },
-    { label: "وثائق الديون", key: "debt_docs", data: mainProfile?.debt_docs },
-  ];
+  const formatYesNo = (value) => {
+    if (value === 1 || value === true || value === "1") return "نعم";
+    if (value === 0 || value === false || value === "0") return "لا";
+    return "غير محدد";
+  };
 
-  // Helper to ensure data is an array
   const ensureArray = (data) => {
     if (!data) return [];
     if (Array.isArray(data)) return data;
@@ -102,10 +123,19 @@ const UserProfilePage = () => {
       return Array.isArray(parsed) ? parsed : [data];
     } catch {
       if (typeof data === "string" && data.includes(",")) {
-        return data.split(",").map(s => s.trim());
+        return data.split(",").map((s) => s.trim());
       }
       return [data];
     }
+  };
+
+  const getFileName = (url) => url?.split("/").pop() || "ملف";
+
+  const getFileIcon = (url) => {
+    const ext = url?.split(".").pop()?.toLowerCase();
+    if (["jpg", "jpeg", "png", "gif", "webp"].includes(ext)) return "🖼️";
+    if (ext === "pdf") return "📄";
+    return "📎";
   };
 
   return (
@@ -124,7 +154,7 @@ const UserProfilePage = () => {
               الملف الشخصي: {mainProfile?.full_name || "اسم المستخدم"}
             </h1>
             <p className="text-gray-500 mt-1 text-sm">
-              معرّف المستخدم (ID): <span className="font-mono">{id}</span>
+              معرّف المستخدم: <span className="font-mono">{id}</span>
             </p>
           </div>
         </div>
@@ -150,13 +180,13 @@ const UserProfilePage = () => {
 
       <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
         {/* Profile Sidebar */}
-        <div className="lg:col-span-1 space-y-6">
+        <div className="lg:col-span-1 flex flex-col gap-6">
           <Card className="rounded-2xl border border-gray-100 shadow-sm overflow-hidden text-center">
             <div className="mb-4">
               <Image
                 src={mainProfile?.profile_picture}
                 alt={mainProfile?.full_name}
-                fallback="https://via.placeholder.com/150?text=No+Image"
+                fallback="https://via.placeholder.com/150?text=لا+توجد+صورة"
                 className="rounded-2xl border-4 border-white shadow-md mx-auto aspect-square object-cover"
                 width={150}
               />
@@ -164,9 +194,9 @@ const UserProfilePage = () => {
             <h2 className="text-xl font-bold text-gray-800 mb-1">
               {mainProfile?.full_name}
             </h2>
-            <div className="mb-4">
+            <div className="mb-4 flex items-center gap-2 justify-center flex-wrap">
               <Tag color="blue" className="rounded-full px-3 py-0.5">
-                {mainProfile?.marital_status === "single" ? "أعزب" : mainProfile?.marital_status}
+                {getLabelByValue(MARITAL_STATUS, mainProfile?.marital_status)}
               </Tag>
               <Tag color="cyan" className="rounded-full px-3 py-0.5">
                 {mainProfile?.gender === "male" ? "ذكر" : "أنثى"}
@@ -174,9 +204,23 @@ const UserProfilePage = () => {
             </div>
             <Divider className="my-4" />
             <div className="space-y-1 text-right">
-              {renderInfoItem("تاريخ الميلاد", mainProfile?.date_of_birth ? dayjs(mainProfile.date_of_birth).format("YYYY-MM-DD") : "غير محدد", <Calendar className="w-4 h-4" />)}
-              {renderInfoItem("العنوان الحالي", mainProfile?.current_address, <MapPin className="w-4 h-4" />)}
-              {renderInfoItem("رقم الهاتف الثاني", mainProfile?.secondary_phone, <Info className="w-4 h-4" />)}
+              {renderInfoItem(
+                "تاريخ الميلاد",
+                mainProfile?.date_of_birth
+                  ? dayjs(mainProfile.date_of_birth).format("YYYY-MM-DD")
+                  : null,
+                <Calendar className="w-4 h-4" />
+              )}
+              {renderInfoItem(
+                "العنوان الحالي",
+                mainProfile?.current_address,
+                <MapPin className="w-4 h-4" />
+              )}
+              {renderInfoItem(
+                "الجنسية",
+                getLabelByValue(NATIONALITIES, mainProfile?.nationality),
+                <Info className="w-4 h-4" />
+              )}
             </div>
           </Card>
 
@@ -187,11 +231,19 @@ const UserProfilePage = () => {
             <div className="space-y-3">
               <div className="flex justify-between items-center text-sm">
                 <span className="text-gray-500">تم إنشاء الملف</span>
-                <span className="font-semibold text-gray-700">{mainProfile?.created_at ? dayjs(mainProfile.created_at).format("YYYY-MM-DD") : "-"}</span>
+                <span className="font-semibold text-gray-700">
+                  {mainProfile?.created_at
+                    ? dayjs(mainProfile.created_at).format("YYYY-MM-DD")
+                    : "-"}
+                </span>
               </div>
               <div className="flex justify-between items-center text-sm">
                 <span className="text-gray-500">آخر تحديث</span>
-                <span className="font-semibold text-gray-700">{mainProfile?.updated_at ? dayjs(mainProfile.updated_at).format("YYYY-MM-DD") : "-"}</span>
+                <span className="font-semibold text-gray-700">
+                  {mainProfile?.updated_at
+                    ? dayjs(mainProfile.updated_at).format("YYYY-MM-DD")
+                    : "-"}
+                </span>
               </div>
             </div>
           </Card>
@@ -214,19 +266,122 @@ const UserProfilePage = () => {
                     </span>
                   ),
                   children: (
-                    <div className="space-y-8 mt-4 animate-in fade-in slide-in-from-bottom-2 duration-300">
+                    <div className="space-y-8 mt-4">
                       {/* Physical Info */}
                       <div>
                         <h3 className="text-lg font-bold text-primary flex items-center gap-2 mb-4">
                           <Scale className="w-5 h-5" /> المواصفات الجسدية
                         </h3>
                         <Row gutter={[16, 16]}>
-                          <Col xs={24} sm={8}>{renderInfoItem("الطول", `${mainProfile?.height || "-"} سم`, <Info className="w-4 h-4" />)}</Col>
-                          <Col xs={24} sm={8}>{renderInfoItem("الوزن", `${mainProfile?.weight || "-"} كجم`, <Info className="w-4 h-4" />)}</Col>
-                          <Col xs={24} sm={8}>{renderInfoItem("لون البشرة", mainProfile?.skin_color, <Info className="w-4 h-4" />)}</Col>
-                          <Col xs={24} sm={8}>{renderInfoItem("لون العيون", mainProfile?.eye_color, <Info className="w-4 h-4" />)}</Col>
-                          <Col xs={24} sm={8}>{renderInfoItem("نوع الشعر", mainProfile?.hair_type, <Info className="w-4 h-4" />)}</Col>
-                          <Col xs={24} sm={8}>{renderInfoItem("مدخن", mainProfile?.is_smoker ? "نعم" : "لا", <Info className="w-4 h-4" />)}</Col>
+                          <Col xs={24} sm={8}>
+                            {renderInfoItem(
+                              "الطول",
+                              mainProfile?.height
+                                ? `${mainProfile.height} سم`
+                                : null,
+                              <Info className="w-4 h-4" />
+                            )}
+                          </Col>
+                          <Col xs={24} sm={8}>
+                            {renderInfoItem(
+                              "الوزن",
+                              mainProfile?.weight
+                                ? `${mainProfile.weight} كجم`
+                                : null,
+                              <Info className="w-4 h-4" />
+                            )}
+                          </Col>
+                          <Col xs={24} sm={8}>
+                            {renderInfoItem(
+                              "لون البشرة",
+                              getLabelByValue(
+                                SKIN_COLORS,
+                                mainProfile?.skin_color
+                              ),
+                              <Info className="w-4 h-4" />
+                            )}
+                          </Col>
+                          <Col xs={24} sm={8}>
+                            {renderInfoItem(
+                              "لون العيون",
+                              getLabelByValue(
+                                EYE_COLORS,
+                                mainProfile?.eye_color
+                              ),
+                              <Info className="w-4 h-4" />
+                            )}
+                          </Col>
+                          <Col xs={24} sm={8}>
+                            {renderInfoItem(
+                              "نوع الشعر",
+                              getLabelByValue(
+                                HAIR_TYPES,
+                                mainProfile?.hair_type
+                              ),
+                              <Info className="w-4 h-4" />
+                            )}
+                          </Col>
+                          <Col xs={24} sm={8}>
+                            {renderInfoItem(
+                              "مدخن",
+                              formatYesNo(mainProfile?.is_smoker),
+                              <Info className="w-4 h-4" />
+                            )}
+                          </Col>
+                        </Row>
+                      </div>
+
+                      {/* Residency & Social */}
+                      <div>
+                        <h3 className="text-lg font-bold text-primary flex items-center gap-2 mb-4">
+                          <MapPin className="w-5 h-5" /> الإقامة والحالة
+                          الاجتماعية
+                        </h3>
+                        <Row gutter={[16, 16]}>
+                          <Col xs={24} sm={8}>
+                            {renderInfoItem(
+                              "نوع الإقامة",
+                              getLabelByValue(
+                                RESIDENCY_TYPES,
+                                mainProfile?.residency_type
+                              ),
+                              <Info className="w-4 h-4" />
+                            )}
+                          </Col>
+                          <Col xs={24} sm={8}>
+                            {renderInfoItem(
+                              "الديانة",
+                              getLabelByValue(RELIGIONS, mainProfile?.religion),
+                              <Info className="w-4 h-4" />
+                            )}
+                          </Col>
+                          <Col xs={24} sm={8}>
+                            {renderInfoItem(
+                              "بلد الأم",
+                              getLabelByValue(
+                                COUNTRIES,
+                                mainProfile?.mother_country
+                              ),
+                              <Info className="w-4 h-4" />
+                            )}
+                          </Col>
+                          <Col xs={24} sm={8}>
+                            {renderInfoItem(
+                              "لديه أولاد",
+                              formatYesNo(mainProfile?.has_children),
+                              <Info className="w-4 h-4" />
+                            )}
+                          </Col>
+                          <Col xs={24} sm={8}>
+                            {renderInfoItem(
+                              "الالتزام الديني",
+                              getLabelByValue(
+                                RELIGION_COMMITMENT,
+                                mainProfile?.religion_commitment
+                              ),
+                              <Info className="w-4 h-4" />
+                            )}
+                          </Col>
                         </Row>
                       </div>
 
@@ -236,85 +391,214 @@ const UserProfilePage = () => {
                           <Briefcase className="w-5 h-5" /> التعليم والعمل
                         </h3>
                         <Row gutter={[16, 16]}>
-                          <Col xs={24} sm={12}>{renderInfoItem("المستوى التعليمي", mainProfile?.education_level, <GraduationCap className="w-4 h-4" />)}</Col>
-                          <Col xs={24} sm={12}>{renderInfoItem("خبرة العمل", mainProfile?.work_experience, <Briefcase className="w-4 h-4" />)}</Col>
-                          <Col xs={24} sm={12}>{renderInfoItem("مصدر الدخل", mainProfile?.income_source, <Info className="w-4 h-4" />)}</Col>
-                          <Col xs={24} sm={12}>{renderInfoItem("نوع الإقامة", mainProfile?.residency_type, <Info className="w-4 h-4" />)}</Col>
+                          <Col xs={24} sm={12}>
+                            {renderInfoItem(
+                              "المستوى التعليمي",
+                              getLabelByValue(
+                                EDUCATION_LEVELS,
+                                mainProfile?.education_level
+                              ),
+                              <GraduationCap className="w-4 h-4" />
+                            )}
+                          </Col>
+                          <Col xs={24} sm={12}>
+                            {renderInfoItem(
+                              "مصدر الدخل",
+                              getLabelByValue(
+                                INCOME_SOURCES,
+                                mainProfile?.income_source
+                              ),
+                              <Briefcase className="w-4 h-4" />
+                            )}
+                          </Col>
+                          <Col xs={24}>
+                            {renderInfoItem(
+                              "الخبرات العملية",
+                              mainProfile?.work_experience,
+                              <Briefcase className="w-4 h-4" />
+                            )}
+                          </Col>
                         </Row>
                       </div>
 
-                      {/* Documents Section */}
+                      {/* Financial */}
                       <div>
                         <h3 className="text-lg font-bold text-primary flex items-center gap-2 mb-4">
-                          <FileText className="w-5 h-5" /> الوثائق والمرفقات
+                          <Info className="w-5 h-5" /> الوضع المالي
+                        </h3>
+                        <Row gutter={[16, 16]}>
+                          <Col xs={24} sm={8}>
+                            {renderInfoItem(
+                              "لديه سجل جنائي",
+                              formatYesNo(mainProfile?.has_criminal_record),
+                              <Info className="w-4 h-4" />
+                            )}
+                          </Col>
+                          <Col xs={24} sm={8}>
+                            {renderInfoItem(
+                              "عليه ديون",
+                              formatYesNo(mainProfile?.has_debts),
+                              <Info className="w-4 h-4" />
+                            )}
+                          </Col>
+                          <Col xs={24} sm={8}>
+                            {renderInfoItem(
+                              "قروض سابقة",
+                              formatYesNo(mainProfile?.has_previous_loans),
+                              <Info className="w-4 h-4" />
+                            )}
+                          </Col>
+                          <Col xs={24} sm={12}>
+                            {renderInfoItem(
+                              "الاستطاعة المالية (المهر)",
+                              mainProfile?.dowry_capability,
+                              <Info className="w-4 h-4" />
+                            )}
+                          </Col>
+                        </Row>
+                      </div>
+
+                      {/* About Me */}
+                      {mainProfile?.about_me_more && (
+                        <Card className="rounded-xl bg-gray-50">
+                          <h3 className="text-primary font-bold mb-2">
+                            معلومات إضافية
+                          </h3>
+                          <p className="text-sm text-gray-700 leading-relaxed">
+                            {mainProfile.about_me_more}
+                          </p>
+                        </Card>
+                      )}
+
+                      {/* Documents Section - Opens in New Tab */}
+                      <div>
+                        <h3 className="text-lg font-bold text-primary flex items-center gap-2 mb-4">
+                          <FileText className="w-5 h-5" /> الوثائق والمستندات
                         </h3>
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                          {documentSections.map((section) => {
-                            const docs = ensureArray(section.data);
+                          {DOCUMENT_SECTIONS.map((section) => {
+                            const docs = ensureArray(
+                              mainProfile?.[section.key]
+                            );
                             return (
                               <Card
                                 key={section.key}
                                 size="small"
-                                title={section.label}
-                                className="rounded-xl border-gray-100 bg-gray-50/30"
-                                extra={<span className="text-xs text-primary font-bold">{docs.length}</span>}
+                                title={
+                                  <span className="flex items-center gap-2">
+                                    <FileText className="w-4 h-4" />
+                                    {section.label}
+                                  </span>
+                                }
+                                className="rounded-xl border-gray-100"
+                                extra={
+                                  <Tag color={section.color}>{docs.length}</Tag>
+                                }
                               >
-                                <List
-                                  size="small"
-                                  dataSource={docs}
-                                  renderItem={(docUrl) => (
-                                    <List.Item
-                                      className="px-0 py-2 border-none flex justify-between items-center"
-                                    >
-                                      <span className="text-xs text-gray-500 truncate max-w-[150px]">
-                                        {typeof docUrl === "string" ? docUrl.split("/").pop() : "document"}
-                                      </span>
-                                      <Space>
-                                        <Button
-                                          size="small"
-                                          icon={<Download className="w-3 h-3" />}
-                                          onClick={() => window.open(docUrl)}
-                                        />
-                                        <Button
-                                          size="small"
-                                          danger
-                                          icon={<Trash2 className="w-3 h-3" />}
-                                          onClick={() => handleDeleteFile({ fieldName: section.key, filePath: docUrl, type: "main" })}
-                                        />
-                                      </Space>
-                                    </List.Item>
-                                  )}
-                                />
+                                {docs.length === 0 ? (
+                                  <Empty
+                                    image={Empty.PRESENTED_IMAGE_SIMPLE}
+                                    description="لا توجد وثائق"
+                                    className="py-4"
+                                  />
+                                ) : (
+                                  <List
+                                    size="small"
+                                    dataSource={docs}
+                                    renderItem={(docUrl) => (
+                                      <List.Item className="px-0 py-2 border-b last:border-b-0">
+                                        <div className="flex items-center justify-between w-full">
+                                          <span className="flex items-center gap-2 text-sm text-gray-600">
+                                            <span>{getFileIcon(docUrl)}</span>
+                                            <span className="truncate max-w-[120px]">
+                                              {getFileName(docUrl)}
+                                            </span>
+                                          </span>
+                                          <Space size="small">
+                                            {/* Open in New Tab */}
+                                            <Button
+                                              type="text"
+                                              size="small"
+                                              icon={
+                                                <ExternalLink className="w-4 h-4 text-blue-500" />
+                                              }
+                                              onClick={() =>
+                                                window.open(docUrl, "_blank")
+                                              }
+                                              title="فتح في نافذة جديدة"
+                                            />
+                                            {/* Delete */}
+                                            <Button
+                                              type="text"
+                                              size="small"
+                                              danger
+                                              icon={
+                                                <Trash2 className="w-4 h-4" />
+                                              }
+                                              onClick={() =>
+                                                handleDeleteFile({
+                                                  fieldName: section.key,
+                                                  filePath: docUrl,
+                                                  type: "main",
+                                                })
+                                              }
+                                              title="حذف"
+                                            />
+                                          </Space>
+                                        </div>
+                                      </List.Item>
+                                    )}
+                                  />
+                                )}
                               </Card>
                             );
                           })}
                         </div>
                       </div>
 
-                      {/* Gallery */}
+                      {/* Gallery - Inline */}
                       <div>
                         <h3 className="text-lg font-bold text-primary flex items-center gap-2 mb-4">
                           <ImageIcon className="w-5 h-5" /> معرض الصور
                         </h3>
-                        {ensureArray(mainProfile?.user_gallery_photos).length > 0 ? (
+                        {ensureArray(mainProfile?.user_gallery_photos).length >
+                        0 ? (
                           <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
-                            {ensureArray(mainProfile.user_gallery_photos).map((photo, index) => (
-                              <div key={index} className="relative group rounded-xl overflow-hidden shadow-sm border-2 border-white">
-                                <Image
-                                  src={photo}
-                                  className="w-full aspect-square object-cover"
-                                />
-                                <button
-                                  className="absolute top-1 right-1 bg-red-500 text-white p-1 rounded-full opacity-0 group-hover:opacity-100 transition-opacity"
-                                  onClick={() => handleDeleteFile({ fieldName: "user_gallery_photos", filePath: photo, type: "main" })}
-                                >
-                                  <Trash2 className="w-3 h-3" />
-                                </button>
-                              </div>
-                            ))}
+                            <Image.PreviewGroup>
+                              {ensureArray(mainProfile.user_gallery_photos).map(
+                                (photo, index) => (
+                                  <div
+                                    key={index}
+                                    className="relative group rounded-xl overflow-hidden shadow-sm border-2 border-white aspect-square"
+                                  >
+                                    <Image
+                                      src={photo}
+                                      className="w-full h-full object-cover"
+                                      alt={`صورة ${index + 1}`}
+                                    />
+                                    <button
+                                      className="absolute top-2 right-2 bg-red-500 text-white p-1.5 rounded-full opacity-0 group-hover:opacity-100 transition-opacity shadow-lg"
+                                      onClick={(e) => {
+                                        e.stopPropagation();
+                                        handleDeleteFile({
+                                          fieldName: "user_gallery_photos",
+                                          filePath: photo,
+                                          type: "main",
+                                        });
+                                      }}
+                                    >
+                                      <Trash2 className="w-3 h-3" />
+                                    </button>
+                                  </div>
+                                )
+                              )}
+                            </Image.PreviewGroup>
                           </div>
                         ) : (
-                          <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} description="لا توجد صور في المعرض" />
+                          <Empty
+                            image={Empty.PRESENTED_IMAGE_SIMPLE}
+                            description="لا توجد صور في المعرض"
+                          />
                         )}
                       </div>
                     </div>
@@ -329,60 +613,175 @@ const UserProfilePage = () => {
                     </span>
                   ),
                   children: (
-                    <div className="space-y-8 mt-4 animate-in fade-in slide-in-from-bottom-2 duration-300">
-                      <div>
-                        <h3 className="text-lg font-bold text-primary flex items-center gap-2 mb-4">
-                          <Heart className="w-5 h-5 text-accent" /> تفضيلات الشريك المستقبلية
-                        </h3>
-                        <Row gutter={[16, 16]}>
-                          <Col xs={24} sm={8}>{renderInfoItem("العمر المفضل", targetProfile?.target_age_range, <Info className="w-4 h-4" />)}</Col>
-                          <Col xs={24} sm={8}>{renderInfoItem("الجنسية المفضلة", targetProfile?.target_nationality, <Info className="w-4 h-4" />)}</Col>
-                          <Col xs={24} sm={8}>{renderInfoItem("الجنسية المحددة", targetProfile?.target_specific_nationality, <Info className="w-4 h-4" />)}</Col>
-                          <Col xs={24} sm={8}>{renderInfoItem("الديانة", targetProfile?.target_religion, <Info className="w-4 h-4" />)}</Col>
-                          <Col xs={24} sm={8}>{renderInfoItem("الحالة الاجتماعية", targetProfile?.target_marital_status, <Info className="w-4 h-4" />)}</Col>
-                          <Col xs={24} sm={8}>{renderInfoItem("الطول المفضل", targetProfile?.target_height, <Info className="w-4 h-4" />)}</Col>
-                          <Col xs={24} sm={8}>{renderInfoItem("الوزن المفضل", targetProfile?.target_weight, <Info className="w-4 h-4" />)}</Col>
-                          <Col xs={24} sm={8}>{renderInfoItem("لون البشرة", targetProfile?.target_skin_color, <Info className="w-4 h-4" />)}</Col>
-                        </Row>
-                      </div>
+                    <div className="space-y-8 mt-4">
+                      {!targetProfile ? (
+                        <Empty
+                          image={Empty.PRESENTED_IMAGE_SIMPLE}
+                          description="لم يتم تحديد مواصفات الشريك بعد"
+                        />
+                      ) : (
+                        <>
+                          {/* Basic Target Specs */}
+                          <div>
+                            <h3 className="text-lg font-bold text-primary flex items-center gap-2 mb-4">
+                              <Heart className="w-5 h-5 text-accent" />{" "}
+                              المواصفات الأساسية
+                            </h3>
+                            <Row gutter={[16, 16]}>
+                              <Col xs={24} sm={8}>
+                                {renderInfoItem(
+                                  "الفئة العمرية",
+                                  getLabelByValue(
+                                    AGE_RANGES,
+                                    targetProfile?.target_age_range
+                                  ),
+                                  <Info className="w-4 h-4" />
+                                )}
+                              </Col>
+                              <Col xs={24} sm={8}>
+                                {renderInfoItem(
+                                  "الجنسية المطلوبة",
+                                  getLabelByValue(
+                                    NATIONALITIES,
+                                    targetProfile?.target_nationality
+                                  ),
+                                  <Info className="w-4 h-4" />
+                                )}
+                              </Col>
+                              <Col xs={24} sm={8}>
+                                {renderInfoItem(
+                                  "الحالة الاجتماعية",
+                                  getLabelByValue(
+                                    [
+                                      ...MARITAL_STATUS,
+                                      { value: "any", label: "لا يهم" },
+                                    ],
+                                    targetProfile?.target_marital_status
+                                  ),
+                                  <Info className="w-4 h-4" />
+                                )}
+                              </Col>
+                              <Col xs={24} sm={8}>
+                                {renderInfoItem(
+                                  "الديانة",
+                                  getLabelByValue(
+                                    RELIGIONS,
+                                    targetProfile?.target_religion
+                                  ),
+                                  <Info className="w-4 h-4" />
+                                )}
+                              </Col>
+                            </Row>
+                          </div>
 
-                      <div>
-                        <h3 className="text-lg font-bold text-primary flex items-center gap-2 mb-4">
-                           <Briefcase className="w-5 h-5" /> تفضيلات العمل والاجتماع
-                        </h3>
-                         <Row gutter={[16, 16]}>
-                            <Col xs={24} sm={12}>{renderInfoItem("المستوى التعليمي", targetProfile?.target_education_level, <GraduationCap className="w-4 h-4" />)}</Col>
-                            <Col xs={24} sm={12}>{renderInfoItem("الحالة العملية", targetProfile?.target_work_status, <Briefcase className="w-4 h-4" />)}</Col>
-                            <Col xs={24} sm={12}>{renderInfoItem("النشاط الاجتماعي", targetProfile?.target_social_activity, <Info className="w-4 h-4" />)}</Col>
-                            <Col xs={24} sm={12}>{renderInfoItem("التواجد على وسائل التواصل", targetProfile?.target_social_media_presence, <Info className="w-4 h-4" />)}</Col>
-                         </Row>
-                      </div>
+                          {/* Physical Target Specs */}
+                          <div>
+                            <h3 className="text-lg font-bold text-primary flex items-center gap-2 mb-4">
+                              <Scale className="w-5 h-5" /> المواصفات الجسدية
+                            </h3>
+                            <Row gutter={[16, 16]}>
+                              <Col xs={24} sm={8}>
+                                {renderInfoItem(
+                                  "الطول",
+                                  targetProfile?.target_height,
+                                  <Info className="w-4 h-4" />
+                                )}
+                              </Col>
+                              <Col xs={24} sm={8}>
+                                {renderInfoItem(
+                                  "الوزن",
+                                  targetProfile?.target_weight,
+                                  <Info className="w-4 h-4" />
+                                )}
+                              </Col>
+                              <Col xs={24} sm={8}>
+                                {renderInfoItem(
+                                  "لون البشرة",
+                                  getLabelByValue(
+                                    [
+                                      ...SKIN_COLORS,
+                                      { value: "any", label: "لا يهم" },
+                                    ],
+                                    targetProfile?.target_skin_color
+                                  ),
+                                  <Info className="w-4 h-4" />
+                                )}
+                              </Col>
+                            </Row>
+                          </div>
 
-                      {/* Multi-Select items */}
-                      <div className="bg-gray-50 rounded-2xl p-6">
-                        <h3 className="text-lg font-bold text-primary mb-4">مشاريع ومهام منزلية (تفضيلات)</h3>
-                        <div className="flex flex-wrap gap-2">
-                           {targetProfile?.["target_house-tasks_preference"]?.map((task, i) => (
-                             <Tag key={i} color="success" className="rounded-full px-4 py-1 text-sm">{task}</Tag>
-                           ))}
-                        </div>
-                      </div>
+                          {/* Education & Work Preferences */}
+                          <div>
+                            <h3 className="text-lg font-bold text-primary flex items-center gap-2 mb-4">
+                              <Briefcase className="w-5 h-5" /> التعليم والعمل
+                            </h3>
+                            <Row gutter={[16, 16]}>
+                              <Col xs={24} sm={12}>
+                                {renderInfoItem(
+                                  "المستوى التعليمي",
+                                  getLabelByValue(
+                                    [
+                                      ...EDUCATION_LEVELS,
+                                      { value: "any", label: "لا يهم" },
+                                    ],
+                                    targetProfile?.target_education_level
+                                  ),
+                                  <GraduationCap className="w-4 h-4" />
+                                )}
+                              </Col>
+                              <Col xs={24} sm={12}>
+                                {renderInfoItem(
+                                  "الحالة العملية",
+                                  targetProfile?.target_work_status ===
+                                    "working"
+                                    ? "يعمل/تعمل"
+                                    : targetProfile?.target_work_status ===
+                                        "not_working"
+                                      ? "لا يعمل/لا تعمل"
+                                      : "لا يهم",
+                                  <Briefcase className="w-4 h-4" />
+                                )}
+                              </Col>
+                            </Row>
+                          </div>
 
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        <Card title="عادات مرغوبة" size="small" className="rounded-xl border-green-100 bg-green-50/20">
-                            <p className="text-sm text-gray-700 leading-relaxed">{targetProfile?.target_desired_habits || "لا توجد تفاصيل"}</p>
-                        </Card>
-                        <Card title="عادات غير مرغوبة" size="small" className="rounded-xl border-red-100 bg-red-50/20">
-                            <p className="text-sm text-gray-700 leading-relaxed">{targetProfile?.target_unwanted_habits || "لا توجد تفاصيل"}</p>
-                        </Card>
-                      </div>
+                          {/* Habits */}
+                          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <Card
+                              title="عادات مرغوبة"
+                              size="small"
+                              className="rounded-xl border-green-100 bg-green-50/20"
+                            >
+                              <p className="text-sm text-gray-700 leading-relaxed">
+                                {targetProfile?.target_desired_habits ||
+                                  "لم يتم تحديد"}
+                              </p>
+                            </Card>
+                            <Card
+                              title="عادات غير مرغوبة"
+                              size="small"
+                              className="rounded-xl border-red-100 bg-red-50/20"
+                            >
+                              <p className="text-sm text-gray-700 leading-relaxed">
+                                {targetProfile?.target_unwanted_habits ||
+                                  "لم يتم تحديد"}
+                              </p>
+                            </Card>
+                          </div>
 
-                      <Card className="rounded-xl border-yellow-100 bg-yellow-50/20">
-                        <h3 className="text-primary font-bold flex items-center gap-2 mb-2">
-                            <Info className="w-4 h-4" /> شروط خاصة
-                        </h3>
-                        <p className="text-sm text-gray-700 leading-relaxed">{targetProfile?.target_special_conditions || "لا توجد شروط خاصة"}</p>
-                      </Card>
+                          {/* Special Conditions */}
+                          {targetProfile?.target_special_conditions && (
+                            <Card className="rounded-xl border-yellow-100 bg-yellow-50/20">
+                              <h3 className="text-primary font-bold flex items-center gap-2 mb-2">
+                                <Info className="w-4 h-4" /> شروط خاصة
+                              </h3>
+                              <p className="text-sm text-gray-700 leading-relaxed">
+                                {targetProfile.target_special_conditions}
+                              </p>
+                            </Card>
+                          )}
+                        </>
+                      )}
                     </div>
                   ),
                 },

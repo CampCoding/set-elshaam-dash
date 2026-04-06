@@ -1,4 +1,5 @@
-import { useState, useMemo } from "react";
+// src/components/common/DataTable.jsx
+import { useState, useMemo, useEffect } from "react";
 import { Table, Input, Button, Space, DatePicker, ConfigProvider } from "antd";
 import { Search, Plus, RotateCcw, Filter } from "lucide-react";
 import arEG from "antd/locale/ar_EG";
@@ -201,6 +202,7 @@ const DataTable = ({
   loading = false,
   searchable = true,
   searchPlaceholder = "بحث في الجدول...",
+  searchValue: controlledSearchValue, // ← Controlled search value
   onSearch,
   addButton = false,
   addButtonText = "إضافة",
@@ -215,11 +217,17 @@ const DataTable = ({
   headerExtra,
   ...rest
 }) => {
-  const [searchText, setSearchText] = useState("");
+  // Internal search state (for uncontrolled mode)
+  const [internalSearchText, setInternalSearchText] = useState("");
 
-  // Global search filter
+  // Determine if controlled or uncontrolled
+  const isControlled = controlledSearchValue !== undefined;
+  const searchText = isControlled ? controlledSearchValue : internalSearchText;
+
+  // Global search filter (only for uncontrolled mode - local filtering)
   const filteredData = useMemo(() => {
-    if (!searchText || !searchable) return data;
+    // If controlled (server-side search), don't filter locally
+    if (isControlled || !searchText || !searchable) return data;
 
     return data.filter((item) =>
       Object.values(item).some((value) => {
@@ -230,12 +238,28 @@ const DataTable = ({
           .includes(searchText.toLowerCase());
       })
     );
-  }, [searchText, data, searchable]);
+  }, [searchText, data, searchable, isControlled]);
 
   const handleSearchChange = (e) => {
     const value = e.target.value;
-    setSearchText(value);
-    onSearch?.(value);
+
+    if (isControlled) {
+      // Controlled: just call parent handler
+      onSearch?.(value);
+    } else {
+      // Uncontrolled: update internal state
+      setInternalSearchText(value);
+      onSearch?.(value);
+    }
+  };
+
+  const handleClearSearch = () => {
+    if (isControlled) {
+      onSearch?.("");
+    } else {
+      setInternalSearchText("");
+      onSearch?.("");
+    }
   };
 
   // Default row class for zebra striping
@@ -271,6 +295,7 @@ const DataTable = ({
                   onChange={handleSearchChange}
                   prefix={<Search className="w-5 h-5 text-gray-400" />}
                   allowClear
+                  onClear={handleClearSearch}
                   size="large"
                 />
               </div>
@@ -299,7 +324,7 @@ const DataTable = ({
         <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
           <Table
             columns={columns}
-            dataSource={filteredData}
+            dataSource={isControlled ? data : filteredData}
             loading={loading}
             rowKey={rowKey}
             rowHoverable={false}
@@ -313,7 +338,7 @@ const DataTable = ({
                       `${range[0]}-${range[1]} من ${total} عنصر`,
                     pageSizeOptions: ["10", "20", "50", "100"],
                     locale: { items_per_page: "/ صفحة" },
-                    position: ["bottomCenter"], // مكان الـ pagination
+                    position: ["bottomCenter"],
                   }
                 : false
             }

@@ -14,6 +14,7 @@ import {
   Image as ImageIcon,
   Images,
   Layers,
+  DollarSign,
 } from "lucide-react";
 
 // Auth Pages (No Lazy)
@@ -22,7 +23,10 @@ import Login from "../pages/auth/Login";
 // Admin Pages (Lazy)
 const Dashboard = lazy(() => import("../pages/dashboard/Home/Home"));
 const UsersPage = lazy(() => import("../pages/dashboard/Users/UsersPage"));
-const UserProfilePage = lazy(() => import("../pages/dashboard/Users/UserProfilePage"));
+const UserProfilePage = lazy(
+  () => import("../pages/dashboard/Users/UserProfilePage")
+);
+const ProfilesPage = lazy(() => import("../pages/dashboard/profiles/Profiles"));
 const Services = lazy(() => import("../pages/dashboard/Services/Services"));
 const Packages = lazy(() => import("../pages/dashboard/packages/Packages"));
 const Faqs = lazy(() => import("../pages/dashboard/faqs/Faqs"));
@@ -31,6 +35,17 @@ const GalleryItems = lazy(
 );
 const Categories = lazy(
   () => import("../pages/dashboard/gallery/categories/Categories")
+);
+const StagesPrice = lazy(
+  () => import("../pages/dashboard/stagePrice/StagesPrice")
+);
+
+// Legal Pages (Lazy)
+const PolicyPrivacy = lazy(
+  () => import("../pages/dashboard/policies/PolicyPrivacy")
+);
+const PolicyTerms = lazy(
+  () => import("../pages/dashboard/policies/PolicyTerms")
 );
 
 // ============ AUTH ROUTES ============
@@ -44,6 +59,13 @@ export const adminRoutes = [
     label: "الرئيسية",
     icon: LayoutDashboard,
     element: <Dashboard />,
+  },
+
+  {
+    path: "/profiles",
+    label: "الملفات الشخصية",
+    icon: Users,
+    element: <ProfilesPage />,
   },
   {
     path: "/users",
@@ -76,6 +98,14 @@ export const adminRoutes = [
     icon: MessageCircleQuestion,
     element: <Faqs />,
   },
+
+  {
+    path: "/stages-price",
+    label: "سعر المراحل",
+    icon: DollarSign,
+    element: <StagesPrice />,
+  },
+
   {
     path: "/gallery",
     label: "إدارة المعرض",
@@ -92,6 +122,26 @@ export const adminRoutes = [
         element: <GalleryItems />,
         label: "عناصر المعرض",
         icon: ImageIcon,
+      },
+    ],
+  },
+
+  {
+    path: "/policies",
+    label: "السياسات والشروط",
+    icon: FileText,
+    children: [
+      {
+        path: "privacy",
+        element: <PolicyPrivacy />,
+        label: "سياسة الخصوصية",
+        icon: FileText,
+      },
+      {
+        path: "terms",
+        element: <PolicyTerms />,
+        label: "العقد",
+        icon: FileText,
       },
     ],
   },
