@@ -1,4 +1,6 @@
 // src/pages/dashboard/Users/UserProfilePage.jsx
+
+import React, { useRef, useState } from "react";
 import {
   Tabs,
   Card,
@@ -12,12 +14,14 @@ import {
   Spin,
   Divider,
   List,
+  Modal,
+  Tooltip,
+  message,
 } from "antd";
 import {
   User,
   Heart,
   FileText,
-  Image as ImageIcon,
   Edit,
   Trash2,
   Calendar,
@@ -27,14 +31,19 @@ import {
   Scale,
   ArrowRight,
   Info,
-  Download,
   ExternalLink,
-  Eye,
+  Printer,
+  FileDown,
+  Copy,
+  Check,
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import { useReactToPrint } from "react-to-print";
+import html2pdf from "html2pdf.js";
 import dayjs from "dayjs";
 import { useUserProfile } from "./useUserProfile";
 import UpdateProfileModal from "./components/UpdateProfileModal";
+import PrintableProfile from "./components/PrintableProfile";
 import {
   getLabelByValue,
   NATIONALITIES,
@@ -89,6 +98,67 @@ const UserProfilePage = () => {
   } = useUserProfile();
   const navigate = useNavigate();
 
+  // ✅ States للطباعة والتصدير
+  const [isPrintModalVisible, setIsPrintModalVisible] = useState(false);
+  const [isExporting, setIsExporting] = useState(false);
+  const [copied, setCopied] = useState(false);
+  const printRef = useRef(null);
+
+  // ✅ طباعة مباشرة
+  const handlePrint = useReactToPrint({
+    content: () => printRef.current,
+    documentTitle: `استمارة_${id}_ست_الشام`,
+    onAfterPrint: () => {
+      setIsPrintModalVisible(false);
+      message.success("تمت الطباعة بنجاح");
+    },
+  });
+
+  // ✅ تصدير PDF
+  const handleExportPDF = async () => {
+    if (!printRef.current) return;
+
+    setIsExporting(true);
+
+    const element = printRef.current;
+    const opt = {
+      margin: [10, 10, 10, 10],
+      filename: `استمارة_${id}_ست_الشام.pdf`,
+      image: { type: "jpeg", quality: 0.98 },
+      html2canvas: {
+        scale: 2,
+        useCORS: true,
+        letterRendering: true,
+      },
+      jsPDF: {
+        unit: "mm",
+        format: "a4",
+        orientation: "portrait",
+      },
+      pagebreak: { mode: ["avoid-all", "css", "legacy"] },
+    };
+
+    try {
+      await html2pdf().set(opt).from(element).save();
+      message.success("تم تحميل ملف PDF بنجاح");
+    } catch (error) {
+      console.error("Error exporting PDF:", error);
+      message.error("حدث خطأ أثناء تصدير الملف");
+    } finally {
+      setIsExporting(false);
+    }
+  };
+
+  // ✅ نسخ رقم الاستمارة للمشاركة
+  const handleCopyProfileId = () => {
+    const profileInfo = `رقم الاستمارة: #${id}\nللتواصل والاستفسار:\n📧 info@setalsham.com\n📞 +358 46 520 2214\n🌐 www.setalsham.com`;
+    navigator.clipboard.writeText(profileInfo);
+    setCopied(true);
+    message.success("تم نسخ معلومات الاستمارة!");
+    setTimeout(() => setCopied(false), 2000);
+  };
+
+  // Loading State
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-[400px]">
@@ -97,24 +167,44 @@ const UserProfilePage = () => {
     );
   }
 
-  // Helper Functions
+  // ==================== Helper Functions ====================
+
+  const ensureArray = (data) => {
+    if (!data) return [];
+    if (Array.isArray(data)) return data;
+    try {
+      const parsed = JSON.parse(data);
+      return Array.isArray(parsed) ? parsed : [data];
+    } catch {
+      if (typeof data === "string" && data.split(",").length > 1) {
+        return data.split(",").map((s) => s.trim());
+      }
+      return [data];
+    }
+  };
+
   const renderInfoItem = (label, value, icon, options = null) => {
     let displayValue = value;
-    
+
     if (options && value !== null && value !== undefined) {
       const arrayValue = ensureArray(value);
-      if (arrayValue.length > 1 || (Array.isArray(value) || (typeof value === 'string' && (value.startsWith('[') || value.includes(','))))) {
-          displayValue = (
-              <div className="flex flex-wrap gap-1 mt-1">
-                  {arrayValue.map(v => (
-                      <Tag key={v} className="m-0 text-[10px] px-2 py-0">
-                          {getLabelByValue(options, v)}
-                      </Tag>
-                  ))}
-              </div>
-          );
+      if (
+        arrayValue.length > 1 ||
+        Array.isArray(value) ||
+        (typeof value === "string" &&
+          (value.startsWith("[") || value.includes(",")))
+      ) {
+        displayValue = (
+          <div className="flex flex-wrap gap-1 mt-1">
+            {arrayValue.map((v) => (
+              <Tag key={v} className="m-0 text-[10px] px-2 py-0">
+                {getLabelByValue(options, v)}
+              </Tag>
+            ))}
+          </div>
+        );
       } else {
-          displayValue = getLabelByValue(options, arrayValue[0]);
+        displayValue = getLabelByValue(options, arrayValue[0]);
       }
     }
 
@@ -134,29 +224,15 @@ const UserProfilePage = () => {
   };
 
   const getSectLabel = (religion, sect) => {
-      if (!religion || !sect) return sect || "غير محدد";
-      const sects = SECTS_BY_RELIGION[religion] || SECTS_BY_RELIGION.other;
-      return getLabelByValue(sects, sect);
+    if (!religion || !sect) return sect || "غير محدد";
+    const sects = SECTS_BY_RELIGION[religion] || SECTS_BY_RELIGION.other;
+    return getLabelByValue(sects, sect);
   };
 
   const formatYesNo = (value) => {
     if (value === 1 || value === true || value === "1") return "نعم";
     if (value === 0 || value === false || value === "0") return "لا";
     return "غير محدد";
-  };
-
-  const ensureArray = (data) => {
-    if (!data) return [];
-    if (Array.isArray(data)) return data;
-    try {
-      const parsed = JSON.parse(data);
-      return Array.isArray(parsed) ? parsed : [data];
-    } catch {
-      if (typeof data === "string" && data.split(",").length > 1) {
-        return data.split(",").map((s) => s.trim());
-      }
-      return [data];
-    }
   };
 
   const getFileName = (url) => url?.split("/").pop() || "ملف";
@@ -168,9 +244,11 @@ const UserProfilePage = () => {
     return "📎";
   };
 
+  // ==================== Render ====================
+
   return (
     <div className="space-y-6">
-      {/* Header Section */}
+      {/* ==================== Header Section ==================== */}
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
         <div className="flex items-center gap-4">
           <Button
@@ -188,7 +266,39 @@ const UserProfilePage = () => {
             </p>
           </div>
         </div>
-        <Space>
+
+        {/* Action Buttons */}
+        <Space wrap>
+          {/* زر طباعة/تصدير PDF */}
+          <Tooltip title="طباعة أو تصدير PDF">
+            <Button
+              type="default"
+              icon={<Printer className="w-4 h-4" />}
+              className="flex items-center gap-2"
+              onClick={() => setIsPrintModalVisible(true)}
+            >
+              طباعة الاستمارة
+            </Button>
+          </Tooltip>
+
+          {/* زر نسخ رقم الاستمارة */}
+          <Tooltip title="نسخ رقم الاستمارة للمشاركة">
+            <Button
+              type="default"
+              icon={
+                copied ? (
+                  <Check className="w-4 h-4 text-green-500" />
+                ) : (
+                  <Copy className="w-4 h-4" />
+                )
+              }
+              className="flex items-center gap-2"
+              onClick={handleCopyProfileId}
+            >
+              {copied ? "تم النسخ!" : "نسخ الرقم"}
+            </Button>
+          </Tooltip>
+
           <Button
             type="primary"
             icon={<Edit className="w-4 h-4" />}
@@ -208,9 +318,11 @@ const UserProfilePage = () => {
         </Space>
       </div>
 
+      {/* ==================== Main Content Grid ==================== */}
       <div className="grid grid-cols-1 lg:grid-cols-4 gap-6 items-start">
-        {/* Profile Sidebar */}
+        {/* ==================== Profile Sidebar ==================== */}
         <div className="lg:col-span-1 flex flex-col gap-6 sticky top-20">
+          {/* Profile Card */}
           <Card className="rounded-2xl border border-gray-100 shadow-sm overflow-hidden text-center">
             <div className="mb-4">
               <Image
@@ -232,7 +344,10 @@ const UserProfilePage = () => {
                 {mainProfile?.gender === "male" ? "ذكر" : "أنثى"}
               </Tag>
               <Tag color="purple" className="rounded-full px-3 py-0.5">
-                {getLabelByValue(EDUCATION_LEVELS, mainProfile?.education_level)}
+                {getLabelByValue(
+                  EDUCATION_LEVELS,
+                  mainProfile?.education_level
+                )}
               </Tag>
             </div>
             <Divider className="my-4" />
@@ -249,7 +364,7 @@ const UserProfilePage = () => {
                 mainProfile?.current_address,
                 <MapPin className="w-4 h-4" />
               )}
-               {renderInfoItem(
+              {renderInfoItem(
                 "الجنسية",
                 mainProfile?.nationality,
                 <Info className="w-4 h-4" />,
@@ -268,6 +383,7 @@ const UserProfilePage = () => {
             </div>
           </Card>
 
+          {/* Admin Status Card */}
           <Card
             title="الحالة الإدارية"
             className="rounded-2xl border border-gray-100 shadow-sm"
@@ -291,9 +407,46 @@ const UserProfilePage = () => {
               </div>
             </div>
           </Card>
+
+          {/* Quick Actions Card */}
+          <Card
+            title="إجراءات سريعة"
+            className="rounded-2xl border border-gray-100 shadow-sm"
+          >
+            <div className="space-y-2">
+              <Button
+                type="default"
+                icon={<Printer className="w-4 h-4" />}
+                className="w-full flex items-center justify-center gap-2"
+                onClick={() => setIsPrintModalVisible(true)}
+              >
+                طباعة الاستمارة
+              </Button>
+              <Button
+                type="default"
+                icon={<FileDown className="w-4 h-4" />}
+                className="w-full flex items-center justify-center gap-2"
+                onClick={() => {
+                  setIsPrintModalVisible(true);
+                  // Auto export after modal opens
+                  setTimeout(() => handleExportPDF(), 500);
+                }}
+              >
+                تحميل PDF
+              </Button>
+              <Button
+                type="default"
+                icon={<Copy className="w-4 h-4" />}
+                className="w-full flex items-center justify-center gap-2"
+                onClick={handleCopyProfileId}
+              >
+                نسخ رقم الاستمارة
+              </Button>
+            </div>
+          </Card>
         </div>
 
-        {/* Content Area */}
+        {/* ==================== Content Area ==================== */}
         <div className="lg:col-span-3">
           <Card className="rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
             <Tabs
@@ -301,6 +454,7 @@ const UserProfilePage = () => {
               onChange={setActiveTab}
               className="px-6 pb-6"
               items={[
+                // ==================== Tab 1: Personal Data ====================
                 {
                   key: "main",
                   label: (
@@ -410,7 +564,10 @@ const UserProfilePage = () => {
                           <Col xs={24} sm={8}>
                             {renderInfoItem(
                               "المذهب",
-                              getSectLabel(mainProfile?.religion, mainProfile?.sect),
+                              getSectLabel(
+                                mainProfile?.religion,
+                                mainProfile?.sect
+                              ),
                               <Info className="w-4 h-4" />
                             )}
                           </Col>
@@ -467,7 +624,7 @@ const UserProfilePage = () => {
                             )}
                           </Col>
                           <Col xs={24}>
-                             {renderInfoItem(
+                            {renderInfoItem(
                               "معلومات الأطفال",
                               mainProfile?.children_info,
                               <Info className="w-4 h-4" />
@@ -545,7 +702,7 @@ const UserProfilePage = () => {
                         </Row>
                       </div>
 
-                       {/* About Me */}
+                      {/* About Me */}
                       {mainProfile?.about_me_more && (
                         <Card className="rounded-xl bg-gray-50">
                           <h3 className="text-primary font-bold mb-2">
@@ -557,41 +714,87 @@ const UserProfilePage = () => {
                         </Card>
                       )}
 
-                       {/* Pledges & Signature */}
-                       <div>
-                         <h3 className="text-lg font-bold text-primary flex items-center gap-2 mb-4">
-                           <FileText className="w-5 h-5" /> التعهدات والتوقيع
-                         </h3>
-                         <Row gutter={[16, 16]}>
-                           <Col xs={24} md={16}>
-                             <div className="space-y-3">
-                               <div className="flex items-center gap-3 p-3 bg-green-50 rounded-lg">
-                                  <Tag color={mainProfile?.info_correctness_pledge ? "success" : "error"}>{mainProfile?.info_correctness_pledge ? "مكتمل" : "غير مكتمل"}</Tag>
-                                  <span className="text-sm font-medium">أتعهد بأن جميع المعلومات الشخصية المقدمة صحيحة وأتحمل المسؤولية</span>
-                               </div>
-                               <div className="flex items-center gap-3 p-3 bg-green-50 rounded-lg">
-                                  <Tag color={mainProfile?.contract_terms_accepted ? "success" : "error"}>{mainProfile?.contract_terms_accepted ? "مكتمل" : "غير مكتمل"}</Tag>
-                                  <span className="text-sm font-medium">لقد قرأت بنود العقد وأوافق عليها</span>
-                               </div>
-                               <div className="flex items-center gap-3 p-3 bg-green-50 rounded-lg">
-                                  <Tag color={mainProfile?.gdpr_accepted ? "success" : "error"}>{mainProfile?.gdpr_accepted ? "مكتمل" : "غير مكتمل"}</Tag>
-                                  <span className="text-sm font-medium">سياسة الخصوصية وحماية البيانات (GDPR+)</span>
-                               </div>
-                             </div>
-                           </Col>
-                           <Col xs={24} md={8}>
-                             <Card size="small" title="التوقيع" className="text-center rounded-xl overflow-hidden">
-                                {mainProfile?.signature_path ? (
-                                   <Image src={mainProfile.signature_path} className="max-h-32 object-contain" />
-                                ) : (
-                                  <div className="py-8 text-gray-400">لا يوجد توقيع</div>
-                                )}
-                             </Card>
-                           </Col>
-                         </Row>
-                       </div>
+                      {/* Pledges & Signature */}
+                      <div>
+                        <h3 className="text-lg font-bold text-primary flex items-center gap-2 mb-4">
+                          <FileText className="w-5 h-5" /> التعهدات والتوقيع
+                        </h3>
+                        <Row gutter={[16, 16]}>
+                          <Col xs={24} md={16}>
+                            <div className="space-y-3">
+                              <div className="flex items-center gap-3 p-3 bg-green-50 rounded-lg">
+                                <Tag
+                                  color={
+                                    mainProfile?.info_correctness_pledge
+                                      ? "success"
+                                      : "error"
+                                  }
+                                >
+                                  {mainProfile?.info_correctness_pledge
+                                    ? "مكتمل"
+                                    : "غير مكتمل"}
+                                </Tag>
+                                <span className="text-sm font-medium">
+                                  أتعهد بأن جميع المعلومات الشخصية المقدمة صحيحة
+                                  وأتحمل المسؤولية
+                                </span>
+                              </div>
+                              <div className="flex items-center gap-3 p-3 bg-green-50 rounded-lg">
+                                <Tag
+                                  color={
+                                    mainProfile?.contract_terms_accepted
+                                      ? "success"
+                                      : "error"
+                                  }
+                                >
+                                  {mainProfile?.contract_terms_accepted
+                                    ? "مكتمل"
+                                    : "غير مكتمل"}
+                                </Tag>
+                                <span className="text-sm font-medium">
+                                  لقد قرأت بنود العقد وأوافق عليها
+                                </span>
+                              </div>
+                              <div className="flex items-center gap-3 p-3 bg-green-50 rounded-lg">
+                                <Tag
+                                  color={
+                                    mainProfile?.gdpr_accepted
+                                      ? "success"
+                                      : "error"
+                                  }
+                                >
+                                  {mainProfile?.gdpr_accepted
+                                    ? "مكتمل"
+                                    : "غير مكتمل"}
+                                </Tag>
+                                <span className="text-sm font-medium">
+                                  سياسة الخصوصية وحماية البيانات (GDPR+)
+                                </span>
+                              </div>
+                            </div>
+                          </Col>
+                          <Col xs={24} md={8}>
+                            <Card
+                              size="small"
+                              title="التوقيع"
+                              className="text-center rounded-xl overflow-hidden"
+                            >
+                              {mainProfile?.signature_path ? (
+                                <Image
+                                  src={mainProfile.signature_path}
+                                  className="max-h-32 object-contain"
+                                />
+                              ) : (
+                                <div className="py-8 text-gray-400">
+                                  لا يوجد توقيع
+                                </div>
+                              )}
+                            </Card>
+                          </Col>
+                        </Row>
+                      </div>
 
-                      {/* Documents Section - Opens in New Tab */}
+                      {/* Documents Section */}
                       <div>
                         <h3 className="text-lg font-bold text-primary flex items-center gap-2 mb-4">
                           <FileText className="w-5 h-5" /> الوثائق والمستندات
@@ -636,7 +839,6 @@ const UserProfilePage = () => {
                                             </span>
                                           </span>
                                           <Space size="small">
-                                            {/* Open in New Tab */}
                                             <Button
                                               type="text"
                                               size="small"
@@ -648,7 +850,6 @@ const UserProfilePage = () => {
                                               }
                                               title="فتح في نافذة جديدة"
                                             />
-                                            {/* Delete */}
                                             <Button
                                               type="text"
                                               size="small"
@@ -676,55 +877,11 @@ const UserProfilePage = () => {
                           })}
                         </div>
                       </div>
-
-                      {/* Gallery - Inline */}
-                      <div>
-                        <h3 className="text-lg font-bold text-primary flex items-center gap-2 mb-4">
-                          <ImageIcon className="w-5 h-5" /> معرض الصور
-                        </h3>
-                        {ensureArray(mainProfile?.user_gallery_photos).length >
-                        0 ? (
-                          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
-                            <Image.PreviewGroup>
-                              {ensureArray(mainProfile.user_gallery_photos).map(
-                                (photo, index) => (
-                                  <div
-                                    key={index}
-                                    className="relative group rounded-xl overflow-hidden shadow-sm border-2 border-white aspect-square"
-                                  >
-                                    <Image
-                                      src={photo}
-                                      className="w-full h-full object-cover"
-                                      alt={`صورة ${index + 1}`}
-                                    />
-                                    <button
-                                      className="absolute top-2 right-2 bg-red-500 text-white p-1.5 rounded-full opacity-0 group-hover:opacity-100 transition-opacity shadow-lg"
-                                      onClick={(e) => {
-                                        e.stopPropagation();
-                                        handleDeleteFile({
-                                          fieldName: "user_gallery_photos",
-                                          filePath: photo,
-                                          type: "main",
-                                        });
-                                      }}
-                                    >
-                                      <Trash2 className="w-3 h-3" />
-                                    </button>
-                                  </div>
-                                )
-                              )}
-                            </Image.PreviewGroup>
-                          </div>
-                        ) : (
-                          <Empty
-                            image={Empty.PRESENTED_IMAGE_SIMPLE}
-                            description="لا توجد صور في المعرض"
-                          />
-                        )}
-                      </div>
                     </div>
                   ),
                 },
+
+                // ==================== Tab 2: Partner Specs ====================
                 {
                   key: "target",
                   label: (
@@ -784,7 +941,11 @@ const UserProfilePage = () => {
                               <Col xs={24} sm={8}>
                                 {renderInfoItem(
                                   "الجنس المطلوب",
-                                  targetProfile?.target_gender === "male" ? "ذكر" : targetProfile?.target_gender === "female" ? "أنثى" : "لا يهم",
+                                  targetProfile?.target_gender === "male"
+                                    ? "ذكر"
+                                    : targetProfile?.target_gender === "female"
+                                      ? "أنثى"
+                                      : "لا يهم",
                                   <Info className="w-4 h-4" />
                                 )}
                               </Col>
@@ -798,7 +959,10 @@ const UserProfilePage = () => {
                               <Col xs={24} sm={8}>
                                 {renderInfoItem(
                                   "المذهب المطلوب",
-                                  getSectLabel(targetProfile?.target_religion, targetProfile?.target_sect),
+                                  getSectLabel(
+                                    targetProfile?.target_religion,
+                                    targetProfile?.target_sect
+                                  ),
                                   <Info className="w-4 h-4" />
                                 )}
                               </Col>
@@ -841,7 +1005,8 @@ const UserProfilePage = () => {
                           {/* Physical Target Specs */}
                           <div>
                             <h3 className="text-lg font-bold text-primary flex items-center gap-2 mb-4">
-                              <Scale className="w-5 h-5" /> المواصفات الجسدية المطلوبة
+                              <Scale className="w-5 h-5" /> المواصفات الجسدية
+                              المطلوبة
                             </h3>
                             <Row gutter={[16, 16]}>
                               <Col xs={24} sm={8}>
@@ -868,8 +1033,13 @@ const UserProfilePage = () => {
                               </Col>
                             </Row>
                             <Card size="small" className="mt-4 bg-gray-50">
-                               <h4 className="font-bold text-primary mb-2">شروط خاصة إضافية</h4>
-                               <p className="text-sm">{targetProfile?.target_special_conditions || "لا توجد شروط خاصة إضافية"}</p>
+                              <h4 className="font-bold text-primary mb-2">
+                                شروط خاصة إضافية
+                              </h4>
+                              <p className="text-sm">
+                                {targetProfile?.target_special_conditions ||
+                                  "لا توجد شروط خاصة إضافية"}
+                              </p>
                             </Card>
                           </div>
                         </>
@@ -883,6 +1053,68 @@ const UserProfilePage = () => {
         </div>
       </div>
 
+      {/* ==================== Print/Export Modal ==================== */}
+      <Modal
+        title={
+          <div className="flex items-center gap-3">
+            <Printer className="w-5 h-5 text-primary" />
+            <span>طباعة أو تصدير الاستمارة</span>
+          </div>
+        }
+        open={isPrintModalVisible}
+        onCancel={() => setIsPrintModalVisible(false)}
+        width={900}
+        centered
+        destroyOnClose
+        footer={
+          <div className="flex flex-col sm:flex-row justify-between items-center gap-4">
+            <div className="text-sm text-gray-500 text-right flex items-center gap-2">
+              <Info className="w-4 h-4" />
+              <span>
+                البيانات الشخصية (الاسم، الهاتف، الإيميل، العنوان، الصورة) مخفية
+                للحفاظ على الخصوصية
+              </span>
+            </div>
+            <Space>
+              <Button onClick={() => setIsPrintModalVisible(false)}>
+                إلغاء
+              </Button>
+              <Button
+                type="default"
+                icon={<FileDown className="w-4 h-4" />}
+                onClick={handleExportPDF}
+                loading={isExporting}
+                className="flex items-center gap-2"
+              >
+                تحميل PDF
+              </Button>
+              <Button
+                type="primary"
+                icon={<Printer className="w-4 h-4" />}
+                onClick={handlePrint}
+                className="bg-primary flex items-center gap-2"
+              >
+                طباعة
+              </Button>
+            </Space>
+          </div>
+        }
+      >
+        {/* Preview Area */}
+        <div
+          className="max-h-[60vh] overflow-y-auto border rounded-lg"
+          style={{ background: "#f5f5f5" }}
+        >
+          <PrintableProfile
+            ref={printRef}
+            mainProfile={mainProfile}
+            targetProfile={targetProfile}
+            profileId={id}
+          />
+        </div>
+      </Modal>
+
+      {/* ==================== Update Profile Modal ==================== */}
       <UpdateProfileModal
         visible={isEditModalVisible}
         onCancel={handleCloseEdit}
