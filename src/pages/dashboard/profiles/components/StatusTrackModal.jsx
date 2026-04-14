@@ -1,5 +1,14 @@
-import React, { useState } from "react";
-import { Modal, Button, Tag, Typography, Input, Avatar, Select } from "antd";
+import React, { useState, useEffect } from "react";
+import {
+  Modal,
+  Button,
+  Tag,
+  Typography,
+  Input,
+  Avatar,
+  Select,
+  message,
+} from "antd";
 import {
   Activity,
   FileCheck,
@@ -15,7 +24,7 @@ import {
   ChevronDown,
 } from "lucide-react";
 import dayjs from "dayjs";
-
+import api from "../../../../api/axios"; // ✅
 const { TextArea } = Input;
 
 // ==================== Config ====================
@@ -96,30 +105,71 @@ const StatusTrackModal = ({ visible, onCancel, record }) => {
   const [selectedNewStatus, setSelectedNewStatus] = useState(null);
   const [adminNote, setAdminNote] = useState("");
   const [isUpdating, setIsUpdating] = useState(false);
+  const [loadingData, setLoadingData] = useState(false); // ✅ جديد
 
-  const currentConfig = STATUS_TRACK.find((s) => s.key === currentStatus);
-  const CurrentIcon = currentConfig?.icon;
+  useEffect(() => {
+    if (visible && record) {
+      const trackingHistory = record.user_tracking_history || [];
 
-  const handleUpdate = () => {
-    if (!selectedNewStatus) return;
-    setIsUpdating(true);
-    setTimeout(() => {
-      setHistory((prev) => [
-        ...prev,
-        {
-          id: prev.length + 1,
-          statusKey: selectedNewStatus,
-          timestamp: dayjs().format("YYYY-MM-DD HH:mm"),
+      // ✅ فلتر الـ null entries
+      const validHistory = trackingHistory
+        .filter((item) => item.status !== null)
+        .map((item, i) => ({
+          id: i + 1,
+          statusKey: item.status,
+          timestamp: item.history_date
+            ? dayjs(item.history_date).format("YYYY-MM-DD HH:mm")
+            : "-",
           byName: "الإدارة",
+          note: item.note || "",
+        }));
+
+      setHistory(validHistory);
+
+      // ✅ آخر status هو الحالي
+      const lastValid = [...trackingHistory]
+        .reverse()
+        .find((item) => item.status !== null);
+      setCurrentStatus(lastValid?.status || null);
+    }
+  }, [visible, record]);
+
+  const handleUpdate = async () => {
+    if (!selectedNewStatus || !record?.user_id) return;
+    setIsUpdating(true);
+    try {
+      await api.post(
+        `/admin/users/${record.user_id}/profile/tracking-history`,
+        {
+          status: selectedNewStatus,
           note: adminNote || "",
-        },
-      ]);
+        }
+      );
+
+      // ✅ أضف للـ history locally
+      const newEntry = {
+        id: history.length + 1,
+        statusKey: selectedNewStatus,
+        timestamp: dayjs().format("YYYY-MM-DD HH:mm"),
+        byName: "الإدارة",
+        note: adminNote || "",
+      };
+
+      setHistory((prev) => [...prev, newEntry]);
       setCurrentStatus(selectedNewStatus);
       setSelectedNewStatus(null);
       setAdminNote("");
+      message.success("تم تحديث الحالة بنجاح");
+    } catch (error) {
+      console.error("Update Status Error:", error);
+      message.error("فشل في تحديث الحالة");
+    } finally {
       setIsUpdating(false);
-    }, 800);
+    }
   };
+
+  const currentConfig = STATUS_TRACK.find((s) => s.key === currentStatus);
+  const CurrentIcon = currentConfig?.icon;
 
   return (
     <Modal
@@ -161,6 +211,16 @@ const StatusTrackModal = ({ visible, onCancel, record }) => {
               {CurrentIcon && <CurrentIcon className="w-3 h-3 inline ml-1" />}
               {currentConfig?.label}
             </Tag>
+          </div>
+        )}
+
+        {!currentStatus && (
+          <div className="text-center py-6 bg-gray-50 rounded-xl border border-dashed border-gray-200">
+            <Activity className="w-10 h-10 mx-auto mb-2 text-gray-300" />
+            <p className="text-gray-400 text-sm">لم يتم تحديد حالة بعد</p>
+            <p className="text-gray-300 text-xs mt-1">
+              اختر حالة من الأسفل للبدء
+            </p>
           </div>
         )}
 
