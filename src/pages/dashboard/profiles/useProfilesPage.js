@@ -218,7 +218,7 @@ export const useProfilesPage = () => {
 
   const handleSendInvoice = useCallback((stage) => {
     setTimeout(() => {
-      message.success(`تم إرسال فاتورة ${stage.name} بنجاح`);
+      message.success(`تم إرسال فاتورة ${stage.title} بنجاح`);
     }, 500);
   }, []);
 
@@ -336,7 +336,7 @@ export const useProfilesPage = () => {
     handleToggleVerify,
     handleToggleBlock,
     handleViewProfile,
-    
+
     // Payment Modal
     isPaymentModalVisible,
     paymentRecord,

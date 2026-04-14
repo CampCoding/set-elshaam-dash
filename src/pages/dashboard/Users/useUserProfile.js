@@ -53,7 +53,7 @@ export const useUserProfile = () => {
       handleCloseEdit();
       fetchProfiles();
     } catch (error) {
-        console.error("Update Profile Error:", error);
+      console.error("Update Profile Error:", error);
       message.error("فشل في تحديث البيانات");
     } finally {
       setIsSaving(false);
@@ -73,7 +73,8 @@ export const useUserProfile = () => {
   const handleDeleteUser = () => {
     Modal.confirm({
       title: "هل أنت متأكد من حذف هذا الحساب؟",
-      content: "سيتم حذف كافة البيانات والوثائق المرتبطة بهذا المستخدم نهائياً.",
+      content:
+        "سيتم حذف كافة البيانات والوثائق المرتبطة بهذا المستخدم نهائياً.",
       okText: "حذف الآن",
       okType: "danger",
       cancelText: "إلغاء",

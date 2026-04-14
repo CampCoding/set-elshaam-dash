@@ -1,4 +1,5 @@
 // src/pages/dashboard/stagePrice/components/StagePriceModal.jsx
+
 import { useEffect } from "react";
 import { Modal, Form, Input, Select, InputNumber } from "antd";
 import { Plus, DollarSign } from "lucide-react";
@@ -6,18 +7,28 @@ import { Plus, DollarSign } from "lucide-react";
 const { TextArea } = Input;
 const { Option } = Select;
 
-const StagePriceModal = ({ visible, onCancel, onSave, initialData }) => {
+const StagePriceModal = ({
+  visible,
+  onCancel,
+  onSave,
+  initialData,
+  loading,
+}) => {
   const [form] = Form.useForm();
 
   useEffect(() => {
     if (visible) {
       if (initialData) {
-        form.setFieldsValue(initialData);
+        form.setFieldsValue({
+          title: initialData.title,
+          price: parseFloat(initialData.price),
+          description: initialData.description,
+          details: initialData.details,
+          is_active: initialData.is_active,
+        });
       } else {
         form.resetFields();
-        form.setFieldsValue({
-          status: "active",
-        });
+        form.setFieldsValue({ is_active: 1 });
       }
     }
   }, [visible, initialData, form]);
@@ -26,7 +37,15 @@ const StagePriceModal = ({ visible, onCancel, onSave, initialData }) => {
     form
       .validateFields()
       .then((values) => {
-        onSave(values);
+        // ✅ بيبعت بالظبط زي الـ API body
+        const payload = {
+          title: values.title,
+          description: values.description,
+          price: values.price,
+          details: values.details,
+          is_active: values.is_active,
+        };
+        onSave(payload);
       })
       .catch((info) => {
         console.log("Validate Failed:", info);
@@ -41,25 +60,13 @@ const StagePriceModal = ({ visible, onCancel, onSave, initialData }) => {
   return (
     <Modal
       title={
-        <div className="flex items-center gap-3 text-right" dir="rtl">
-          <div className="p-2 rounded-xl">
-            {initialData ? (
-              <div className="w-full flex items-center gap-2">
-                <DollarSign className="w-5 h-5 text-white bg-primary rounded-full p-1" />
-                <span className="text-lg font-bold text-primary">
-                  تعديل المرحلة
-                </span>
-              </div>
-            ) : (
-              <div className="w-full flex items-center gap-2">
-                <Plus className="w-5 h-5 text-white bg-primary rounded-full p-1" />
-                <span className="text-lg font-bold text-primary">
-                  إضافة مرحلة جديدة
-                </span>
-              </div>
-            )}
-          </div>
-          <span className="text-lg font-bold">
+        <div className="flex items-center gap-2" dir="rtl">
+          {initialData ? (
+            <DollarSign className="w-5 h-5 text-white bg-primary rounded-full p-1" />
+          ) : (
+            <Plus className="w-5 h-5 text-white bg-primary rounded-full p-1" />
+          )}
+          <span className="text-lg font-bold text-primary">
             {initialData ? "تعديل المرحلة" : "إضافة مرحلة جديدة"}
           </span>
         </div>
@@ -69,6 +76,7 @@ const StagePriceModal = ({ visible, onCancel, onSave, initialData }) => {
       onCancel={handleCancel}
       okText="حفظ"
       cancelText="إلغاء"
+      confirmLoading={loading}
       okButtonProps={{ className: "bg-primary h-10 px-6" }}
       cancelButtonProps={{ className: "h-10 px-6" }}
       destroyOnClose
@@ -80,26 +88,30 @@ const StagePriceModal = ({ visible, onCancel, onSave, initialData }) => {
       }}
     >
       <Form form={form} layout="vertical" className="mt-2" dir="rtl">
+        {/* معلومات المرحلة */}
         <div className="bg-gray-50 rounded-xl p-4 mb-5 border border-gray-100">
           <h4 className="text-sm font-bold text-gray-600 mb-4">
             معلومات المرحلة
           </h4>
+
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {/* title */}
             <Form.Item
-              name="name"
+              name="title"
               label={<span className="font-medium">اسم المرحلة</span>}
               rules={[{ required: true, message: "يرجى إدخال اسم المرحلة" }]}
             >
               <Input
-                placeholder="مثال: المرحلة الأولى"
+                placeholder="مثال: مرحلة الاشتراك"
                 size="large"
                 className="rounded-lg"
               />
             </Form.Item>
 
+            {/* price */}
             <Form.Item
               name="price"
-              label={<span className="font-medium">التكلفة (السعر)</span>}
+              label={<span className="font-medium">السعر</span>}
               rules={[{ required: true, message: "يرجى إدخال السعر" }]}
             >
               <InputNumber
@@ -107,16 +119,28 @@ const StagePriceModal = ({ visible, onCancel, onSave, initialData }) => {
                 size="large"
                 min={0}
                 placeholder="أدخل السعر..."
-                addonAfter="€"
+                addonAfter="EUR"
               />
             </Form.Item>
           </div>
 
+          {/* details */}
+          <Form.Item
+            name="details"
+            label={<span className="font-medium">تفاصيل السعر</span>}
+          >
+            <Input
+              placeholder="مثال: 40 يورو + القيمة المضافة (10 يورو)"
+              size="large"
+              className="rounded-lg"
+            />
+          </Form.Item>
+
+          {/* description */}
           <Form.Item
             name="description"
             label={<span className="font-medium">الوصف والملاحظات</span>}
             rules={[{ required: true, message: "يرجى إدخال الوصف" }]}
-            className="mt-4"
           >
             <TextArea
               placeholder="اكتب وصفاً أو ملاحظات حول المرحلة..."
@@ -126,23 +150,24 @@ const StagePriceModal = ({ visible, onCancel, onSave, initialData }) => {
           </Form.Item>
         </div>
 
+        {/* الإعدادات */}
         <div className="bg-gray-50 rounded-xl p-4 border border-gray-100">
           <h4 className="text-sm font-bold text-gray-600 mb-4">الإعدادات</h4>
           <Form.Item
-            name="status"
+            name="is_active"
             label={<span className="font-medium">الحالة</span>}
             className="mb-0 w-full sm:w-1/2"
           >
             <Select size="large" className="rounded-lg">
-              <Option value="active">
+              <Option value={1}>
                 <div className="flex items-center gap-2">
-                  <span className="w-2 h-2 bg-green-500 rounded-full"></span>
+                  <span className="w-2 h-2 bg-green-500 rounded-full" />
                   مفعّل
                 </div>
               </Option>
-              <Option value="inactive">
+              <Option value={0}>
                 <div className="flex items-center gap-2">
-                  <span className="w-2 h-2 bg-red-500 rounded-full"></span>
+                  <span className="w-2 h-2 bg-red-500 rounded-full" />
                   غير مفعّل
                 </div>
               </Option>

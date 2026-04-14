@@ -107,8 +107,6 @@ const Login = () => {
             </div>
           )}
 
-       
-
           {/* Form */}
           <form
             onSubmit={handleSubmit}
@@ -274,7 +272,7 @@ const Login = () => {
               منصة ست الشام
             </h2>
             <p className="text-sm landscape:text-base lg:text-lg text-white/90 leading-relaxed max-w-md">
-              أفضل مكان للعثور على شريك حياتك وبدء رحلتك في الحب والرفقة.
+              أفضل مكان للعثور على شريك حياتك.
             </p>
           </div>
         </div>

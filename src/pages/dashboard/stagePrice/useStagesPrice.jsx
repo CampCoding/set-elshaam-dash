@@ -1,37 +1,31 @@
 // src/pages/dashboard/stagePrice/useStagesPrice.jsx
-import { useState } from "react";
-import { message, Modal } from "antd";
 
-const initialMockData = [
-  {
-    id: 1,
-    name: "المرحلة الأولى - تقديم الطلب",
-    price: 500,
-    description: "تشمل هذه المرحلة تقديم الطلب.",
-    status: "active",
-  },
-  {
-    id: 2,
-    name: "المرحلة الثانية - قبول الطلب وجاري البحث عن شريك",
-    price: 1500,
-    description: "تشمل هذه المرحلة قبول الطلب وجاري البحث عن شريك.",
-    status: "active",
-  },
-  {
-    id: 3,
-    name: "المرحلة الثالثة - نزول مقابلة بين الطرفين",
-    price: 5000,
-    description: "تشمل هذه المرحلة نزول مقابلة بين الطرفين.",
-    status: "inactive",
-  },
-];
+import { useState, useEffect } from "react";
+import { message, Modal } from "antd";
+import { stagesService } from "../../../api/services/stage.service";
 
 export const useStagesPrice = () => {
-  const [data, setData] = useState(initialMockData);
+  const [data, setData] = useState([]);
   const [loading, setLoading] = useState(false);
-
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [editingRecord, setEditingRecord] = useState(null);
+
+  const fetchStages = async () => {
+    setLoading(true);
+    try {
+      const response = await stagesService.getStages();
+      setData(response.data || []);
+    } catch (error) {
+      console.error("Fetch Stages Error:", error);
+      message.error("فشل في تحميل البيانات");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchStages();
+  }, []);
 
   const handleOpenAdd = () => {
     setEditingRecord(null);
@@ -48,39 +42,42 @@ export const useStagesPrice = () => {
     setEditingRecord(null);
   };
 
-  const handleSave = (values) => {
+  const handleSave = async (values) => {
     setLoading(true);
-    setTimeout(() => {
+    try {
       if (editingRecord) {
-        const updatedData = data.map((item) =>
-          item.id === editingRecord.id ? { ...item, ...values } : item
-        );
-        setData(updatedData);
+        await stagesService.updateStage(editingRecord.id, values);
         message.success("تم تعديل المرحلة بنجاح");
       } else {
-        const newRecord = {
-          ...values,
-          id: Date.now(),
-        };
-        setData([newRecord, ...data]);
+        await stagesService.createStage(values);
         message.success("تم إضافة المرحلة بنجاح");
       }
-      setLoading(false);
+      await fetchStages();
       handleCloseModal();
-    }, 500);
+    } catch (error) {
+      console.error("Save Stage Error:", error);
+      message.error("فشل في حفظ البيانات");
+    } finally {
+      setLoading(false);
+    }
   };
 
   const handleDelete = (record) => {
     Modal.confirm({
       title: "تأكيد الحذف",
-      content: `هل أنت متأكد من حذف مرحلة "${record.name}"؟`,
+      content: `هل أنت متأكد من حذف مرحلة "${record.title}"؟`,
       okText: "نعم، احذف",
       cancelText: "إلغاء",
       okButtonProps: { danger: true },
-      onOk: () => {
-        const newData = data.filter((item) => item.id !== record.id);
-        setData(newData);
-        message.success("تم حذف المرحلة بنجاح");
+      onOk: async () => {
+        try {
+          await stagesService.deleteStage(record.id);
+          message.success("تم حذف المرحلة بنجاح");
+          await fetchStages();
+        } catch (error) {
+          console.error("Delete Stage Error:", error);
+          message.error("فشل في الحذف");
+        }
       },
     });
   };

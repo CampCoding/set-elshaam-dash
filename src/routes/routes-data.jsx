@@ -44,9 +44,7 @@ const StagesPrice = lazy(
 const PolicyPrivacy = lazy(
   () => import("../pages/dashboard/policies/PolicyPrivacy")
 );
-const PolicyTerms = lazy(
-  () => import("../pages/dashboard/policies/PolicyTerms")
-);
+const Contract = lazy(() => import("../pages/dashboard/policies/Contract"));
 
 // ============ AUTH ROUTES ============
 export const authRoutes = [{ path: "/login", element: <Login /> }];
@@ -138,8 +136,8 @@ export const adminRoutes = [
         icon: FileText,
       },
       {
-        path: "terms",
-        element: <PolicyTerms />,
+        path: "contract",
+        element: <Contract />,
         label: "العقد",
         icon: FileText,
       },

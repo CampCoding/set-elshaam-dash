@@ -1,4 +1,5 @@
 // src/pages/dashboard/stagePrice/StagesPrice.jsx
+
 import { Tag, Space, Button, Tooltip } from "antd";
 import { Edit, Trash2, DollarSign } from "lucide-react";
 import DataTable, {
@@ -23,9 +24,9 @@ const StagesPrice = () => {
   const columns = [
     {
       title: "اسم المرحلة",
-      dataIndex: "name",
-      key: "name",
-      ...getColumnSearchProps("name", "ابحث باسم المرحلة..."),
+      dataIndex: "title",
+      key: "title",
+      ...getColumnSearchProps("title", "ابحث باسم المرحلة..."),
       render: (text) => (
         <div className="font-semibold text-gray-800">{text}</div>
       ),
@@ -34,14 +35,22 @@ const StagesPrice = () => {
       title: "السعر",
       dataIndex: "price",
       key: "price",
-      width: 120,
-      render: (price) => (
+      width: 130,
+      render: (price, record) => (
         <Tag
           color="blue"
           className="rounded-full px-3 py-0.5 text-sm font-bold"
         >
-          {price} €
+          {price} {record.currency || "EUR"}
         </Tag>
+      ),
+    },
+    {
+      title: "التفاصيل",
+      dataIndex: "details",
+      key: "details",
+      render: (text) => (
+        <span className="text-gray-500 text-sm">{text || "-"}</span>
       ),
     },
     {
@@ -54,25 +63,22 @@ const StagesPrice = () => {
     },
     {
       title: "الحالة",
-      dataIndex: "status",
-      key: "status",
+      dataIndex: "is_active",
+      key: "is_active",
       width: 100,
       filters: [
-        { text: "مفعّل", value: "active" },
-        { text: "غير مفعّل", value: "inactive" },
+        { text: "مفعّل", value: 1 },
+        { text: "غير مفعّل", value: 0 },
       ],
-      onFilter: (value, record) => record.status === value,
-      render: (status) => {
-        const isActive = status === "active";
-        return (
-          <Tag
-            color={isActive ? "success" : "error"}
-            className="rounded-full px-3 py-0.5"
-          >
-            {isActive ? "مفعّل" : "غير مفعّل"}
-          </Tag>
-        );
-      },
+      onFilter: (value, record) => record.is_active === value,
+      render: (is_active) => (
+        <Tag
+          color={is_active ? "success" : "error"}
+          className="rounded-full px-3 py-0.5"
+        >
+          {is_active ? "مفعّل" : "غير مفعّل"}
+        </Tag>
+      ),
     },
     {
       title: "الإجراءات",
@@ -120,13 +126,13 @@ const StagesPrice = () => {
         <div className="flex gap-3">
           <div className="bg-green-50 rounded-xl px-4 py-2 text-center">
             <div className="text-lg font-bold text-green-600">
-              {data.filter((s) => s.status === "active").length}
+              {data.filter((s) => s.is_active === 1).length}
             </div>
             <div className="text-xs text-green-500">مفعّل</div>
           </div>
           <div className="bg-red-50 rounded-xl px-4 py-2 text-center">
             <div className="text-lg font-bold text-red-600">
-              {data.filter((s) => s.status === "inactive").length}
+              {data.filter((s) => s.is_active === 0).length}
             </div>
             <div className="text-xs text-red-500">متوقف</div>
           </div>
@@ -154,6 +160,7 @@ const StagesPrice = () => {
         onCancel={handleCloseModal}
         onSave={handleSave}
         initialData={editingRecord}
+        loading={loading}
       />
     </div>
   );

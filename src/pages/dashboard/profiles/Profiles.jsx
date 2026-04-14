@@ -1,5 +1,5 @@
 // src/pages/dashboard/Profiles/ProfilesPage.jsx
-import React from "react";
+import React, { useState } from "react";
 import {
   Tag,
   Space,
@@ -32,6 +32,7 @@ import {
   Heart,
   Briefcase,
   DollarSign,
+  Activity,
 } from "lucide-react";
 import DataTable from "../../../components/common/DataTable";
 import { useProfilesPage } from "./useProfilesPage";
@@ -45,6 +46,7 @@ import {
   RELIGION_COMMITMENT,
   getLabelByValue,
 } from "../../../constants/userOptions";
+import StatusTrackModal from "./components/StatusTrackModal";
 
 const ProfilesPage = () => {
   const {
@@ -74,6 +76,9 @@ const ProfilesPage = () => {
     handleClosePayment,
     handleSendInvoice,
   } = useProfilesPage();
+
+  const [isStatusModalVisible, setIsStatusModalVisible] = useState(false);
+  const [statusRecord, setStatusRecord] = useState(null);
 
   // Calculate age from birthdate
   const calculateAge = (birthdate) => {
@@ -333,7 +338,7 @@ const ProfilesPage = () => {
     {
       title: "الإجراءات",
       key: "actions",
-      width: 150,
+      width: 200,
       align: "center",
       fixed: "right",
       render: (_, record) => (
@@ -345,6 +350,18 @@ const ProfilesPage = () => {
               icon={<DollarSign className="w-4 h-4 text-white!" />}
               className="flex items-center justify-center border-green-500 text-green-600 hover:bg-green-50 hover:border-green-600 hover:text-green-700"
               onClick={() => handleOpenPayment(record)}
+            />
+          </Tooltip>
+
+          <Tooltip title="تتبع الحالة">
+            <Button
+              type="text"
+              icon={<Activity className="w-4 h-4 text-blue-500" />}
+              className="flex items-center justify-center hover:bg-blue-50"
+              onClick={() => {
+                setStatusRecord(record);
+                setIsStatusModalVisible(true);
+              }}
             />
           </Tooltip>
           <Tooltip title="عرض">
@@ -574,6 +591,12 @@ const ProfilesPage = () => {
         onCancel={handleClosePayment}
         record={paymentRecord}
         onSend={handleSendInvoice}
+      />
+
+      <StatusTrackModal
+        visible={isStatusModalVisible}
+        onCancel={() => setIsStatusModalVisible(false)}
+        record={statusRecord}
       />
     </div>
   );
