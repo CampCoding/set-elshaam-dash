@@ -171,6 +171,8 @@ const UserProfilePage = () => {
   } = useUserProfile();
   const navigate = useNavigate();
 
+
+
   const [isPrintModalVisible, setIsPrintModalVisible] = useState(false);
   const [isExporting, setIsExporting] = useState(false);
   const [copied, setCopied] = useState(false);
@@ -572,8 +574,8 @@ const UserProfilePage = () => {
                               "تاريخ الوصول لفنلندا",
                               mainProfile?.arrival_date_finland
                                 ? dayjs(
-                                    mainProfile.arrival_date_finland
-                                  ).format("YYYY-MM-DD")
+                                  mainProfile.arrival_date_finland
+                                ).format("YYYY-MM-DD")
                                 : null,
                               <Calendar className="w-4 h-4" />
                             )}
@@ -671,6 +673,14 @@ const UserProfilePage = () => {
                           الاجتماعية
                         </h3>
                         <Row gutter={[16, 16]}>
+                          <Col xs={24} sm={8}>
+                            {renderInfoItem(
+                              "الحالة الاجتماعية",
+                              mainProfile?.marital_status,
+                              <Info className="w-4 h-4" />,
+                              MARITAL_STATUS
+                            )}
+                          </Col>
                           <Col xs={24} sm={8}>
                             {renderInfoItem(
                               "نوع الإقامة",
@@ -838,29 +848,29 @@ const UserProfilePage = () => {
                       {/* ✅ Gallery - جديد */}
                       {ensureArray(mainProfile?.user_gallery_photos).length >
                         0 && (
-                        <div>
-                          <h3 className="text-lg font-bold text-primary flex items-center gap-2 mb-4">
-                            <ImageIcon className="w-5 h-5" /> معرض الصور
-                          </h3>
-                          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
-                            {ensureArray(mainProfile.user_gallery_photos).map(
-                              (photo, i) => (
-                                <div
-                                  key={i}
-                                  className="rounded-xl overflow-hidden border border-gray-100 shadow-sm aspect-square"
-                                >
-                                  <Image
-                                    src={photo}
-                                    alt={`صورة ${i + 1}`}
-                                    className="w-full h-full object-cover"
-                                    width="100%"
-                                  />
-                                </div>
-                              )
-                            )}
+                          <div>
+                            <h3 className="text-lg font-bold text-primary flex items-center gap-2 mb-4">
+                              <ImageIcon className="w-5 h-5" /> معرض الصور
+                            </h3>
+                            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
+                              {ensureArray(mainProfile.user_gallery_photos).map(
+                                (photo, i) => (
+                                  <div
+                                    key={i}
+                                    className="rounded-xl overflow-hidden border border-gray-100 shadow-sm aspect-square"
+                                  >
+                                    <Image
+                                      src={photo}
+                                      alt={`صورة ${i + 1}`}
+                                      className="w-full h-full object-cover"
+                                      width="100%"
+                                    />
+                                  </div>
+                                )
+                              )}
+                            </div>
                           </div>
-                        </div>
-                      )}
+                        )}
 
                       {/* About Me */}
                       {mainProfile?.about_me_more && (
@@ -979,9 +989,9 @@ const UserProfilePage = () => {
                                       <FileText className="w-4 h-4" />
                                       {section.label}
                                     </span>
-                                    {/* ✅ السؤال المرتبط */}
+
                                     {question && (
-                                      <span className="text-xs text-gray-400 font-normal">
+                                      <span className="text-xs text-gray-400 font-normal max-w-[90%] bg-gradient-to-b from-[#FAF2EA] to-[#FAF2EA] p-[5px_10px] m-[3px_0] rounded-md border border-[#DCB56D] ">
                                         {question}
                                       </span>
                                     )}
@@ -1343,24 +1353,24 @@ const UserProfilePage = () => {
                             {ensureArray(
                               targetProfile?.["target_house-tasks_preference"]
                             ).length > 0 && (
-                              <div className="mt-4 p-3 bg-gray-50 rounded-xl border border-gray-100">
-                                <div className="text-xs text-gray-400 font-medium mb-2 flex items-center gap-1">
-                                  <Home className="w-3 h-3" /> تفضيلات المهام
-                                  المنزلية
-                                </div>
-                                <div className="flex flex-wrap gap-2">
-                                  {ensureArray(
-                                    targetProfile[
+                                <div className="mt-4 p-3 bg-gray-50 rounded-xl border border-gray-100">
+                                  <div className="text-xs text-gray-400 font-medium mb-2 flex items-center gap-1">
+                                    <Home className="w-3 h-3" /> تفضيلات المهام
+                                    المنزلية
+                                  </div>
+                                  <div className="flex flex-wrap gap-2">
+                                    {ensureArray(
+                                      targetProfile[
                                       "target_house-tasks_preference"
-                                    ]
-                                  ).map((item, i) => (
-                                    <Tag key={i} className="rounded-full">
-                                      {item}
-                                    </Tag>
-                                  ))}
+                                      ]
+                                    ).map((item, i) => (
+                                      <Tag key={i} className="rounded-full">
+                                        {item}
+                                      </Tag>
+                                    ))}
+                                  </div>
                                 </div>
-                              </div>
-                            )}
+                              )}
                           </div>
 
                           {/* Special Conditions */}

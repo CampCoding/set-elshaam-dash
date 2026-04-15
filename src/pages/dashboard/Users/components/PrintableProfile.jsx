@@ -1,8 +1,8 @@
 // src/pages/dashboard/Users/components/PrintableProfile.jsx
 
 import React, { forwardRef } from "react";
-import { Tag, Divider, Row, Col } from "antd";
 import dayjs from "dayjs";
+import header from "../../../../assets/image.png"
 import {
   getLabelByValue,
   NATIONALITIES,
@@ -24,7 +24,6 @@ import {
 
 const PrintableProfile = forwardRef(
   ({ mainProfile, targetProfile, profileId }, ref) => {
-    // Helper Functions
     const getSectLabel = (religion, sect) => {
       if (!religion || !sect) return sect || "غير محدد";
       const sects = SECTS_BY_RELIGION[religion] || SECTS_BY_RELIGION.other;
@@ -37,449 +36,313 @@ const PrintableProfile = forwardRef(
       return "غير محدد";
     };
 
-    const renderField = (label, value, options = null) => {
-      let displayValue = value;
-
-      if (options && value !== null && value !== undefined) {
-        displayValue = getLabelByValue(options, value);
-      }
-
-      return (
-        <div className="print-field">
-          <span className="print-field-label">{label}:</span>
-          <span className="print-field-value">
-            {displayValue || "غير محدد"}
-          </span>
-        </div>
-      );
+    const getVal = (value, options = null) => {
+      if (value === null || value === undefined || value === "") return "—";
+      if (options) return getLabelByValue(options, value) || "—";
+      return value;
     };
 
+    /* ─── rows: [label, value] ─── */
+    const personalRows = [
+      ["الجنس", mainProfile?.gender === "male" ? "ذكر" : mainProfile?.gender === "female" ? "أنثى" : "—"],
+      ["العمر", mainProfile?.date_of_birth ? dayjs().diff(dayjs(mainProfile.date_of_birth), "year") : "—"],
+      ["بلد الأم", getVal(mainProfile?.country, COUNTRIES)],
+      ["الجنسية", getVal(mainProfile?.nationality, NATIONALITIES)],
+      ["الطول", mainProfile?.height ? `${mainProfile.height} سم` : "—"],
+      ["الوزن", mainProfile?.weight ? `${mainProfile.weight} كجم` : "—"],
+      ["لون البشرة", getVal(mainProfile?.skin_color, SKIN_COLORS)],
+      ["لون العيون", getVal(mainProfile?.eye_color, EYE_COLORS)],
+      ["لون الشعر", getVal(mainProfile?.hair_type, HAIR_TYPES)],
+      ["المظهر الخارجي", getVal(mainProfile?.appearance)],
+      ["نوع الإقامة", getVal(mainProfile?.residency_type, RESIDENCY_TYPES)],
+      ["الجنسية (إضافية)", getVal(mainProfile?.second_nationality, NATIONALITIES)],
+      ["الحالة الاجتماعية", getVal(mainProfile?.marital_status, MARITAL_STATUS)],
+      ["العنوان", mainProfile?.city || "—"],
+      [
+        "أعزب",
+        mainProfile?.marital_status === "single"
+          ? "X أعزب"
+          : mainProfile?.marital_status === "divorced"
+            ? "X مطلق"
+            : mainProfile?.marital_status === "widowed"
+              ? "X أرمل"
+              : "—",
+      ],
+      ["عدد الأولاد", mainProfile?.children_count ?? "—"],
+      ["بدون أولاد", formatYesNo(!mainProfile?.has_children) === "نعم" ? "X بدون أولاد" : "—"],
+      ["لديها أولاد", formatYesNo(mainProfile?.has_children)],
+      ["الوصاية والإقامة", mainProfile?.custody_info || "—"],
+      ["العمل", getVal(mainProfile?.income_source, INCOME_SOURCES)],
+      ["التحصيل العلمي", getVal(mainProfile?.education_level, EDUCATION_LEVELS)],
+      ["النشاط الاجتماعي", getVal(mainProfile?.social_activity)],
+      ["النشاط على السوشيل ميديا", getVal(mainProfile?.social_media_activity)],
+      ["الديانة", getVal(mainProfile?.religion, RELIGIONS)],
+      ["التحصيل العلمي بلد الأم", mainProfile?.home_country_education || "—"],
+      ["التحصيل العلمي في فنلندا", mainProfile?.finland_education || "—"],
+      ["الديانة (تفصيل)", getSectLabel(mainProfile?.religion, mainProfile?.sect)],
+      ["التدخين", getVal(mainProfile?.is_smoker === 1 ? "يدخن" : mainProfile?.is_smoker === 0 ? "لا يدخن" : null)],
+      ["الصفات الأخلاقية المطلوبة", mainProfile?.moral_traits || "—"],
+      ["أشياء غير مرغوبة", mainProfile?.unwanted_traits || "—"],
+      ["الأعمال المنزلية", mainProfile?.housework || "—"],
+      ["القدرة المالية", mainProfile?.financial_capability || "—"],
+      ["شروط أخرى", mainProfile?.other_conditions || "—"],
+    ];
+
+    const partnerRows = targetProfile
+      ? [
+        ["العمر", getVal(targetProfile?.target_age_range, AGE_RANGES)],
+        ["الجنسية", getVal(targetProfile?.target_nationality, NATIONALITIES)],
+        ["اللباس", targetProfile?.target_dress || "—"],
+        ["الطول", targetProfile?.target_height ? `${targetProfile.target_height} سم` : "—"],
+        ["الوزن", targetProfile?.target_weight ? `${targetProfile.target_weight} كجم` : "—"],
+        ["لون البشرة", getVal(targetProfile?.target_skin_color, SKIN_COLORS)],
+        ["لون العيون", getVal(targetProfile?.target_eye_color, EYE_COLORS)],
+        ["لون الشعر", getVal(targetProfile?.target_hair_type, HAIR_TYPES)],
+        ["المظهر الخارجي", targetProfile?.target_appearance || "—"],
+        ["نوع الإقامة", getVal(targetProfile?.target_residency_type, RESIDENCY_TYPES)],
+        ["الجنسية", getVal(targetProfile?.target_nationality, NATIONALITIES)],
+        ["الحالة الاجتماعية", getVal(targetProfile?.target_marital_status, MARITAL_STATUS)],
+        ["الديانة", getVal(targetProfile?.target_religion, RELIGIONS)],
+        ["الالتزام الديني", getVal(targetProfile?.target_religion_commitment, RELIGION_COMMITMENT)],
+        ["تقبل وجود أطفال", getVal(targetProfile?.target_has_children, YES_NO_OPTIONS)],
+        ["العمل", targetProfile?.target_work || "—"],
+        ["التحصيل العلمي", getVal(targetProfile?.target_education_level, EDUCATION_LEVELS)],
+        ["النشاط الاجتماعي", targetProfile?.target_social_activity || "—"],
+        ["النشاط على السوشيل ميديا", targetProfile?.target_social_media || "—"],
+        ["الأخلاق والعادات", targetProfile?.target_morals || "—"],
+        ["شروط أخرى", targetProfile?.target_special_conditions || "—"],
+      ]
+      : [];
+
     return (
-      <div ref={ref} className="printable-profile" dir="rtl">
-        {/* Print Styles */}
-        <style>
-          {`
-            @media print {
-              body * {
-                visibility: hidden;
-              }
-              .printable-profile,
-              .printable-profile * {
-                visibility: visible;
-              }
-              .printable-profile {
-                position: absolute;
-                left: 0;
-                top: 0;
-                width: 100%;
-              }
-              .no-print {
-                display: none !important;
-              }
-            }
+      <div ref={ref} className="pp-root" dir="rtl">
+        <style>{`
+          @import url('https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;900&display=swap');
 
-            .printable-profile {
-              font-family: 'Cairo', 'Segoe UI', Tahoma, sans-serif;
-              padding: 40px;
-              background: white;
-              color: #1a202c;
-              max-width: 800px;
-              margin: 0 auto;
-            }
+          .pp-root {
+            font-family: 'Cairo', 'Segoe UI', Tahoma, sans-serif;
+            background: #fff;
+            color: #1a1a1a;
+            width: 100%;
+            margin: 0 auto;
+            padding: 0;
+            box-sizing: border-box;
+          }
 
-            .print-header {
-              text-align: center;
-              margin-bottom: 30px;
-              padding-bottom: 20px;
-              border-bottom: 3px solid #023048;
-            }
+          /* ── HEADER ── */
+          .pp-header {
+            background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 40%, #1a1a1a 100%);
+            text-align: center;
+            position: relative;
+            line-height: 0;
+          }
 
-            .print-logo {
-              width: 120px;
-              height: auto;
-              margin-bottom: 15px;
-            }
+          .pp-header img {
+            width: 100%;
+            display: block;
+          }
 
-            .print-title {
-              font-size: 28px;
-              font-weight: bold;
-              color: #023048;
-              margin: 0 0 10px 0;
-            }
+          /* ── GOLD LINE ── */
+          .pp-gold-line {
+            height: 4px;
+            background: linear-gradient(90deg, #dfb163, #c9973f, #dfb163);
+          }
 
-            .print-subtitle {
-              font-size: 16px;
-              color: #666;
+          /* ── TWO-COLUMN BODY ── */
+          .pp-columns {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            border: 2px solid #333;
+            align-items: stretch;
+          }
+
+          .pp-col {
+            display: flex;
+            flex-direction: column;
+          }
+
+          .pp-col:first-child {
+            border-left: 2px solid #333;
+          }
+
+          /* ── COL HEADER ── */
+          .pp-col-header {
+            background: linear-gradient(135deg, #eacb42 0%, #d4a820 100%);
+            padding: 9px 12px;
+            text-align: center;
+          }
+
+          .pp-col-header-text {
+            font-size: 13px;
+            font-weight: 800;
+            color: #2e2b29;
+            margin: 0;
+          }
+
+          /* ── TABLE ROWS ── */
+          .pp-table {
+            width: 100%;
+            border-collapse: collapse;
+            flex: 1;
+          }
+
+          .pp-table tr {
+            border-bottom: 1px solid #d4b88a;
+          }
+
+          .pp-table tr:last-child {
+            border-bottom: none;
+          }
+
+          .pp-table tr:nth-child(even) {
+            background: #fdf8f0;
+          }
+
+          .pp-table tr:nth-child(odd) {
+            background: #fff;
+          }
+
+          .pp-td-label {
+            padding: 5px 10px 5px 4px;
+            font-size: 10.5px;
+            font-weight: 700;
+            color: #1a1a1a;
+            white-space: nowrap;
+            border-right: 1px solid #d4b88a;
+            width: 42%;
+            vertical-align: middle;
+          }
+
+          .pp-td-label::after {
+            content: ' :';
+          }
+
+          .pp-td-value {
+            padding: 5px 8px 5px 4px;
+            font-size: 10.5px;
+            color: #333;
+            font-weight: 500;
+            vertical-align: middle;
+          }
+
+          /* ── FOOTER ── */
+          .pp-footer {
+            background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%);
+            padding: 10px 20px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 10px;
+          }
+
+          .pp-footer-text {
+            font-size: 10px;
+            color: #dfb163;
+            text-align: center;
+            flex: 1;
+          }
+
+          .pp-footer-id {
+            font-size: 11px;
+            font-weight: 700;
+            color: #fff;
+            background: rgba(223,177,99,0.25);
+            border: 1px solid #dfb163;
+            padding: 4px 12px;
+            border-radius: 20px;
+            white-space: nowrap;
+          }
+
+          .pp-footer-date {
+            font-size: 9px;
+            color: #aaa;
+            text-align: left;
+            white-space: nowrap;
+          }
+
+          .pp-no-target {
+            padding: 20px;
+            text-align: center;
+            color: #999;
+            font-size: 12px;
+          }
+
+          /* ── PRINT OVERRIDES ── */
+          @media print {
+            body * { visibility: hidden; }
+            .pp-root, .pp-root * { visibility: visible; }
+            .pp-root {
+              position: absolute;
+              left: 0; top: 0;
+              width: 210mm;
               margin: 0;
             }
+            .no-print { display: none !important; }
+            @page { margin: 0; size: A4; }
+          }
+            * {
+  scrollbar-width: thin;
+  scrollbar-color: #dfb163 transparent;
+}
+*::-webkit-scrollbar { width: 4px; }
+*::-webkit-scrollbar-track { background: transparent; }
+*::-webkit-scrollbar-thumb { background: #dfb163; border-radius: 99px; }
+*::-webkit-scrollbar-thumb:hover { background: #c9973f; }
+        `}</style>
 
-            .profile-id-badge {
-              display: inline-block;
-              background: linear-gradient(135deg, #023048 0%, #034a6e 100%);
-              color: white;
-              padding: 12px 30px;
-              border-radius: 50px;
-              font-size: 20px;
-              font-weight: bold;
-              margin-top: 20px;
-              box-shadow: 0 4px 15px rgba(2, 48, 72, 0.3);
-            }
-
-            .print-section {
-              margin-bottom: 25px;
-              page-break-inside: avoid;
-            }
-
-            .print-section-title {
-              font-size: 18px;
-              font-weight: bold;
-              color: #023048;
-              padding: 10px 15px;
-              background: #f0f7ff;
-              border-right: 4px solid #dfb163;
-              margin-bottom: 15px;
-              border-radius: 0 8px 8px 0;
-            }
-
-            .print-grid {
-              display: grid;
-              grid-template-columns: repeat(3, 1fr);
-              gap: 12px;
-            }
-
-            .print-grid-2 {
-              grid-template-columns: repeat(2, 1fr);
-            }
-
-            .print-field {
-              padding: 10px;
-              background: #fafafa;
-              border-radius: 6px;
-              border: 1px solid #eee;
-            }
-
-            .print-field-label {
-              display: block;
-              font-size: 11px;
-              color: #888;
-              margin-bottom: 4px;
-            }
-
-            .print-field-value {
-              display: block;
-              font-size: 14px;
-              font-weight: 600;
-              color: #1a202c;
-            }
-
-            .print-field-full {
-              grid-column: span 3;
-            }
-
-            .print-footer {
-              margin-top: 40px;
-              padding-top: 20px;
-              border-top: 2px dashed #ddd;
-              text-align: center;
-            }
-
-            .print-footer-text {
-              font-size: 12px;
-              color: #888;
-            }
-
-            .print-date {
-              font-size: 11px;
-              color: #666;
-              margin-top: 10px;
-            }
-
-            .privacy-notice {
-              background: #fff8e6;
-              border: 1px solid #dfb163;
-              border-radius: 8px;
-              padding: 15px;
-              margin-bottom: 25px;
-              text-align: center;
-            }
-
-            .privacy-notice-text {
-              font-size: 12px;
-              color: #856404;
-              margin: 0;
-            }
-
-            .qr-placeholder {
-              width: 100px;
-              height: 100px;
-              border: 2px dashed #ddd;
-              display: flex;
-              align-items: center;
-              justify-content: center;
-              margin: 20px auto;
-              border-radius: 8px;
-              font-size: 11px;
-              color: #999;
-            }
-
-            .partner-section {
-              background: #f8f9fa;
-              padding: 20px;
-              border-radius: 12px;
-              margin-top: 30px;
-            }
-
-            .partner-section .print-section-title {
-              background: #e8f4f8;
-              border-right-color: #17a2b8;
-            }
-
-            @media print {
-              .printable-profile {
-                padding: 20px;
-              }
-              .print-section {
-                page-break-inside: avoid;
-              }
-            }
-          `}
-        </style>
-
-        {/* Header */}
-        <div className="print-header">
-          <img
-            src="https://res.cloudinary.com/dp7jfs375/image/upload/v1772974555/animated-logo_lfa7sj.svg"
-            alt="ست الشام"
-            className="print-logo"
-          />
-          <h1 className="print-title">استمارة البحث عن شريك</h1>
-          <p className="print-subtitle">Set Al Sham - Marriage Matchmaking</p>
-          <div className="profile-id-badge">
-            رقم الاستمارة: #{profileId || mainProfile?.id || "000000"}
-          </div>
+        {/* ── HEADER ── */}
+        <div className="pp-header">
+          <img src={header} alt="" />
         </div>
 
-        {/* Basic Info Section */}
-        <div className="print-section">
-          <h2 className="print-section-title"> المعلومات الأساسية</h2>
-          <div className="print-grid">
-            {renderField(
-              "الجنس",
-              mainProfile?.gender === "male" ? "ذكر" : "أنثى"
-            )}
-            {renderField(
-              "تاريخ الميلاد",
-              mainProfile?.date_of_birth
-                ? dayjs(mainProfile.date_of_birth).format("YYYY")
-                : null
-            )}
-            {renderField("الجنسية", mainProfile?.nationality, NATIONALITIES)}
-            {renderField(
-              "الحالة الاجتماعية",
-              mainProfile?.marital_status,
-              MARITAL_STATUS
-            )}
-            {renderField("الديانة", mainProfile?.religion, RELIGIONS)}
-            {renderField(
-              "المذهب",
-              getSectLabel(mainProfile?.religion, mainProfile?.sect)
-            )}
-            {renderField("البلد", mainProfile?.country, COUNTRIES)}
-            {renderField("المدينة", mainProfile?.city)}
-            {renderField(
-              "نوع الإقامة",
-              mainProfile?.residency_type,
-              RESIDENCY_TYPES
-            )}
-          </div>
-        </div>
+        <div className="pp-gold-line" />
 
-        {/* Physical Info Section */}
-        <div className="print-section">
-          <h2 className="print-section-title"> المواصفات الجسدية</h2>
-          <div className="print-grid">
-            {renderField(
-              "الطول",
-              mainProfile?.height ? `${mainProfile.height} سم` : null
-            )}
-            {renderField(
-              "الوزن",
-              mainProfile?.weight ? `${mainProfile.weight} كجم` : null
-            )}
-            {renderField("لون البشرة", mainProfile?.skin_color, SKIN_COLORS)}
-            {renderField("لون العيون", mainProfile?.eye_color, EYE_COLORS)}
-            {renderField("نوع الشعر", mainProfile?.hair_type, HAIR_TYPES)}
-            {renderField("التدخين", formatYesNo(mainProfile?.is_smoker))}
-            {mainProfile?.gender === "female" &&
-              renderField(
-                "حالة الحجاب",
-                mainProfile?.hijab_status,
-                HIJAB_STATUS
-              )}
-          </div>
-        </div>
+        {/* ── TWO COLUMNS ── */}
+        <div className="pp-columns">
 
-        {/* Education & Work Section */}
-        <div className="print-section">
-          <h2 className="print-section-title"> التعليم والعمل</h2>
-          <div className="print-grid print-grid-2">
-            {renderField(
-              "المستوى التعليمي",
-              mainProfile?.education_level,
-              EDUCATION_LEVELS
-            )}
-            {renderField(
-              "مصدر الدخل",
-              mainProfile?.income_source,
-              INCOME_SOURCES
-            )}
-            <div className="print-field print-field-full">
-              <span className="print-field-label">الخبرات العملية:</span>
-              <span className="print-field-value">
-                {mainProfile?.work_experience || "غير محدد"}
-              </span>
+          {/* RIGHT — Personal Info */}
+          <div className="pp-col">
+            <div className="pp-col-header">
+              <p className="pp-col-header-text">المعلومات الشخصية لطالب الزواج</p>
             </div>
+            <table className="pp-table">
+              <tbody>
+                {personalRows.map(([label, val], i) => (
+                  <tr key={i}>
+                    <td className="pp-td-label">{label}</td>
+                    <td className="pp-td-value">{val}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
           </div>
-        </div>
 
-        {/* Social & Religious Section */}
-        <div className="print-section">
-          <h2 className="print-section-title"> الالتزام الديني والاجتماعي</h2>
-          <div className="print-grid">
-            {renderField(
-              "الالتزام الديني",
-              mainProfile?.religion_commitment,
-              RELIGION_COMMITMENT
-            )}
-            {renderField("لديه أطفال", formatYesNo(mainProfile?.has_children))}
-            {renderField("عدد الأطفال معي", mainProfile?.children_with_me)}
-            {renderField(
-              "الرغبة بأطفال بعد الزواج",
-              mainProfile?.children_after_marriage
-            )}
-          </div>
-        </div>
-
-        {/* Financial Section */}
-        <div className="print-section">
-          <h2 className="print-section-title"> الوضع المالي</h2>
-          <div className="print-grid">
-            {renderField(
-              "سجل جنائي",
-              formatYesNo(mainProfile?.has_criminal_record)
-            )}
-            {renderField("ديون", formatYesNo(mainProfile?.has_debts))}
-            {renderField(
-              "قروض سابقة",
-              formatYesNo(mainProfile?.has_previous_loans)
-            )}
-            {renderField(
-              "الاستطاعة المالية (المهر)",
-              mainProfile?.dowry_capability
-            )}
-          </div>
-        </div>
-
-        {/* Target Partner Specs */}
-        {targetProfile && (
-          <div className="partner-section">
-            <div className="print-section">
-              <h2 className="print-section-title"> مواصفات الشريك المطلوب</h2>
-              <div className="print-grid">
-                {renderField(
-                  "الفئة العمرية",
-                  targetProfile?.target_age_range,
-                  AGE_RANGES
-                )}
-                {renderField(
-                  "الجنسية",
-                  targetProfile?.target_nationality,
-                  NATIONALITIES
-                )}
-                {renderField(
-                  "الحالة الاجتماعية",
-                  targetProfile?.target_marital_status,
-                  MARITAL_STATUS
-                )}
-                {renderField(
-                  "الديانة",
-                  targetProfile?.target_religion,
-                  RELIGIONS
-                )}
-                {renderField(
-                  "المذهب",
-                  getSectLabel(
-                    targetProfile?.target_religion,
-                    targetProfile?.target_sect
-                  )
-                )}
-                {renderField(
-                  "نوع الإقامة",
-                  targetProfile?.target_residency_type,
-                  RESIDENCY_TYPES
-                )}
-                {renderField(
-                  "الالتزام الديني",
-                  targetProfile?.target_religion_commitment,
-                  RELIGION_COMMITMENT
-                )}
-                {renderField(
-                  "تقبل وجود أطفال",
-                  targetProfile?.target_has_children,
-                  YES_NO_OPTIONS
-                )}
-                {renderField("المدينة", targetProfile?.target_city)}
-              </div>
-
-              {/* Physical Requirements */}
-              <h3
-                style={{
-                  fontSize: "14px",
-                  fontWeight: "bold",
-                  color: "#023048",
-                  marginTop: "20px",
-                  marginBottom: "10px",
-                }}
-              >
-                المواصفات الجسدية المطلوبة:
-              </h3>
-              <div className="print-grid">
-                {renderField("الطول", targetProfile?.target_height)}
-                {renderField("الوزن", targetProfile?.target_weight)}
-                {renderField(
-                  "لون البشرة",
-                  targetProfile?.target_skin_color,
-                  SKIN_COLORS
-                )}
-              </div>
-
-              {/* Special Conditions */}
-              {targetProfile?.target_special_conditions && (
-                <div
-                  className="print-field"
-                  style={{ marginTop: "15px", gridColumn: "span 3" }}
-                >
-                  <span className="print-field-label">شروط خاصة إضافية:</span>
-                  <span className="print-field-value">
-                    {targetProfile.target_special_conditions}
-                  </span>
-                </div>
-              )}
+          {/* LEFT — Partner Requirements */}
+          <div className="pp-col">
+            <div className="pp-col-header">
+              <p className="pp-col-header-text">المواصفات المطلوبة بشريك/ة الحياة</p>
             </div>
+            {targetProfile ? (
+              <table className="pp-table">
+                <tbody>
+                  {partnerRows.map(([label, val], i) => (
+                    <tr key={i}>
+                      <td className="pp-td-label">{label}</td>
+                      <td className="pp-td-value">{val}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            ) : (
+              <div className="pp-no-target">
+                لا توجد مواصفات مطلوبة
+              </div>
+            )}
           </div>
-        )}
 
-        {/* Footer */}
-        <div className="print-footer">
-          <div className="qr-placeholder">QR Code</div>
-          <p className="print-footer-text">
-            للتواصل والاستفسار: info@setalsham.com | +358 46 520 2214
-          </p>
-          <p className="print-footer-text">www.setalsham.com</p>
-          <p className="print-date">
-            تاريخ الطباعة: {dayjs().format("YYYY-MM-DD HH:mm")}
-          </p>
         </div>
+
+
       </div>
     );
   }

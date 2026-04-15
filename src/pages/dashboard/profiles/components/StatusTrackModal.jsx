@@ -121,7 +121,7 @@ const StatusTrackModal = ({ visible, onCancel, record }) => {
             ? dayjs(item.history_date).format("YYYY-MM-DD HH:mm")
             : "-",
           byName: "الإدارة",
-          note: item.note || "",
+          notes: item.note || "",
         }));
 
       setHistory(validHistory);
@@ -142,7 +142,7 @@ const StatusTrackModal = ({ visible, onCancel, record }) => {
         `/admin/users/${record.user_id}/profile/tracking-history`,
         {
           status: selectedNewStatus,
-          note: adminNote || "",
+          notes: adminNote || "",
         }
       );
 
@@ -152,7 +152,7 @@ const StatusTrackModal = ({ visible, onCancel, record }) => {
         statusKey: selectedNewStatus,
         timestamp: dayjs().format("YYYY-MM-DD HH:mm"),
         byName: "الإدارة",
-        note: adminNote || "",
+        notes: adminNote || "",
       };
 
       setHistory((prev) => [...prev, newEntry]);
