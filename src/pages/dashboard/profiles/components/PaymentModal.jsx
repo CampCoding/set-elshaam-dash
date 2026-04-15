@@ -386,7 +386,7 @@ const PaymentModal = ({ visible, onCancel, record, onSend }) => {
     try {
       const [stagesRes, paymentsRes] = await Promise.all([
         stagesService.getStages(),
-        api.get(`/admin/payments/user/${record.id}`),
+        api.get(`/admin/payments/user/${record.user_id}`),
       ]);
       setStages(stagesRes.data || []);
       setUserPayments(paymentsRes.data?.data || []);
@@ -402,7 +402,7 @@ const PaymentModal = ({ visible, onCancel, record, onSend }) => {
     setLoadingStageId(stage.id);
     try {
       await api.post("/admin/payments/create", {
-        userId: record.id,
+        userId: record.user_id,
         title: stage.title,
         price: getFinalPrice(stage),
       });
