@@ -394,9 +394,7 @@ const PaymentModal = ({ visible, onCancel, record, onSend }) => {
     }
   };
 
-  // ─────────────────────────────────────────────
-  // Send / re-send payment claim
-  // ─────────────────────────────────────────────
+
 
   const handleSend = async (stage) => {
     const priceToSend = getFinalPrice(stage);

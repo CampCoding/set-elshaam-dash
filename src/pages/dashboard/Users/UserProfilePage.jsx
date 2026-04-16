@@ -1,6 +1,6 @@
 // src/pages/dashboard/Users/UserProfilePage.jsx
 
-import React, { useRef, useState } from "react";
+import React, { useRef, useState, useCallback } from "react";
 import {
   Tabs,
   Card,
@@ -105,7 +105,6 @@ const DOCUMENT_SECTIONS = [
   },
 ];
 
-// ✅ Labels للقيم الجديدة
 const CLOTHING_STYLES = [
   { value: "not_important", label: "غير مهم" },
   { value: "conservative", label: "محتشم" },
@@ -152,6 +151,40 @@ const getDocumentQuestion = (questionKey, profile) => {
   }
 };
 
+// ==================== Helpers ====================
+const ensureArray = (data) => {
+  if (!data) return [];
+  if (Array.isArray(data)) return data;
+  try {
+    const parsed = JSON.parse(data);
+    return Array.isArray(parsed) ? parsed : [data];
+  } catch {
+    if (typeof data === "string" && data.split(",").length > 1)
+      return data.split(",").map((s) => s.trim());
+    return [data];
+  }
+};
+
+const formatYesNo = (value) => {
+  if (value === 1 || value === true || value === "1") return "نعم";
+  if (value === 0 || value === false || value === "0") return "لا";
+  return "غير محدد";
+};
+
+const getFileName = (url) => url?.split("/").pop() || "ملف";
+const getFileIcon = (url) => {
+  const ext = url?.split(".").pop()?.toLowerCase();
+  if (["jpg", "jpeg", "png", "gif", "webp"].includes(ext)) return "🖼️";
+  if (ext === "pdf") return "📄";
+  return "📎";
+};
+
+const getSectLabel = (religion, sect) => {
+  if (!religion || !sect) return sect || "غير محدد";
+  const sects = SECTS_BY_RELIGION[religion] || SECTS_BY_RELIGION.other;
+  return getLabelByValue(sects, sect);
+};
+
 // ==================== UserProfilePage ====================
 const UserProfilePage = () => {
   const {
@@ -169,9 +202,9 @@ const UserProfilePage = () => {
     handleDeleteUser,
     isSaving,
   } = useUserProfile();
+
   const navigate = useNavigate();
-
-
+  const printRef = useRef(null);
 
   const [isPrintModalVisible, setIsPrintModalVisible] = useState(false);
   const [isExporting, setIsExporting] = useState(false);
@@ -179,49 +212,154 @@ const UserProfilePage = () => {
   const [isPaymentModalVisible, setIsPaymentModalVisible] = useState(false);
   const [isStatusModalVisible, setIsStatusModalVisible] = useState(false);
 
-  const printRef = useRef(null);
-
+  // ==================== Print Handler (v3+ API) ====================
   const handlePrint = useReactToPrint({
-    content: () => printRef.current,
+    contentRef: printRef,
     documentTitle: `استمارة_${id}_ست_الشام`,
     onAfterPrint: () => {
       setIsPrintModalVisible(false);
       message.success("تمت الطباعة بنجاح");
     },
+    pageStyle: `
+      @page {
+        size: A4 portrait;
+        margin: 8mm;
+      }
+      @media print {
+        html, body {
+          -webkit-print-color-adjust: exact !important;
+          print-color-adjust: exact !important;
+          color-adjust: exact !important;
+        }
+        .printable-profile {
+          width: 100% !important;
+          max-height: none !important;
+          overflow: visible !important;
+          page-break-inside: avoid;
+        }
+      }
+    `,
   });
 
-  const handleExportPDF = async () => {
-    if (!printRef.current) return;
+  // ==================== PDF Export Handler (Single Page) ====================
+  const handleExportPDF = useCallback(async () => {
+    if (!printRef.current) {
+      message.error("لا يوجد محتوى للتصدير");
+      return;
+    }
+
     setIsExporting(true);
+
     try {
-      await html2pdf()
-        .set({
-          margin: [10, 10, 10, 10],
-          filename: `استمارة_${id}_ست_الشام.pdf`,
-          image: { type: "jpeg", quality: 0.98 },
-          html2canvas: { scale: 2, useCORS: true, letterRendering: true },
-          jsPDF: { unit: "mm", format: "a4", orientation: "portrait" },
-          pagebreak: { mode: ["avoid-all", "css", "legacy"] },
-        })
-        .from(printRef.current)
-        .save();
+      const element = printRef.current;
+      const contentWidth = element.scrollWidth;
+      const contentHeight = element.scrollHeight;
+
+      // A4 in pixels at 96 DPI
+      const A4_WIDTH_PX = 794;
+      const A4_HEIGHT_PX = 1122;
+      const MARGIN_PX = 20;
+
+      const availableWidth = A4_WIDTH_PX - MARGIN_PX * 2;
+      const availableHeight = A4_HEIGHT_PX - MARGIN_PX * 2;
+
+      // Calculate scale to fit everything in one page
+      const scaleX = availableWidth / contentWidth;
+      const scaleY = availableHeight / contentHeight;
+      const scale = Math.min(scaleX, scaleY, 1); // Never upscale
+
+      // Store original styles
+      const originalStyles = {
+        transform: element.style.transform,
+        transformOrigin: element.style.transformOrigin,
+        width: element.style.width,
+        height: element.style.height,
+        overflow: element.style.overflow,
+        position: element.style.position,
+      };
+
+      // Apply scale if needed
+      if (scale < 1) {
+        element.style.transform = `scale(${scale})`;
+        element.style.transformOrigin = "top left";
+        element.style.width = `${contentWidth}px`;
+        element.style.overflow = "visible";
+      }
+
+      // Wait for styles to apply
+      await new Promise((resolve) => setTimeout(resolve, 300));
+
+      const opt = {
+        margin: [5, 5, 5, 5],
+        filename: `استمارة_${id}_ست_الشام.pdf`,
+        image: { type: "jpeg", quality: 0.95 },
+        html2canvas: {
+          scale: 2,
+          useCORS: true,
+          allowTaint: true,
+          letterRendering: true,
+          scrollX: 0,
+          scrollY: 0,
+          width: contentWidth,
+          height: contentHeight,
+          backgroundColor: "#ffffff",
+        },
+        jsPDF: {
+          unit: "mm",
+          format: "a4",
+          orientation: "portrait",
+          compress: true,
+        },
+        pagebreak: {
+          mode: "avoid-all",
+          before: [],
+          after: [],
+          avoid: ["*"],
+        },
+      };
+
+      await html2pdf().set(opt).from(element).save();
+
+      // Restore original styles
+      Object.keys(originalStyles).forEach((key) => {
+        element.style[key] = originalStyles[key] || "";
+      });
+
       message.success("تم تحميل ملف PDF بنجاح");
     } catch (error) {
+      console.error("PDF Export Error:", error);
       message.error("حدث خطأ أثناء تصدير الملف");
     } finally {
       setIsExporting(false);
     }
-  };
+  }, [id]);
 
-  const handleCopyProfileId = () => {
-    navigator.clipboard.writeText(
-      `رقم الاستمارة: #${id}\nللتواصل والاستفسار:\n📧 info@setalsham.com\n📞 +358 46 520 2214\n🌐 www.setalsham.com`
-    );
-    setCopied(true);
-    message.success("تم نسخ معلومات الاستمارة!");
-    setTimeout(() => setCopied(false), 2000);
-  };
+  // ==================== Copy Profile ID ====================
+  const handleCopyProfileId = useCallback(() => {
+    const text = `رقم الاستمارة: #${id}\nللتواصل والاستفسار:\n📧 info@setalsham.com\n📞 +358 46 520 2214\n🌐 www.setalsham.com`;
 
+    navigator.clipboard
+      .writeText(text)
+      .then(() => {
+        setCopied(true);
+        message.success("تم نسخ معلومات الاستمارة!");
+        setTimeout(() => setCopied(false), 2000);
+      })
+      .catch(() => {
+        message.error("فشل في نسخ النص");
+      });
+  }, [id]);
+
+  // ==================== Open Print then Export PDF ====================
+  const handleOpenAndExportPDF = useCallback(() => {
+    setIsPrintModalVisible(true);
+    // Wait for modal to render + PrintableProfile to mount
+    setTimeout(() => {
+      handleExportPDF();
+    }, 800);
+  }, [handleExportPDF]);
+
+  // ==================== Loading State ====================
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-[400px]">
@@ -230,22 +368,10 @@ const UserProfilePage = () => {
     );
   }
 
-  // ==================== Helpers ====================
-  const ensureArray = (data) => {
-    if (!data) return [];
-    if (Array.isArray(data)) return data;
-    try {
-      const parsed = JSON.parse(data);
-      return Array.isArray(parsed) ? parsed : [data];
-    } catch {
-      if (typeof data === "string" && data.split(",").length > 1)
-        return data.split(",").map((s) => s.trim());
-      return [data];
-    }
-  };
-
+  // ==================== Render Info Item ====================
   const renderInfoItem = (label, value, icon, options = null) => {
     let displayValue = value;
+
     if (options && value !== null && value !== undefined) {
       const arrayValue = ensureArray(value);
       if (
@@ -283,30 +409,10 @@ const UserProfilePage = () => {
     );
   };
 
-  const getSectLabel = (religion, sect) => {
-    if (!religion || !sect) return sect || "غير محدد";
-    const sects = SECTS_BY_RELIGION[religion] || SECTS_BY_RELIGION.other;
-    return getLabelByValue(sects, sect);
-  };
-
-  const formatYesNo = (value) => {
-    if (value === 1 || value === true || value === "1") return "نعم";
-    if (value === 0 || value === false || value === "0") return "لا";
-    return "غير محدد";
-  };
-
-  const getFileName = (url) => url?.split("/").pop() || "ملف";
-  const getFileIcon = (url) => {
-    const ext = url?.split(".").pop()?.toLowerCase();
-    if (["jpg", "jpeg", "png", "gif", "webp"].includes(ext)) return "🖼️";
-    if (ext === "pdf") return "📄";
-    return "📎";
-  };
-
   // ==================== Render ====================
   return (
     <div className="space-y-6">
-      {/* Header */}
+      {/* ==================== Header ==================== */}
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
         <div className="flex items-center gap-4">
           <Button
@@ -391,10 +497,11 @@ const UserProfilePage = () => {
         </Space>
       </div>
 
-      {/* Main Grid */}
+      {/* ==================== Main Grid ==================== */}
       <div className="grid grid-cols-1 lg:grid-cols-4 gap-6 items-start">
-        {/* Sidebar */}
+        {/* ==================== Sidebar ==================== */}
         <div className="lg:col-span-1 flex flex-col gap-6 sticky top-20">
+          {/* Profile Card */}
           <Card className="rounded-2xl border border-gray-100 shadow-sm overflow-hidden text-center">
             <div className="mb-4">
               <Image
@@ -447,7 +554,6 @@ const UserProfilePage = () => {
                 mainProfile?.city,
                 <MapPin className="w-4 h-4" />
               )}
-              {/* ✅ جديد */}
               {renderInfoItem(
                 "المنطقة",
                 mainProfile?.region,
@@ -461,6 +567,7 @@ const UserProfilePage = () => {
             </div>
           </Card>
 
+          {/* Admin Status */}
           <Card
             title="الحالة الإدارية"
             className="rounded-2xl border border-gray-100 shadow-sm"
@@ -485,6 +592,7 @@ const UserProfilePage = () => {
             </div>
           </Card>
 
+          {/* Quick Actions */}
           <Card
             title="إجراءات سريعة"
             className="rounded-2xl border border-gray-100 shadow-sm"
@@ -518,10 +626,7 @@ const UserProfilePage = () => {
                 type="default"
                 icon={<FileDown className="w-4 h-4" />}
                 className="w-full flex items-center justify-center gap-2"
-                onClick={() => {
-                  setIsPrintModalVisible(true);
-                  setTimeout(() => handleExportPDF(), 500);
-                }}
+                onClick={handleOpenAndExportPDF}
               >
                 تحميل PDF
               </Button>
@@ -537,7 +642,7 @@ const UserProfilePage = () => {
           </Card>
         </div>
 
-        {/* Content */}
+        {/* ==================== Content ==================== */}
         <div className="lg:col-span-3">
           <Card className="rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
             <Tabs
@@ -556,7 +661,7 @@ const UserProfilePage = () => {
                   ),
                   children: (
                     <div className="space-y-8 mt-4">
-                      {/* Contact Info - ✅ جديد */}
+                      {/* Contact Info */}
                       <div>
                         <h3 className="text-lg font-bold text-primary flex items-center gap-2 mb-4">
                           <Phone className="w-5 h-5" /> معلومات التواصل
@@ -565,7 +670,9 @@ const UserProfilePage = () => {
                           <Col xs={24} sm={8} dir="ltr">
                             {renderInfoItem(
                               "رقم هاتف ثانوي",
-                              `+${mainProfile?.secondary_phone}`,
+                              mainProfile?.secondary_phone
+                                ? `+${mainProfile.secondary_phone}`
+                                : null,
                               <Phone className="w-4 h-4" />
                             )}
                           </Col>
@@ -645,7 +752,6 @@ const UserProfilePage = () => {
                               <Info className="w-4 h-4" />
                             )}
                           </Col>
-                          {/* ✅ الحجاب فقط للإناث */}
                           {mainProfile?.gender === "female" && (
                             <Col xs={24} sm={8}>
                               {renderInfoItem(
@@ -832,7 +938,6 @@ const UserProfilePage = () => {
                               <Info className="w-4 h-4" />
                             )}
                           </Col>
-                          {/* ✅ المهر فقط للذكر */}
                           {mainProfile?.gender === "male" && (
                             <Col xs={24} sm={12}>
                               {renderInfoItem(
@@ -845,7 +950,7 @@ const UserProfilePage = () => {
                         </Row>
                       </div>
 
-                      {/* ✅ Gallery - جديد */}
+                      {/* Gallery */}
                       {ensureArray(mainProfile?.user_gallery_photos).length >
                         0 && (
                           <div>
@@ -964,7 +1069,7 @@ const UserProfilePage = () => {
                         </Row>
                       </div>
 
-                      {/* ✅ Documents - مع السؤال المرتبط */}
+                      {/* Documents */}
                       <div>
                         <h3 className="text-lg font-bold text-primary flex items-center gap-2 mb-4">
                           <FileText className="w-5 h-5" /> الوثائق والمستندات
@@ -989,9 +1094,8 @@ const UserProfilePage = () => {
                                       <FileText className="w-4 h-4" />
                                       {section.label}
                                     </span>
-
                                     {question && (
-                                      <span className="text-xs text-gray-400 font-normal max-w-[90%] bg-gradient-to-b from-[#FAF2EA] to-[#FAF2EA] p-[5px_10px] m-[3px_0] rounded-md border border-[#DCB56D] ">
+                                      <span className="text-xs text-gray-400 font-normal max-w-[90%] bg-gradient-to-b from-[#FAF2EA] to-[#FAF2EA] p-[5px_10px] m-[3px_0] rounded-md border border-[#DCB56D]">
                                         {question}
                                       </span>
                                     )}
@@ -1082,7 +1186,7 @@ const UserProfilePage = () => {
                         />
                       ) : (
                         <>
-                          {/* ✅ Badge الجنس */}
+                          {/* Gender Badge */}
                           <div className="flex items-center gap-2 p-3 bg-blue-50 border border-blue-100 rounded-xl">
                             <Info className="w-4 h-4 text-blue-500" />
                             <span className="text-sm text-blue-700 font-medium">
@@ -1159,7 +1263,6 @@ const UserProfilePage = () => {
                                   <Info className="w-4 h-4" />
                                 )}
                               </Col>
-                              {/* ✅ الحجاب فقط للذكر */}
                               {mainProfile?.gender === "male" && (
                                 <Col xs={24} sm={8}>
                                   {renderInfoItem(
@@ -1203,7 +1306,6 @@ const UserProfilePage = () => {
                                   YES_NO_OPTIONS
                                 )}
                               </Col>
-                              {/* ✅ المهر فقط للذكر */}
                               {mainProfile?.gender === "male" && (
                                 <Col xs={24} sm={8}>
                                   {renderInfoItem(
@@ -1215,7 +1317,6 @@ const UserProfilePage = () => {
                                   )}
                                 </Col>
                               )}
-                              {/* ✅ التعدد فقط للأنثى */}
                               {mainProfile?.gender === "female" && (
                                 <Col xs={24} sm={8}>
                                   {renderInfoItem(
@@ -1227,7 +1328,6 @@ const UserProfilePage = () => {
                                   )}
                                 </Col>
                               )}
-                              {/* ✅ جديد */}
                               <Col xs={24} sm={8}>
                                 {renderInfoItem(
                                   "أسلوب اللباس المطلوب",
@@ -1307,7 +1407,6 @@ const UserProfilePage = () => {
                                   SKIN_COLORS
                                 )}
                               </Col>
-                              {/* ✅ جديد */}
                               <Col xs={24} sm={8}>
                                 {renderInfoItem(
                                   "لون العيون المطلوب",
@@ -1327,7 +1426,7 @@ const UserProfilePage = () => {
                             </Row>
                           </div>
 
-                          {/* ✅ Habits - جديد */}
+                          {/* Habits */}
                           <div>
                             <h3 className="text-lg font-bold text-primary flex items-center gap-2 mb-4">
                               <Info className="w-5 h-5" /> العادات والتفضيلات
@@ -1351,7 +1450,9 @@ const UserProfilePage = () => {
 
                             {/* Household Chores */}
                             {ensureArray(
-                              targetProfile?.["target_house-tasks_preference"]
+                              targetProfile?.[
+                              "target_house-tasks_preference"
+                              ]
                             ).length > 0 && (
                                 <div className="mt-4 p-3 bg-gray-50 rounded-xl border border-gray-100">
                                   <div className="text-xs text-gray-400 font-medium mb-2 flex items-center gap-1">
@@ -1394,7 +1495,7 @@ const UserProfilePage = () => {
         </div>
       </div>
 
-      {/* Print Modal */}
+      {/* ==================== Print Modal ==================== */}
       <Modal
         title={
           <div className="flex items-center gap-3">
@@ -1406,14 +1507,14 @@ const UserProfilePage = () => {
         onCancel={() => setIsPrintModalVisible(false)}
         width={900}
         centered
-        destroyOnClose
+        destroyOnClose={false}
         footer={
           <div className="flex flex-col sm:flex-row justify-between items-center gap-4">
             <div className="text-sm text-gray-500 text-right flex items-center gap-2">
               <Info className="w-4 h-4" />
               <span>
-                البيانات الشخصية (الاسم، الهاتف، الإيميل، العنوان، الصورة) مخفية
-                للحفاظ على الخصوصية
+                البيانات الشخصية (الاسم، الهاتف، الإيميل، العنوان، الصورة)
+                مخفية للحفاظ على الخصوصية
               </span>
             </div>
             <Space>
@@ -1454,7 +1555,7 @@ const UserProfilePage = () => {
         </div>
       </Modal>
 
-      {/* Update Modal */}
+      {/* ==================== Update Modal ==================== */}
       <UpdateProfileModal
         visible={isEditModalVisible}
         onCancel={handleCloseEdit}
@@ -1465,7 +1566,7 @@ const UserProfilePage = () => {
         loading={isSaving}
       />
 
-      {/* Payment Modal */}
+      {/* ==================== Payment Modal ==================== */}
       <PaymentModal
         visible={isPaymentModalVisible}
         onCancel={() => setIsPaymentModalVisible(false)}
@@ -1477,7 +1578,7 @@ const UserProfilePage = () => {
         }
       />
 
-      {/* Status Modal */}
+      {/* ==================== Status Modal ==================== */}
       <StatusTrackModal
         visible={isStatusModalVisible}
         onCancel={() => setIsStatusModalVisible(false)}
