@@ -136,6 +136,14 @@ const ProfilesPage = () => {
   // Table Columns
   const columns = [
     {
+      title: "رقم الإستماره",
+      dataIndex: "id",
+      key: "id",
+      width: 150,
+      align: "center",
+      render: (id) => <span className="text-gray-500">#{id}</span>,
+    },
+    {
       title: "البروفايل",
       dataIndex: "full_name",
       key: "full_name",

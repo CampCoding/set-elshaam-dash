@@ -532,6 +532,11 @@ const UserProfilePage = () => {
             <Divider className="my-4" />
             <div className="space-y-1 text-right">
               {renderInfoItem(
+                "رقم الإستماره",
+                mainProfile?.id,
+                <Info className="w-4 h-4" />
+              )}
+              {renderInfoItem(
                 "تاريخ الميلاد",
                 mainProfile?.date_of_birth
                   ? dayjs(mainProfile.date_of_birth).format("YYYY-MM-DD")
@@ -681,8 +686,8 @@ const UserProfilePage = () => {
                               "تاريخ الوصول لفنلندا",
                               mainProfile?.arrival_date_finland
                                 ? dayjs(
-                                  mainProfile.arrival_date_finland
-                                ).format("YYYY-MM-DD")
+                                    mainProfile.arrival_date_finland
+                                  ).format("YYYY-MM-DD")
                                 : null,
                               <Calendar className="w-4 h-4" />
                             )}
@@ -953,29 +958,29 @@ const UserProfilePage = () => {
                       {/* Gallery */}
                       {ensureArray(mainProfile?.user_gallery_photos).length >
                         0 && (
-                          <div>
-                            <h3 className="text-lg font-bold text-primary flex items-center gap-2 mb-4">
-                              <ImageIcon className="w-5 h-5" /> معرض الصور
-                            </h3>
-                            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
-                              {ensureArray(mainProfile.user_gallery_photos).map(
-                                (photo, i) => (
-                                  <div
-                                    key={i}
-                                    className="rounded-xl overflow-hidden border border-gray-100 shadow-sm aspect-square"
-                                  >
-                                    <Image
-                                      src={photo}
-                                      alt={`صورة ${i + 1}`}
-                                      className="w-full h-full object-cover"
-                                      width="100%"
-                                    />
-                                  </div>
-                                )
-                              )}
-                            </div>
+                        <div>
+                          <h3 className="text-lg font-bold text-primary flex items-center gap-2 mb-4">
+                            <ImageIcon className="w-5 h-5" /> معرض الصور
+                          </h3>
+                          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
+                            {ensureArray(mainProfile.user_gallery_photos).map(
+                              (photo, i) => (
+                                <div
+                                  key={i}
+                                  className="rounded-xl overflow-hidden border border-gray-100 shadow-sm aspect-square"
+                                >
+                                  <Image
+                                    src={photo}
+                                    alt={`صورة ${i + 1}`}
+                                    className="w-full h-full object-cover"
+                                    width="100%"
+                                  />
+                                </div>
+                              )
+                            )}
                           </div>
-                        )}
+                        </div>
+                      )}
 
                       {/* About Me */}
                       {mainProfile?.about_me_more && (
@@ -1450,28 +1455,26 @@ const UserProfilePage = () => {
 
                             {/* Household Chores */}
                             {ensureArray(
-                              targetProfile?.[
-                              "target_house-tasks_preference"
-                              ]
+                              targetProfile?.["target_house-tasks_preference"]
                             ).length > 0 && (
-                                <div className="mt-4 p-3 bg-gray-50 rounded-xl border border-gray-100">
-                                  <div className="text-xs text-gray-400 font-medium mb-2 flex items-center gap-1">
-                                    <Home className="w-3 h-3" /> تفضيلات المهام
-                                    المنزلية
-                                  </div>
-                                  <div className="flex flex-wrap gap-2">
-                                    {ensureArray(
-                                      targetProfile[
-                                      "target_house-tasks_preference"
-                                      ]
-                                    ).map((item, i) => (
-                                      <Tag key={i} className="rounded-full">
-                                        {item}
-                                      </Tag>
-                                    ))}
-                                  </div>
+                              <div className="mt-4 p-3 bg-gray-50 rounded-xl border border-gray-100">
+                                <div className="text-xs text-gray-400 font-medium mb-2 flex items-center gap-1">
+                                  <Home className="w-3 h-3" /> تفضيلات المهام
+                                  المنزلية
                                 </div>
-                              )}
+                                <div className="flex flex-wrap gap-2">
+                                  {ensureArray(
+                                    targetProfile[
+                                      "target_house-tasks_preference"
+                                    ]
+                                  ).map((item, i) => (
+                                    <Tag key={i} className="rounded-full">
+                                      {item}
+                                    </Tag>
+                                  ))}
+                                </div>
+                              </div>
+                            )}
                           </div>
 
                           {/* Special Conditions */}
@@ -1513,8 +1516,8 @@ const UserProfilePage = () => {
             <div className="text-sm text-gray-500 text-right flex items-center gap-2">
               <Info className="w-4 h-4" />
               <span>
-                البيانات الشخصية (الاسم، الهاتف، الإيميل، العنوان، الصورة)
-                مخفية للحفاظ على الخصوصية
+                البيانات الشخصية (الاسم، الهاتف، الإيميل، العنوان، الصورة) مخفية
+                للحفاظ على الخصوصية
               </span>
             </div>
             <Space>
