@@ -42,7 +42,6 @@ const PrintableProfile = forwardRef(
       return value;
     };
 
-    /* ─── rows: [label, value] ─── */
     const personalRows = [
       ["الجنس", mainProfile?.gender === "male" ? "ذكر" : mainProfile?.gender === "female" ? "أنثى" : "—"],
       ["العمر", mainProfile?.date_of_birth ? dayjs().diff(dayjs(mainProfile.date_of_birth), "year") : "—"],
@@ -123,10 +122,12 @@ const PrintableProfile = forwardRef(
             font-family: 'Cairo', 'Segoe UI', Tahoma, sans-serif;
             background: #fff;
             color: #1a1a1a;
-            width: 100%;
+            width: 210mm;
             margin: 0 auto;
             padding: 0;
             box-sizing: border-box;
+            display: flex;
+            flex-direction: column;
           }
 
           /* ── HEADER ── */
@@ -135,25 +136,56 @@ const PrintableProfile = forwardRef(
             text-align: center;
             position: relative;
             line-height: 0;
+            flex-shrink: 0;
           }
 
           .pp-header img {
             width: 100%;
             display: block;
+            max-height: 250px;
+            object-fit: cover;
+            object-position: center;
+          }
+
+          /* ── ID BAR ── */
+          .pp-id-bar {
+            background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 3px 20px;
+            gap: 15px;
+            flex-shrink: 0;
+          }
+
+          .pp-id-badge {
+            font-size: 10px;
+            font-weight: 700;
+            color: #dfb163;
+            letter-spacing: 1px;
+          }
+
+          .pp-id-date {
+            font-size: 9px;
+            color: #aaa;
           }
 
           /* ── GOLD LINE ── */
           .pp-gold-line {
-            height: 4px;
+            height: 3px;
             background: linear-gradient(90deg, #dfb163, #c9973f, #dfb163);
+            flex-shrink: 0;
           }
 
           /* ── TWO-COLUMN BODY ── */
           .pp-columns {
             display: grid;
             grid-template-columns: 1fr 1fr;
-            border: 2px solid #333;
-            align-items: stretch;
+            border-left: 2px solid #333;
+            border-right: 2px solid #333;
+            border-bottom: 2px solid #333;
+            align-items: start;
+            flex-shrink: 0;
           }
 
           .pp-col {
@@ -168,12 +200,13 @@ const PrintableProfile = forwardRef(
           /* ── COL HEADER ── */
           .pp-col-header {
             background: linear-gradient(135deg, #eacb42 0%, #d4a820 100%);
-            padding: 9px 12px;
+            padding: 6px 12px;
             text-align: center;
+            flex-shrink: 0;
           }
 
           .pp-col-header-text {
-            font-size: 13px;
+            font-size: 11px;
             font-weight: 800;
             color: #2e2b29;
             margin: 0;
@@ -183,7 +216,6 @@ const PrintableProfile = forwardRef(
           .pp-table {
             width: 100%;
             border-collapse: collapse;
-            flex: 1;
           }
 
           .pp-table tr {
@@ -203,8 +235,8 @@ const PrintableProfile = forwardRef(
           }
 
           .pp-td-label {
-            padding: 5px 10px 5px 4px;
-            font-size: 10.5px;
+            padding: 3px 8px 3px 4px;
+            font-size: 9px;
             font-weight: 700;
             color: #1a1a1a;
             white-space: nowrap;
@@ -218,8 +250,8 @@ const PrintableProfile = forwardRef(
           }
 
           .pp-td-value {
-            padding: 5px 8px 5px 4px;
-            font-size: 10.5px;
+            padding: 3px 6px 3px 4px;
+            font-size: 9px;
             color: #333;
             font-weight: 500;
             vertical-align: middle;
@@ -228,36 +260,18 @@ const PrintableProfile = forwardRef(
           /* ── FOOTER ── */
           .pp-footer {
             background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%);
-            padding: 10px 20px;
+            padding: 6px 20px;
             display: flex;
             align-items: center;
-            justify-content: space-between;
+            justify-content: center;
             gap: 10px;
+            flex-shrink: 0;
           }
 
           .pp-footer-text {
             font-size: 10px;
             color: #dfb163;
             text-align: center;
-            flex: 1;
-          }
-
-          .pp-footer-id {
-            font-size: 11px;
-            font-weight: 700;
-            color: #fff;
-            background: rgba(223,177,99,0.25);
-            border: 1px solid #dfb163;
-            padding: 4px 12px;
-            border-radius: 20px;
-            white-space: nowrap;
-          }
-
-          .pp-footer-date {
-            font-size: 9px;
-            color: #aaa;
-            text-align: left;
-            white-space: nowrap;
           }
 
           .pp-no-target {
@@ -267,32 +281,61 @@ const PrintableProfile = forwardRef(
             font-size: 12px;
           }
 
-          /* ── PRINT OVERRIDES ── */
           @media print {
-            body * { visibility: hidden; }
-            .pp-root, .pp-root * { visibility: visible; }
-            .pp-root {
-              position: absolute;
-              left: 0; top: 0;
-              width: 210mm;
-              margin: 0;
+            html, body {
+              margin: 0 !important;
+              padding: 0 !important;
+              background: #fff !important;
             }
-            .no-print { display: none !important; }
-            @page { margin: 0; size: A4; }
+
+            body * {
+              visibility: hidden;
+            }
+
+            .pp-root, .pp-root * {
+              visibility: visible;
+            }
+
+            .pp-root {
+              position: fixed;
+              left: 0;
+              top: 0;
+              width: 210mm !important;
+              margin: 0 !important;
+              padding: 0 !important;
+              transform-origin: top left;
+              transform: scale(0.98);
+            }
+
+            .no-print {
+              display: none !important;
+            }
+
+            @page {
+              margin: 0;
+              size: A4 portrait;
+            }
           }
-            * {
-  scrollbar-width: thin;
-  scrollbar-color: #dfb163 transparent;
-}
-*::-webkit-scrollbar { width: 4px; }
-*::-webkit-scrollbar-track { background: transparent; }
-*::-webkit-scrollbar-thumb { background: #dfb163; border-radius: 99px; }
-*::-webkit-scrollbar-thumb:hover { background: #c9973f; }
+
+          * {
+            scrollbar-width: thin;
+            scrollbar-color: #dfb163 transparent;
+          }
+          *::-webkit-scrollbar { width: 4px; }
+          *::-webkit-scrollbar-track { background: transparent; }
+          *::-webkit-scrollbar-thumb { background: #dfb163; border-radius: 99px; }
+          *::-webkit-scrollbar-thumb:hover { background: #c9973f; }
         `}</style>
 
         {/* ── HEADER ── */}
         <div className="pp-header">
           <img src={header} alt="" />
+        </div>
+
+        {/* ── ID BAR ── */}
+        <div className="pp-id-bar">
+          <span className="pp-id-badge">رقم الاستماره : {profileId || "—"} #</span>
+          <span className="pp-id-date">{dayjs().format("YYYY/MM/DD")}</span>
         </div>
 
         <div className="pp-gold-line" />
@@ -342,6 +385,12 @@ const PrintableProfile = forwardRef(
 
         </div>
 
+        <div className="pp-gold-line" />
+
+        {/* ── FOOTER ── */}
+        <div className="pp-footer">
+          <span className="pp-footer-text">منصة زواج المسلمين في فنلندا</span>
+        </div>
 
       </div>
     );

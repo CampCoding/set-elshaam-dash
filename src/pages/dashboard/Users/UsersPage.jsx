@@ -138,7 +138,7 @@ const UsersPage = () => {
             <div className="font-semibold text-gray-800 truncate">
               {text || "-"}
             </div>
-            <div className="text-xs text-gray-400 truncate flex items-center gap-1">
+            <div onClick={() => window.location.href = `mailto:${record.email}`} className="text-xs cursor-pointer text-gray-400 truncate flex items-center gap-1">
               <Mail className="w-3 h-3" />
               {record.email || "-"}
             </div>
@@ -366,8 +366,7 @@ const UsersPage = () => {
           ),
         }}
         rowClassName={(record, index) =>
-          `${index % 2 === 0 ? "bg-white" : "bg-gray-50/50"} ${
-            record.is_blocked ? "opacity-60" : ""
+          `${index % 2 === 0 ? "bg-white" : "bg-gray-50/50"} ${record.is_blocked ? "opacity-60" : ""
           }`
         }
       />
