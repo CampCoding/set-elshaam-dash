@@ -1,5 +1,14 @@
 import React, { useState, useRef, useEffect, useMemo } from "react";
-import { Button, Card, Tag, Tooltip, Space, Divider, message, Tabs } from "antd";
+import {
+  Button,
+  Card,
+  Tag,
+  Tooltip,
+  Space,
+  Divider,
+  message,
+  Tabs,
+} from "antd";
 import {
   Save,
   FileText,
@@ -74,7 +83,13 @@ const VARIABLES = [
   },
 ];
 
-const VariablesToolbar = ({ isEnglish, contentRef, content, copiedVar, onCopy }) => {
+const VariablesToolbar = ({
+  isEnglish,
+  contentRef,
+  content,
+  copiedVar,
+  onCopy,
+}) => {
   const countVariableUsage = (variableKey) => {
     const text = contentRef.current || content;
     const regex = new RegExp(variableKey.replace(/[{}]/g, "\\$&"), "g");
@@ -108,7 +123,10 @@ const VariablesToolbar = ({ isEnglish, contentRef, content, copiedVar, onCopy })
             >
               <div
                 className="p-1.5 rounded-lg shrink-0"
-                style={{ background: `${variable.color}15`, color: variable.color }}
+                style={{
+                  background: `${variable.color}15`,
+                  color: variable.color,
+                }}
               >
                 {variable.icon}
               </div>
@@ -119,12 +137,18 @@ const VariablesToolbar = ({ isEnglish, contentRef, content, copiedVar, onCopy })
                     {isEnglish ? variable.labelEn : variable.label}
                   </span>
                   {usageCount > 0 && (
-                    <Tag color="blue" className="rounded-full text-xs m-0 px-1.5">
+                    <Tag
+                      color="blue"
+                      className="rounded-full text-xs m-0 px-1.5"
+                    >
                       ×{usageCount}
                     </Tag>
                   )}
                 </div>
-                <code className="text-xs font-mono mt-0.5" style={{ color: variable.color }}>
+                <code
+                  className="text-xs font-mono mt-0.5"
+                  style={{ color: variable.color }}
+                >
                   {variable.key}
                 </code>
               </div>
@@ -132,11 +156,28 @@ const VariablesToolbar = ({ isEnglish, contentRef, content, copiedVar, onCopy })
               <Divider type="vertical" className="h-8 mx-1" />
 
               <Space size={4}>
-                <Tooltip title={isCopied ? (isEnglish ? "Copied!" : "تم النسخ!") : (isEnglish ? "Copy Variable" : "نسخ المتغير")}>
+                <Tooltip
+                  title={
+                    isCopied
+                      ? isEnglish
+                        ? "Copied!"
+                        : "تم النسخ!"
+                      : isEnglish
+                        ? "Copy Variable"
+                        : "نسخ المتغير"
+                  }
+                >
                   <button
                     type="button"
-                    onMouseDown={(e) => { e.preventDefault(); e.stopPropagation(); }}
-                    onClick={(e) => { e.preventDefault(); e.stopPropagation(); onCopy(variable.key); }}
+                    onMouseDown={(e) => {
+                      e.preventDefault();
+                      e.stopPropagation();
+                    }}
+                    onClick={(e) => {
+                      e.preventDefault();
+                      e.stopPropagation();
+                      onCopy(variable.key);
+                    }}
                     className="flex items-center justify-center w-7 h-7 rounded-lg border border-gray-200 bg-white hover:bg-gray-50 cursor-pointer transition-colors"
                   >
                     {isCopied ? (
@@ -165,7 +206,9 @@ const VariablesToolbar = ({ isEnglish, contentRef, content, copiedVar, onCopy })
                     {i < VARIABLES.length - 1 ? ", " : ""}
                   </span>
                 ))}{" "}
-                will be automatically replaced with client data when the contract is displayed. Do not change the text inside the brackets.
+                will be automatically replaced with client data when the
+                contract is displayed. Do not change the text inside the
+                brackets.
               </>
             ) : (
               <>
@@ -176,7 +219,8 @@ const VariablesToolbar = ({ isEnglish, contentRef, content, copiedVar, onCopy })
                     {i < VARIABLES.length - 1 ? " و" : ""}
                   </span>
                 ))}{" "}
-                سيتم استبدالها تلقائياً ببيانات العميل عند عرض العقد. لا تغير النص داخل الأقواس.
+                سيتم استبدالها تلقائياً ببيانات العميل عند عرض العقد. لا تغير
+                النص داخل الأقواس.
               </>
             )}
           </span>
@@ -187,7 +231,13 @@ const VariablesToolbar = ({ isEnglish, contentRef, content, copiedVar, onCopy })
 };
 
 // ─── Editor Section ────────────────────────────────────────────────────────
-const EditorSection = ({ isEnglish, editorRef, content, onContentChange, onBlur }) => {
+const EditorSection = ({
+  isEnglish,
+  editorRef,
+  content,
+  onContentChange,
+  onBlur,
+}) => {
   const config = useMemo(
     () => ({
       readonly: false,
@@ -199,14 +249,34 @@ const EditorSection = ({ isEnglish, editorRef, content, onContentChange, onBlur 
       askBeforePasteFromWord: false,
       defaultActionOnPaste: "insert_only_text",
       buttons: [
-        "bold", "italic", "underline", "strikethrough", "|",
-        "ul", "ol", "|",
-        "font", "fontsize", "brush", "paragraph", "|",
-        "image", "table", "link", "|",
-        "align", "|",
-        "undo", "redo", "|",
-        "hr", "eraser", "copyformat", "|",
-        "fullsize", "source",
+        "bold",
+        "italic",
+        "underline",
+        "strikethrough",
+        "|",
+        "ul",
+        "ol",
+        "|",
+        "font",
+        "fontsize",
+        "brush",
+        "paragraph",
+        "|",
+        "image",
+        "table",
+        "link",
+        "|",
+        "align",
+        "|",
+        "undo",
+        "redo",
+        "|",
+        "hr",
+        "eraser",
+        "copyformat",
+        "|",
+        "fullsize",
+        "source",
       ],
       uploader: { insertImageAsBase64URI: true },
       style: {
@@ -263,15 +333,15 @@ const Contract = () => {
       setContentAr(textAr);
       contentArRef.current = textAr;
 
-
-
       // const dataEn = await contractService.getContract("en");
       const textEn = dataAr?.data?.contract_text_en || "";
       setContentEn(textEn);
       contentEnRef.current = textEn;
     } catch (error) {
       console.error("Error fetching contracts:", error);
-      message.error(isEnglish ? "Failed to load contracts" : "فشل في تحميل العقود");
+      message.error(
+        isEnglish ? "Failed to load contracts" : "فشل في تحميل العقود"
+      );
     }
   };
 
@@ -320,11 +390,17 @@ const Contract = () => {
     try {
       if (activeTab === "ar") {
         const textToSave = contentArRef.current || contentAr;
-        await contractService.updateContract({ contract_text: textToSave, lang: "ar" });
+        await contractService.updateContract({
+          contract_text: textToSave,
+          lang: "ar",
+        });
         message.success("تم حفظ العقد العربي بنجاح ✓");
       } else {
         const textToSave = contentEnRef.current || contentEn;
-        await contractService.updateContract({ contract_text_en: textToSave, lang: "en" });
+        await contractService.updateContract({
+          contract_text_en: textToSave,
+          lang: "en",
+        });
         message.success("English contract saved successfully ✓");
       }
     } catch (error) {
@@ -381,8 +457,13 @@ const Contract = () => {
             isEnglish={false}
             editorRef={editorAr}
             content={contentAr}
-            onContentChange={(val) => { contentArRef.current = val; }}
-            onBlur={(val) => { contentArRef.current = val; setContentAr(val); }}
+            onContentChange={(val) => {
+              contentArRef.current = val;
+            }}
+            onBlur={(val) => {
+              contentArRef.current = val;
+              setContentAr(val);
+            }}
           />
         </div>
       ),
@@ -408,8 +489,13 @@ const Contract = () => {
             isEnglish={true}
             editorRef={editorEn}
             content={contentEn}
-            onContentChange={(val) => { contentEnRef.current = val; }}
-            onBlur={(val) => { contentEnRef.current = val; setContentEn(val); }}
+            onContentChange={(val) => {
+              contentEnRef.current = val;
+            }}
+            onBlur={(val) => {
+              contentEnRef.current = val;
+              setContentEn(val);
+            }}
           />
         </div>
       ),
@@ -418,7 +504,6 @@ const Contract = () => {
 
   return (
     <div className="space-y-6 max-w-5xl mx-auto">
-
       {/* ── Header ── */}
       <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
         <div className="flex items-center gap-3">
@@ -453,7 +538,13 @@ const Contract = () => {
           </Button>
 
           {/* Save both tabs */}
-          <Tooltip title={isEnglish ? "Save both Arabic & English versions" : "حفظ كلا النسختين العربية والإنجليزية"}>
+          <Tooltip
+            title={
+              isEnglish
+                ? "Save both Arabic & English versions"
+                : "حفظ كلا النسختين العربية والإنجليزية"
+            }
+          >
             <Button
               onClick={handleSaveBoth}
               loading={loading}
@@ -461,7 +552,7 @@ const Contract = () => {
               className="flex items-center gap-2 border-primary text-primary"
               size="large"
             >
-              {isEnglish ? "Save Both" : "حفظ الكليهما"}
+              {isEnglish ? "Save Both" : "حفظ الكل"}
             </Button>
           </Tooltip>
         </div>
@@ -470,7 +561,9 @@ const Contract = () => {
       {/* ── Status Bar ── */}
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
         {/* Arabic status */}
-        <div className={`flex items-center gap-3 p-3 rounded-xl border transition-all ${activeTab === "ar" ? "bg-primary/5 border-primary/20" : "bg-gray-50 border-gray-100"}`}>
+        <div
+          className={`flex items-center gap-3 p-3 rounded-xl border transition-all ${activeTab === "ar" ? "bg-primary/5 border-primary/20" : "bg-gray-50 border-gray-100"}`}
+        >
           <span className="text-xl">🇸🇦</span>
           <div className="flex-1 min-w-0">
             <p className="text-sm font-bold text-gray-700">النسخة العربية</p>
@@ -478,11 +571,15 @@ const Contract = () => {
               {contentArRef.current?.length || contentAr.length || 0} حرف
             </p>
           </div>
-          <div className={`w-2 h-2 rounded-full flex-shrink-0 ${contentAr ? "bg-green-400" : "bg-gray-300"}`} />
+          <div
+            className={`w-2 h-2 rounded-full flex-shrink-0 ${contentAr ? "bg-green-400" : "bg-gray-300"}`}
+          />
         </div>
 
         {/* English status */}
-        <div className={`flex items-center gap-3 p-3 rounded-xl border transition-all ${activeTab === "en" ? "bg-primary/5 border-primary/20" : "bg-gray-50 border-gray-100"}`}>
+        <div
+          className={`flex items-center gap-3 p-3 rounded-xl border transition-all ${activeTab === "en" ? "bg-primary/5 border-primary/20" : "bg-gray-50 border-gray-100"}`}
+        >
           <span className="text-xl">🇬🇧</span>
           <div className="flex-1 min-w-0">
             <p className="text-sm font-bold text-gray-700">English Version</p>
@@ -490,7 +587,9 @@ const Contract = () => {
               {contentEnRef.current?.length || contentEn.length || 0} characters
             </p>
           </div>
-          <div className={`w-2 h-2 rounded-full flex-shrink-0 ${contentEn ? "bg-green-400" : "bg-gray-300"}`} />
+          <div
+            className={`w-2 h-2 rounded-full flex-shrink-0 ${contentEn ? "bg-green-400" : "bg-gray-300"}`}
+          />
         </div>
       </div>
 
@@ -510,25 +609,26 @@ const Contract = () => {
           tabBarExtraContent={
             <div className="flex items-center gap-2 py-3">
               <div
-                className={`flex items-center gap-1.5 text-xs font-medium px-3 py-1 rounded-full transition-all ${activeTab === "ar"
-                  ? "bg-primary text-white"
-                  : "bg-gray-100 text-gray-500"
-                  }`}
+                className={`flex items-center gap-1.5 text-xs font-medium px-3 py-1 rounded-full transition-all ${
+                  activeTab === "ar"
+                    ? "bg-primary text-white"
+                    : "bg-gray-100 text-gray-500"
+                }`}
               >
                 <span>AR</span>
               </div>
               <div
-                className={`flex items-center gap-1.5 text-xs font-medium px-3 py-1 rounded-full transition-all ${activeTab === "en"
-                  ? "bg-primary text-white"
-                  : "bg-gray-100 text-gray-500"
-                  }`}
+                className={`flex items-center gap-1.5 text-xs font-medium px-3 py-1 rounded-full transition-all ${
+                  activeTab === "en"
+                    ? "bg-primary text-white"
+                    : "bg-gray-100 text-gray-500"
+                }`}
               >
                 <span>EN</span>
               </div>
             </div>
           }
-        >
-        </Tabs>
+        ></Tabs>
 
         <style jsx global>{`
           .contract-tabs .ant-tabs-tab {

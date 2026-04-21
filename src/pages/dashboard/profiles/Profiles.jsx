@@ -1,5 +1,5 @@
 // src/pages/dashboard/Profiles/ProfilesPage.jsx
-import React, { useState, useEffect } from "react";
+import React, { useState, useMemo, useCallback } from "react";
 import {
   Tag,
   Space,
@@ -81,21 +81,22 @@ const ProfilesPage = () => {
   const [isStatusModalVisible, setIsStatusModalVisible] = useState(false);
   const [statusRecord, setStatusRecord] = useState(null);
 
-  // Calculate age from birthdate
-  const calculateAge = (birthdate) => {
+  const calculateAge = useCallback((birthdate) => {
     if (!birthdate) return null;
     const today = new Date();
     const birth = new Date(birthdate);
     let age = today.getFullYear() - birth.getFullYear();
     const monthDiff = today.getMonth() - birth.getMonth();
+
     if (
       monthDiff < 0 ||
       (monthDiff === 0 && today.getDate() < birth.getDate())
     ) {
       age--;
     }
+
     return age;
-  };
+  }, []);
 
   // Filter options
   const verifiedOptions = [
@@ -109,293 +110,299 @@ const ProfilesPage = () => {
   ];
 
   // Actions Dropdown Menu
-  const getActionItems = (record) => [
-    {
-      key: "view",
-      icon: <Eye className="w-4 h-4" />,
-      label: "عرض البروفايل",
-      onClick: () => handleViewProfile(record),
-    },
-    { type: "divider" },
-    {
-      key: "block",
-      icon: <UserX className="w-4 h-4" />,
-      label: record.is_blocked ? "إلغاء الحظر" : "حظر",
-      onClick: () => handleToggleBlock(record),
-    },
-    { type: "divider" },
-    {
-      key: "delete",
-      icon: <Trash2 className="w-4 h-4" />,
-      label: "حذف",
-      danger: true,
-      onClick: () => handleDelete(record),
-    },
-  ];
+  const getActionItems = useCallback(
+    (record) => [
+      {
+        key: "view",
+        icon: <Eye className="w-4 h-4" />,
+        label: "عرض البروفايل",
+        onClick: () => handleViewProfile(record),
+      },
+      { type: "divider" },
+      {
+        key: "block",
+        icon: <UserX className="w-4 h-4" />,
+        label: record.is_blocked ? "إلغاء الحظر" : "حظر",
+        onClick: () => handleToggleBlock(record),
+      },
+      { type: "divider" },
+      {
+        key: "delete",
+        icon: <Trash2 className="w-4 h-4" />,
+        label: "حذف",
+        danger: true,
+        onClick: () => handleDelete(record),
+      },
+    ],
+    [handleViewProfile, handleToggleBlock, handleDelete]
+  );
 
   // Table Columns
-  const columns = [
-    {
-      title: "رقم الإستماره",
-      dataIndex: "id",
-      key: "id",
-      width: 150,
-      align: "center",
-      render: (id) => <span className="text-gray-500">#{id}</span>,
-    },
-    {
-      title: "البروفايل",
-      dataIndex: "full_name",
-      key: "full_name",
-      fixed: "left",
-      width: 280,
-      render: (text, record) => (
-        <div className="flex items-center gap-3">
-          <div className="relative">
-            <Avatar
-              size={50}
-              src={
-                record.profile_picture ? (
-                  <Image
-                    src={record.profile_picture}
-                    alt={text}
-                    preview={{ mask: <Eye className="w-4 h-4" /> }}
-                    style={{ objectFit: "cover" }}
-                  />
-                ) : null
-              }
-              icon={!record.profile_picture && <User className="w-5 h-5" />}
-              className="bg-primary/10 text-primary border-2 border-white shadow-md"
-            />
-            {record.is_verified === 1 && (
-              <Tooltip title="موثق">
-                <div className="absolute -bottom-1 -right-1 bg-green-500 rounded-full p-0.5 border-2 border-white">
-                  <CheckCircle className="w-3 h-3 text-white" />
-                </div>
-              </Tooltip>
-            )}
-          </div>
-          <div className="flex-1 min-w-0">
-            <div className="font-semibold text-gray-800 truncate">
-              {text || "-"}
-            </div>
-            <div className="text-xs text-gray-400 truncate flex items-center gap-1">
-              <Mail className="w-3 h-3" />
-              {record.email || "-"}
-            </div>
-            {record.phone_number && (
-              <div className="text-xs text-gray-400 truncate flex items-center gap-1">
-                <Phone className="w-3 h-3" />
-                <span dir="ltr">{record.phone_number}</span>
-              </div>
-            )}
-          </div>
-        </div>
-      ),
-    },
-    {
-      title: "العمر / الجنس",
-      key: "age_gender",
-      width: 130,
-      align: "center",
-      render: (_, record) => {
-        const age = calculateAge(record.date_of_birth);
-        return (
-          <Space direction="vertical" size={2} align="center">
-            {age ? (
-              <Tag color="blue" className="rounded-full px-3">
-                {age} سنة
-              </Tag>
-            ) : (
-              <Tag color="default" className="rounded-full px-3">
-                -
-              </Tag>
-            )}
-            <Tag
-              color={record.gender === "male" ? "blue" : "pink"}
-              className="rounded-full px-3"
-            >
-              {record.gender === "male" ? "♂ ذكر" : "♀ أنثى"}
-            </Tag>
-          </Space>
-        );
+  const columns = useMemo(
+    () => [
+      {
+        title: "رقم الإستماره",
+        dataIndex: "id",
+        key: "id",
+        width: 150,
+        align: "center",
+        render: (id) => <span className="text-gray-500">#{id}</span>,
       },
-    },
-    {
-      title: "الجنسية",
-      dataIndex: "nationality",
-      key: "nationality",
-      width: 120,
-      align: "center",
-      render: (nationality) =>
-        nationality ? (
-          <Tag color="geekblue" className="rounded-full">
-            {getLabelByValue(NATIONALITIES, nationality)}
-          </Tag>
-        ) : (
-          <span className="text-gray-400">-</span>
+      {
+        title: "البروفايل",
+        dataIndex: "full_name",
+        key: "full_name",
+        fixed: "left",
+        width: 280,
+        render: (text, record) => (
+          <div className="flex items-center gap-3">
+            <div className="relative">
+              <Avatar
+                size={50}
+                src={
+                  record.profile_picture ? (
+                    <Image
+                      src={record.profile_picture}
+                      alt={text}
+                      preview={{ mask: <Eye className="w-4 h-4" /> }}
+                      style={{ objectFit: "cover" }}
+                    />
+                  ) : null
+                }
+                icon={!record.profile_picture && <User className="w-5 h-5" />}
+                className="bg-primary/10 text-primary border-2 border-white shadow-md"
+              />
+              {record.is_verified === 1 && (
+                <Tooltip title="موثق">
+                  <div className="absolute -bottom-1 -right-1 bg-green-500 rounded-full p-0.5 border-2 border-white">
+                    <CheckCircle className="w-3 h-3 text-white" />
+                  </div>
+                </Tooltip>
+              )}
+            </div>
+            <div className="flex-1 min-w-0">
+              <div className="font-semibold text-gray-800 truncate">
+                {text || "-"}
+              </div>
+              <div className="text-xs text-gray-400 truncate flex items-center gap-1">
+                <Mail className="w-3 h-3" />
+                {record.email || "-"}
+              </div>
+              {record.phone_number && (
+                <div className="text-xs text-gray-400 truncate flex items-center gap-1">
+                  <Phone className="w-3 h-3" />
+                  <span dir="ltr">{record.phone_number}</span>
+                </div>
+              )}
+            </div>
+          </div>
         ),
-    },
-    {
-      title: "الحالة الاجتماعية",
-      dataIndex: "marital_status",
-      key: "marital_status",
-      width: 130,
-      align: "center",
-      render: (status) =>
-        status ? (
+      },
+      {
+        title: "العمر / الجنس",
+        key: "age_gender",
+        width: 130,
+        align: "center",
+        render: (_, record) => {
+          const age = calculateAge(record.date_of_birth);
+          return (
+            <Space direction="vertical" size={2} align="center">
+              {age ? (
+                <Tag color="blue" className="rounded-full px-3">
+                  {age} سنة
+                </Tag>
+              ) : (
+                <Tag color="default" className="rounded-full px-3">
+                  -
+                </Tag>
+              )}
+              <Tag
+                color={record.gender === "male" ? "blue" : "pink"}
+                className="rounded-full px-3"
+              >
+                {record.gender === "male" ? "♂ ذكر" : "♀ أنثى"}
+              </Tag>
+            </Space>
+          );
+        },
+      },
+      {
+        title: "الجنسية",
+        dataIndex: "nationality",
+        key: "nationality",
+        width: 120,
+        align: "center",
+        render: (nationality) =>
+          nationality ? (
+            <Tag color="geekblue" className="rounded-full">
+              {getLabelByValue(NATIONALITIES, nationality)}
+            </Tag>
+          ) : (
+            <span className="text-gray-400">-</span>
+          ),
+      },
+      {
+        title: "الحالة الاجتماعية",
+        dataIndex: "marital_status",
+        key: "marital_status",
+        width: 130,
+        align: "center",
+        render: (status) =>
+          status ? (
+            <Tag
+              color={status === "single" ? "green" : "orange"}
+              className="rounded-full"
+              icon={<Heart className="w-3 h-3 ml-1 inline" />}
+            >
+              {getLabelByValue(MARITAL_STATUS, status)}
+            </Tag>
+          ) : (
+            <span className="text-gray-400">-</span>
+          ),
+      },
+      {
+        title: "مصدر الدخل",
+        dataIndex: "income_source",
+        key: "income_source",
+        width: 120,
+        align: "center",
+        render: (source) =>
+          source ? (
+            <Tag color="purple" className="rounded-full">
+              <Briefcase className="w-3 h-3 ml-1 inline" />
+              {getLabelByValue(INCOME_SOURCES, source)}
+            </Tag>
+          ) : (
+            <span className="text-gray-400">-</span>
+          ),
+      },
+      {
+        title: "الالتزام الديني",
+        dataIndex: "religion_commitment",
+        key: "religion_commitment",
+        width: 120,
+        align: "center",
+        render: (commitment) =>
+          commitment ? (
+            <Tag
+              color={
+                commitment === "committed"
+                  ? "green"
+                  : commitment === "sometimes" || commitment === "moderate"
+                    ? "gold"
+                    : "default"
+              }
+              className="rounded-full"
+            >
+              {getLabelByValue(RELIGION_COMMITMENT, commitment)}
+            </Tag>
+          ) : (
+            <span className="text-gray-400">-</span>
+          ),
+      },
+      {
+        title: "التدخين",
+        dataIndex: "is_smoker",
+        key: "is_smoker",
+        width: 100,
+        align: "center",
+        render: (isSmoker) => (
           <Tag
-            color={status === "single" ? "green" : "orange"}
+            color={isSmoker ? "red" : "green"}
             className="rounded-full"
-            icon={<Heart className="w-3 h-3 ml-1 inline" />}
+            icon={<Cigarette className="w-3 h-3 ml-1 inline" />}
           >
-            {getLabelByValue(MARITAL_STATUS, status)}
+            {isSmoker ? "مدخن" : "غير مدخن"}
           </Tag>
-        ) : (
-          <span className="text-gray-400">-</span>
         ),
-    },
-    {
-      title: "مصدر الدخل",
-      dataIndex: "income_source",
-      key: "income_source",
-      width: 120,
-      align: "center",
-      render: (source) =>
-        source ? (
-          <Tag color="purple" className="rounded-full">
-            <Briefcase className="w-3 h-3 ml-1 inline" />
-            {getLabelByValue(INCOME_SOURCES, source)}
-          </Tag>
-        ) : (
-          <span className="text-gray-400">-</span>
-        ),
-    },
-    {
-      title: "الالتزام الديني",
-      dataIndex: "religion_commitment",
-      key: "religion_commitment",
-      width: 120,
-      align: "center",
-      render: (commitment) =>
-        commitment ? (
+      },
+      {
+        title: "الحالة",
+        dataIndex: "is_verified",
+        key: "is_verified",
+        width: 100,
+        align: "center",
+        render: (isVerified) => (
           <Tag
-            color={
-              commitment === "committed"
-                ? "green"
-                : commitment === "sometimes" || commitment === "moderate"
-                  ? "gold"
-                  : "default"
+            color={isVerified ? "success" : "default"}
+            className="rounded-full px-3"
+            icon={
+              isVerified ? (
+                <CheckCircle className="w-3 h-3 ml-1 inline" />
+              ) : (
+                <XCircle className="w-3 h-3 ml-1 inline" />
+              )
             }
-            className="rounded-full"
           >
-            {getLabelByValue(RELIGION_COMMITMENT, commitment)}
+            {isVerified ? "موثق" : "غير موثق"}
           </Tag>
-        ) : (
-          <span className="text-gray-400">-</span>
         ),
-    },
-    {
-      title: "التدخين",
-      dataIndex: "is_smoker",
-      key: "is_smoker",
-      width: 100,
-      align: "center",
-      render: (isSmoker) => (
-        <Tag
-          color={isSmoker ? "red" : "green"}
-          className="rounded-full"
-          icon={<Cigarette className="w-3 h-3 ml-1 inline" />}
-        >
-          {isSmoker ? "مدخن" : "غير مدخن"}
-        </Tag>
-      ),
-    },
-    {
-      title: "الحالة",
-      dataIndex: "is_verified",
-      key: "is_verified",
-      width: 100,
-      align: "center",
-      render: (isVerified) => (
-        <Tag
-          color={isVerified ? "success" : "default"}
-          className="rounded-full px-3"
-          icon={
-            isVerified ? (
-              <CheckCircle className="w-3 h-3 ml-1 inline" />
-            ) : (
-              <XCircle className="w-3 h-3 ml-1 inline" />
-            )
-          }
-        >
-          {isVerified ? "موثق" : "غير موثق"}
-        </Tag>
-      ),
-    },
-    {
-      title: "تاريخ التسجيل",
-      dataIndex: "created_at",
-      key: "created_at",
-      width: 130,
-      render: (date) => (
-        <span className="text-gray-500 text-sm">
-          {date ? new Date(date).toLocaleDateString("ar-EG") : "-"}
-        </span>
-      ),
-    },
-    {
-      title: "الإجراءات",
-      key: "actions",
-      width: 200,
-      align: "center",
-      fixed: "right",
-      render: (_, record) => (
-        <Space size="small">
-          <Tooltip title="المراحل والدفع">
-            <Button
-              type="primary"
-              ghost
-              icon={<DollarSign className="w-4 h-4 text-white!" />}
-              className="flex items-center justify-center border-green-500 text-green-600 hover:bg-green-50 hover:border-green-600 hover:text-green-700"
-              onClick={() => handleOpenPayment(record)}
-            />
-          </Tooltip>
+      },
+      {
+        title: "تاريخ التسجيل",
+        dataIndex: "created_at",
+        key: "created_at",
+        width: 130,
+        render: (date) => (
+          <span className="text-gray-500 text-sm">
+            {date ? new Date(date).toLocaleDateString("ar-EG") : "-"}
+          </span>
+        ),
+      },
+      {
+        title: "الإجراءات",
+        key: "actions",
+        width: 200,
+        align: "center",
+        fixed: "right",
+        render: (_, record) => (
+          <Space size="small">
+            <Tooltip title="المراحل والدفع">
+              <Button
+                type="primary"
+                ghost
+                icon={<DollarSign className="w-4 h-4 text-white!" />}
+                className="flex items-center justify-center border-green-500 text-green-600 hover:bg-green-50 hover:border-green-600 hover:text-green-700"
+                onClick={() => handleOpenPayment(record)}
+              />
+            </Tooltip>
 
-          <Tooltip title="تتبع الحالة">
-            <Button
-              type="text"
-              icon={<Activity className="w-4 h-4 text-blue-500" />}
-              className="flex items-center justify-center hover:bg-blue-50"
-              onClick={() => {
-                setStatusRecord(record);
-                setIsStatusModalVisible(true);
-              }}
-            />
-          </Tooltip>
-          <Tooltip title="عرض">
-            <Button
-              type="text"
-              icon={<Eye className="w-4 h-4 text-primary" />}
-              className="flex items-center justify-center hover:bg-primary/10"
-              onClick={() => handleViewProfile(record)}
-            />
-          </Tooltip>
-          <Dropdown
-            menu={{ items: getActionItems(record) }}
-            trigger={["click"]}
-            placement="bottomLeft"
-          >
-            <Button
-              type="text"
-              icon={<MoreVertical className="w-4 h-4 text-gray-500" />}
-              className="flex items-center justify-center hover:bg-gray-100"
-            />
-          </Dropdown>
-        </Space>
-      ),
-    },
-  ];
+            <Tooltip title="تتبع الحالة">
+              <Button
+                type="text"
+                icon={<Activity className="w-4 h-4 text-blue-500" />}
+                className="flex items-center justify-center hover:bg-blue-50"
+                onClick={() => {
+                  setStatusRecord(record);
+                  setIsStatusModalVisible(true);
+                }}
+              />
+            </Tooltip>
+            <Tooltip title="عرض">
+              <Button
+                type="text"
+                icon={<Eye className="w-4 h-4 text-primary" />}
+                className="flex items-center justify-center hover:bg-primary/10"
+                onClick={() => handleViewProfile(record)}
+              />
+            </Tooltip>
+            <Dropdown
+              menu={{ items: getActionItems(record) }}
+              trigger={["click"]}
+              placement="bottomLeft"
+            >
+              <Button
+                type="text"
+                icon={<MoreVertical className="w-4 h-4 text-gray-500" />}
+                className="flex items-center justify-center hover:bg-gray-100"
+              />
+            </Dropdown>
+          </Space>
+        ),
+      },
+    ],
+    [calculateAge, getActionItems, handleOpenPayment, handleViewProfile]
+  );
 
   return (
     <div className="space-y-6">

@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { message, Modal } from "antd";
 import { profileService } from "../../../api/services/profile.service";
@@ -7,6 +7,7 @@ import { usersService } from "../../../api/services/users.service";
 export const useUserProfile = () => {
   const { id } = useParams();
   const navigate = useNavigate();
+
   const [mainProfile, setMainProfile] = useState(null);
   const [targetProfile, setTargetProfile] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -14,13 +15,16 @@ export const useUserProfile = () => {
   const [isEditModalVisible, setIsEditModalVisible] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
 
-  const fetchProfiles = async () => {
+  const fetchProfiles = useCallback(async () => {
+    if (!id) return;
+
     setLoading(true);
     try {
       const [mainRes, targetRes] = await Promise.all([
         profileService.getProfile(id, "main"),
         profileService.getProfile(id, "target"),
       ]);
+
       setMainProfile(mainRes.data);
       setTargetProfile(targetRes.data);
     } catch (error) {
@@ -29,48 +33,52 @@ export const useUserProfile = () => {
     } finally {
       setLoading(false);
     }
-  };
-
-  useEffect(() => {
-    if (id) {
-      fetchProfiles();
-    }
   }, [id]);
 
-  const handleOpenEdit = () => {
+  useEffect(() => {
+    fetchProfiles();
+  }, [fetchProfiles]);
+
+  const handleOpenEdit = useCallback(() => {
     setIsEditModalVisible(true);
-  };
+  }, []);
 
-  const handleCloseEdit = () => {
+  const handleCloseEdit = useCallback(() => {
     setIsEditModalVisible(false);
-  };
+  }, []);
 
-  const handleUpdateProfile = async (values, type = "main") => {
-    setIsSaving(true);
-    try {
-      await profileService.upsertProfile(id, values, type);
-      message.success("تم تحديث البيانات بنجاح");
-      handleCloseEdit();
-      fetchProfiles();
-    } catch (error) {
-      console.error("Update Profile Error:", error);
-      message.error("فشل في تحديث البيانات");
-    } finally {
-      setIsSaving(false);
-    }
-  };
+  const handleUpdateProfile = useCallback(
+    async (values, type = "main") => {
+      setIsSaving(true);
+      try {
+        await profileService.upsertProfile(id, values, type);
+        message.success("تم تحديث البيانات بنجاح");
+        handleCloseEdit();
+        await fetchProfiles();
+      } catch (error) {
+        console.error("Update Profile Error:", error);
+        message.error("فشل في تحديث البيانات");
+      } finally {
+        setIsSaving(false);
+      }
+    },
+    [id, fetchProfiles, handleCloseEdit]
+  );
 
-  const handleDeleteFile = async (fileData) => {
-    try {
-      await profileService.deleteFile(id, fileData);
-      message.success("تم حذف الملف بنجاح");
-      fetchProfiles();
-    } catch (error) {
-      message.error("فشل في حذف الملف");
-    }
-  };
+  const handleDeleteFile = useCallback(
+    async (fileData) => {
+      try {
+        await profileService.deleteFile(id, fileData);
+        message.success("تم حذف الملف بنجاح");
+        await fetchProfiles();
+      } catch (error) {
+        message.error("فشل في حذف الملف");
+      }
+    },
+    [id, fetchProfiles]
+  );
 
-  const handleDeleteUser = () => {
+  const handleDeleteUser = useCallback(() => {
     Modal.confirm({
       title: "هل أنت متأكد من حذف هذا الحساب؟",
       content:
@@ -88,7 +96,7 @@ export const useUserProfile = () => {
         }
       },
     });
-  };
+  }, [id, navigate]);
 
   return {
     id,

@@ -291,7 +291,7 @@ const UserProfilePage = () => {
 
       const opt = {
         margin: [5, 5, 5, 5],
-        filename: `استمارة_${id}_ست_الشام.pdf`,
+        filename: `استمارة_${mainProfile?.id}_ست_الشام.pdf`,
         image: { type: "jpeg", quality: 0.95 },
         html2canvas: {
           scale: 2,
@@ -418,7 +418,7 @@ const UserProfilePage = () => {
           <Button
             type="text"
             icon={<ArrowRight className="w-5 h-5" />}
-            onClick={() => navigate("/users")}
+            onClick={() => navigate(-1)}
             className="flex items-center justify-center -mr-2"
           />
           <div>
@@ -1553,40 +1553,43 @@ const UserProfilePage = () => {
             ref={printRef}
             mainProfile={mainProfile}
             targetProfile={targetProfile}
-            profileId={id}
+            profileId={mainProfile?.id}
           />
         </div>
       </Modal>
 
-      {/* ==================== Update Modal ==================== */}
-      <UpdateProfileModal
-        visible={isEditModalVisible}
-        onCancel={handleCloseEdit}
-        onSave={handleUpdateProfile}
-        onDeleteFile={handleDeleteFile}
-        initialData={activeTab === "main" ? mainProfile : targetProfile}
-        type={activeTab}
-        loading={isSaving}
-      />
+      {isEditModalVisible && (
+        <UpdateProfileModal
+          visible={isEditModalVisible}
+          onCancel={handleCloseEdit}
+          onSave={handleUpdateProfile}
+          onDeleteFile={handleDeleteFile}
+          initialData={activeTab === "main" ? mainProfile : targetProfile}
+          type={activeTab}
+          loading={isSaving}
+        />
+      )}
 
-      {/* ==================== Payment Modal ==================== */}
-      <PaymentModal
-        visible={isPaymentModalVisible}
-        onCancel={() => setIsPaymentModalVisible(false)}
-        record={mainProfile}
-        onSend={(stage) =>
-          message.success(
-            `تم إرسال المطالبة للمرحلة: ${stage.name} بمبلغ ${stage.price} €`
-          )
-        }
-      />
+      {isPaymentModalVisible && (
+        <PaymentModal
+          visible={isPaymentModalVisible}
+          onCancel={() => setIsPaymentModalVisible(false)}
+          record={mainProfile}
+          onSend={(stage) =>
+            message.success(
+              `تم إرسال المطالبة للمرحلة: ${stage.name} بمبلغ ${stage.price} €`
+            )
+          }
+        />
+      )}
 
-      {/* ==================== Status Modal ==================== */}
-      <StatusTrackModal
-        visible={isStatusModalVisible}
-        onCancel={() => setIsStatusModalVisible(false)}
-        record={mainProfile}
-      />
+      {isStatusModalVisible && (
+        <StatusTrackModal
+          visible={isStatusModalVisible}
+          onCancel={() => setIsStatusModalVisible(false)}
+          record={mainProfile}
+        />
+      )}
     </div>
   );
 };
