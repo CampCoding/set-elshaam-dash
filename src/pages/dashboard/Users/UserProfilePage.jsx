@@ -42,8 +42,10 @@ import {
   Globe,
   Home,
   Image as ImageIcon,
+  Mail,
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import DirectEmailTab from "./components/DirectEmailTab";
 import { useReactToPrint } from "react-to-print";
 import html2pdf from "html2pdf.js";
 import dayjs from "dayjs";
@@ -201,6 +203,9 @@ const UserProfilePage = () => {
     handleDeleteFile,
     handleDeleteUser,
     isSaving,
+    emails,
+    loadingEmails,
+    fetchEmails,
   } = useUserProfile();
 
   const navigate = useNavigate();
@@ -1490,6 +1495,23 @@ const UserProfilePage = () => {
                         </>
                       )}
                     </div>
+                  ),
+                },
+                {
+                  key: "emails",
+                  label: (
+                    <span className="flex items-center gap-2 px-2 py-1">
+                      <Mail className="w-4 h-4" />
+                      المراسلات المباشرة
+                    </span>
+                  ),
+                  children: (
+                    <DirectEmailTab
+                      userId={id}
+                      emails={emails}
+                      loading={loadingEmails}
+                      onRefresh={fetchEmails}
+                    />
                   ),
                 },
               ]}

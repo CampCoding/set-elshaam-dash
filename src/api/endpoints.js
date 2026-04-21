@@ -34,6 +34,8 @@ export const ADMIN_USER_ENDPOINTS = {
   UPDATE_USER: (id) => `/admin/users/${id}`,
   DELETE_USER: (id) => `/admin/users/${id}`,
   TOGGLE_BLOCK: (id) => `/admin/users/${id}/block`,
+  SEND_DIRECT_EMAIL: (id) => `/admin/users/${id}/email`,
+  LIST_DIRECT_EMAILS: (id) => `/admin/users/${id}/emails`,
 };
 // ============ PROFILE MANAGEMENT ============
 
@@ -105,4 +107,18 @@ export const PROFILE_MANAGEMENT_ENDPOINTS = {
   DELETE_FILE: (id) => `/admin/users/${id}/profile/file`,
   GET_TARGET_PROFILE: (id) => `/admin/users/${id}/profile/target`,
   UPSERT_TARGET_PROFILE: (id) => `/admin/users/${id}/profile/target`,
+};
+
+// ============ TICKETS MANAGEMENT ============
+export const ADMIN_TICKETS_ENDPOINTS = {
+  GET_TICKETS: "/admin/tickets",
+  GET_TICKET_DETAILS: (id) => `/admin/tickets/${id}`,
+  REPLY_TICKET: (id) => `/admin/tickets/${id}/reply`,
+  CLOSE_TICKET: (id) => `/admin/tickets/${id}/close`,
+};
+
+// ============ INFORMATION MANAGEMENT ============
+export const INFORMATION_ENDPOINTS = {
+  GET_INFORMATION: "/information",
+  UPDATE_INFORMATION: "/information",
 };
