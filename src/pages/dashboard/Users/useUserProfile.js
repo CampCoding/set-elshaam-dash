@@ -14,6 +14,10 @@ export const useUserProfile = () => {
   const [activeTab, setActiveTab] = useState("main");
   const [isEditModalVisible, setIsEditModalVisible] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
+  
+  // Direct Emails State
+  const [emails, setEmails] = useState([]);
+  const [loadingEmails, setLoadingEmails] = useState(false);
 
   const fetchProfiles = useCallback(async () => {
     if (!id) return;
@@ -35,9 +39,28 @@ export const useUserProfile = () => {
     }
   }, [id]);
 
+  const fetchEmails = useCallback(async () => {
+    if (!id) return;
+    setLoadingEmails(true);
+    try {
+      const response = await usersService.listDirectEmails(id);
+      setEmails(response.data || []);
+    } catch (error) {
+      console.error("Fetch Emails Error:", error);
+    } finally {
+      setLoadingEmails(false);
+    }
+  }, [id]);
+
   useEffect(() => {
     fetchProfiles();
   }, [fetchProfiles]);
+
+  useEffect(() => {
+    if (activeTab === "emails") {
+      fetchEmails();
+    }
+  }, [activeTab, fetchEmails]);
 
   const handleOpenEdit = useCallback(() => {
     setIsEditModalVisible(true);
@@ -113,5 +136,9 @@ export const useUserProfile = () => {
     handleDeleteFile,
     handleDeleteUser,
     refresh: fetchProfiles,
+    // Email related
+    emails,
+    loadingEmails,
+    fetchEmails
   };
 };

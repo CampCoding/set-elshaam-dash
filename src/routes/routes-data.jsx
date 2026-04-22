@@ -39,6 +39,10 @@ const Categories = lazy(
 const StagesPrice = lazy(
   () => import("../pages/dashboard/stagePrice/StagesPrice")
 );
+const TicketsList = lazy(() => import("../pages/dashboard/Tickets/TicketsList"));
+const TicketDetails = lazy(
+  () => import("../pages/dashboard/Tickets/TicketDetails")
+);
 
 // Legal Pages (Lazy)
 const PolicyPrivacy = lazy(
@@ -105,6 +109,17 @@ export const adminRoutes = [
     label: "سعر المراحل",
     icon: Euro,
     element: <StagesPrice />,
+  },
+  {
+    path: "/tickets",
+    label: "التذاكر والدعم",
+    icon: MessageSquare,
+    element: <TicketsList />,
+  },
+  {
+    path: "/tickets/:id",
+    element: <TicketDetails />,
+    hidden: true,
   },
 
   {

@@ -84,6 +84,31 @@ export const usersService = {
       throw error;
     }
   },
+  
+  // ============ SEND DIRECT EMAIL ============
+  sendDirectEmail: async (id, formData) => {
+    try {
+      const response = await api.post(
+        ADMIN_USER_ENDPOINTS.SEND_DIRECT_EMAIL(id),
+        formData
+      );
+      return response.data;
+    } catch (error) {
+      console.error("Send Direct Email API Error:", error);
+      throw error;
+    }
+  },
+
+  // ============ LIST DIRECT EMAILS ============
+  listDirectEmails: async (id) => {
+    try {
+      const response = await api.get(ADMIN_USER_ENDPOINTS.LIST_DIRECT_EMAILS(id));
+      return response.data;
+    } catch (error) {
+      console.error("List Direct Emails API Error:", error);
+      throw error;
+    }
+  },
 };
 
 export default usersService;
