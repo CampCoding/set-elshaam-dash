@@ -32,7 +32,6 @@ import {
   Cigarette,
   Heart,
   Briefcase,
-  DollarSign,
   Activity,
   Euro,
 } from "lucide-react";
