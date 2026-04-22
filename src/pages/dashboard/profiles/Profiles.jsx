@@ -34,6 +34,7 @@ import {
   Briefcase,
   DollarSign,
   Activity,
+  Euro,
 } from "lucide-react";
 import DataTable from "../../../components/common/DataTable";
 import { useProfilesPage } from "./useProfilesPage";
@@ -361,7 +362,7 @@ const ProfilesPage = () => {
               <Button
                 type="primary"
                 ghost
-                icon={<DollarSign className="w-4 h-4 text-white!" />}
+                icon={<Euro className="w-4 h-4 text-white!" />}
                 className="flex items-center justify-center border-green-500 text-green-600 hover:bg-green-50 hover:border-green-600 hover:text-green-700"
                 onClick={() => handleOpenPayment(record)}
               />

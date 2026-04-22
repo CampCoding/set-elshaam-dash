@@ -36,7 +36,7 @@ import {
   FileDown,
   Copy,
   Check,
-  DollarSign,
+  Euro,
   Activity,
   Phone,
   Globe,
@@ -70,6 +70,9 @@ import {
 } from "../../../constants/userOptions";
 import PaymentModal from "../profiles/components/PaymentModal";
 import StatusTrackModal from "../profiles/components/StatusTrackModal";
+
+// ==================== Route Config ====================
+const CONTRACT_ROUTE = (userId) => `/users/${userId}/contract`;
 
 // ==================== Constants ====================
 const DOCUMENT_SECTIONS = [
@@ -137,13 +140,20 @@ const SOCIAL_MEDIA = [
 const getDocumentQuestion = (questionKey, profile) => {
   switch (questionKey) {
     case "marital_status":
-      return `الحالة الاجتماعية: ${getLabelByValue(MARITAL_STATUS, profile?.marital_status) || "غير محدد"}`;
+      return `الحالة الاجتماعية: ${
+        getLabelByValue(MARITAL_STATUS, profile?.marital_status) || "غير محدد"
+      }`;
     case "education_level":
-      return `المستوى التعليمي: ${getLabelByValue(EDUCATION_LEVELS, profile?.education_level) || "غير محدد"}`;
+      return `المستوى التعليمي: ${
+        getLabelByValue(EDUCATION_LEVELS, profile?.education_level) ||
+        "غير محدد"
+      }`;
     case "work_experience":
       return `الخبرات العملية: ${profile?.work_experience || "غير محدد"}`;
     case "has_criminal_record":
-      return `السجل الجنائي: ${profile?.has_criminal_record ? "يوجد" : "لا يوجد"}`;
+      return `السجل الجنائي: ${
+        profile?.has_criminal_record ? "يوجد" : "لا يوجد"
+      }`;
     case "has_debts":
       return `الديون: ${profile?.has_debts ? "يوجد" : "لا يوجد"}`;
     default:
@@ -155,12 +165,14 @@ const getDocumentQuestion = (questionKey, profile) => {
 const ensureArray = (data) => {
   if (!data) return [];
   if (Array.isArray(data)) return data;
+
   try {
     const parsed = JSON.parse(data);
     return Array.isArray(parsed) ? parsed : [data];
   } catch {
-    if (typeof data === "string" && data.split(",").length > 1)
+    if (typeof data === "string" && data.split(",").length > 1) {
       return data.split(",").map((s) => s.trim());
+    }
     return [data];
   }
 };
@@ -172,6 +184,7 @@ const formatYesNo = (value) => {
 };
 
 const getFileName = (url) => url?.split("/").pop() || "ملف";
+
 const getFileIcon = (url) => {
   const ext = url?.split(".").pop()?.toLowerCase();
   if (["jpg", "jpeg", "png", "gif", "webp"].includes(ext)) return "🖼️";
@@ -212,7 +225,27 @@ const UserProfilePage = () => {
   const [isPaymentModalVisible, setIsPaymentModalVisible] = useState(false);
   const [isStatusModalVisible, setIsStatusModalVisible] = useState(false);
 
-  // ==================== Print Handler (v3+ API) ====================
+  const userContractSigned = Boolean(
+    mainProfile?.contract_terms_accepted ||
+    mainProfile?.signed ||
+    mainProfile?.signature_path
+  );
+
+  const adminContractSigned = Boolean(
+    mainProfile?.admin_signed || mainProfile?.admin_signature_path
+  );
+
+  // ==================== Open Contract Page ====================
+  const handleOpenContract = useCallback(() => {
+    if (!id) {
+      message.warning("معرّف المستخدم غير موجود");
+      return;
+    }
+
+    navigate(CONTRACT_ROUTE(id));
+  }, [id, navigate]);
+
+  // ==================== Print Handler ====================
   const handlePrint = useReactToPrint({
     contentRef: printRef,
     documentTitle: `استمارة_${id}_ست_الشام`,
@@ -241,7 +274,7 @@ const UserProfilePage = () => {
     `,
   });
 
-  // ==================== PDF Export Handler (Single Page) ====================
+  // ==================== PDF Export Handler ====================
   const handleExportPDF = useCallback(async () => {
     if (!printRef.current) {
       message.error("لا يوجد محتوى للتصدير");
@@ -255,7 +288,6 @@ const UserProfilePage = () => {
       const contentWidth = element.scrollWidth;
       const contentHeight = element.scrollHeight;
 
-      // A4 in pixels at 96 DPI
       const A4_WIDTH_PX = 794;
       const A4_HEIGHT_PX = 1122;
       const MARGIN_PX = 20;
@@ -263,12 +295,10 @@ const UserProfilePage = () => {
       const availableWidth = A4_WIDTH_PX - MARGIN_PX * 2;
       const availableHeight = A4_HEIGHT_PX - MARGIN_PX * 2;
 
-      // Calculate scale to fit everything in one page
       const scaleX = availableWidth / contentWidth;
       const scaleY = availableHeight / contentHeight;
-      const scale = Math.min(scaleX, scaleY, 1); // Never upscale
+      const scale = Math.min(scaleX, scaleY, 1);
 
-      // Store original styles
       const originalStyles = {
         transform: element.style.transform,
         transformOrigin: element.style.transformOrigin,
@@ -278,7 +308,6 @@ const UserProfilePage = () => {
         position: element.style.position,
       };
 
-      // Apply scale if needed
       if (scale < 1) {
         element.style.transform = `scale(${scale})`;
         element.style.transformOrigin = "top left";
@@ -286,7 +315,6 @@ const UserProfilePage = () => {
         element.style.overflow = "visible";
       }
 
-      // Wait for styles to apply
       await new Promise((resolve) => setTimeout(resolve, 300));
 
       const opt = {
@@ -320,7 +348,6 @@ const UserProfilePage = () => {
 
       await html2pdf().set(opt).from(element).save();
 
-      // Restore original styles
       Object.keys(originalStyles).forEach((key) => {
         element.style[key] = originalStyles[key] || "";
       });
@@ -332,11 +359,15 @@ const UserProfilePage = () => {
     } finally {
       setIsExporting(false);
     }
-  }, [id]);
+  }, [mainProfile?.id]);
 
   // ==================== Copy Profile ID ====================
   const handleCopyProfileId = useCallback(() => {
-    const text = `رقم الاستمارة: #${id}\nللتواصل والاستفسار:\n📧 info@setalsham.com\n📞 +358 46 520 2214\n🌐 www.setalsham.com`;
+    const text = `رقم الاستمارة: #${id}
+للتواصل والاستفسار:
+📧 info@setalsham.com
+📞 +358 46 520 2214
+🌐 www.setalsham.com`;
 
     navigator.clipboard
       .writeText(text)
@@ -353,7 +384,6 @@ const UserProfilePage = () => {
   // ==================== Open Print then Export PDF ====================
   const handleOpenAndExportPDF = useCallback(() => {
     setIsPrintModalVisible(true);
-    // Wait for modal to render + PrintableProfile to mount
     setTimeout(() => {
       handleExportPDF();
     }, 800);
@@ -374,6 +404,7 @@ const UserProfilePage = () => {
 
     if (options && value !== null && value !== undefined) {
       const arrayValue = ensureArray(value);
+
       if (
         arrayValue.length > 1 ||
         Array.isArray(value) ||
@@ -435,13 +466,14 @@ const UserProfilePage = () => {
           <Tooltip title="عرض المدفوعات والمراحل">
             <Button
               type="default"
-              icon={<DollarSign className="w-4 h-4" />}
+              icon={<Euro className="w-4 h-4" />}
               className="flex items-center gap-2 border-green-400 text-green-600 hover:bg-green-50"
               onClick={() => setIsPaymentModalVisible(true)}
             >
               المدفوعات
             </Button>
           </Tooltip>
+
           <Tooltip title="تتبع حالة الطلب">
             <Button
               type="default"
@@ -452,6 +484,18 @@ const UserProfilePage = () => {
               تتبع الحالة
             </Button>
           </Tooltip>
+
+          <Tooltip title="عرض العقد وتوقيع الإدارة">
+            <Button
+              type="default"
+              icon={<FileText className="w-4 h-4" />}
+              className="flex items-center gap-2 border-amber-400 text-amber-600 hover:bg-amber-50"
+              onClick={handleOpenContract}
+            >
+              العقد والتوقيع
+            </Button>
+          </Tooltip>
+
           <Tooltip title="طباعة أو تصدير PDF">
             <Button
               type="default"
@@ -462,6 +506,7 @@ const UserProfilePage = () => {
               طباعة الاستمارة
             </Button>
           </Tooltip>
+
           <Tooltip title="نسخ رقم الاستمارة للمشاركة">
             <Button
               type="default"
@@ -478,6 +523,7 @@ const UserProfilePage = () => {
               {copied ? "تم النسخ!" : "نسخ الرقم"}
             </Button>
           </Tooltip>
+
           <Button
             type="primary"
             icon={<Edit className="w-4 h-4" />}
@@ -486,6 +532,7 @@ const UserProfilePage = () => {
           >
             تعديل الملف
           </Button>
+
           <Button
             danger
             icon={<Trash2 className="w-4 h-4" />}
@@ -512,9 +559,11 @@ const UserProfilePage = () => {
                 width={150}
               />
             </div>
+
             <h2 className="text-xl font-bold text-gray-800 mb-1">
               {mainProfile?.full_name}
             </h2>
+
             <div className="mb-4 flex items-center gap-2 justify-center flex-wrap">
               <Tag color="blue" className="rounded-full px-3 py-0.5">
                 {getLabelByValue(MARITAL_STATUS, mainProfile?.marital_status)}
@@ -529,7 +578,9 @@ const UserProfilePage = () => {
                 )}
               </Tag>
             </div>
+
             <Divider className="my-4" />
+
             <div className="space-y-1 text-right">
               {renderInfoItem(
                 "رقم الإستماره",
@@ -586,6 +637,7 @@ const UserProfilePage = () => {
                     : "-"}
                 </span>
               </div>
+
               <div className="flex justify-between items-center text-sm">
                 <span className="text-gray-500">آخر تحديث</span>
                 <span className="font-semibold text-gray-700">
@@ -593,6 +645,22 @@ const UserProfilePage = () => {
                     ? dayjs(mainProfile.updated_at).format("YYYY-MM-DD")
                     : "-"}
                 </span>
+              </div>
+
+              <Divider className="my-3" />
+
+              <div className="flex justify-between items-center text-sm">
+                <span className="text-gray-500">توقيع العميل على العقد</span>
+                <Tag color={userContractSigned ? "success" : "default"}>
+                  {userContractSigned ? "تم التوقيع" : "غير موقّع"}
+                </Tag>
+              </div>
+
+              <div className="flex justify-between items-center text-sm">
+                <span className="text-gray-500">توقيع الإدارة على العقد</span>
+                <Tag color={adminContractSigned ? "success" : "warning"}>
+                  {adminContractSigned ? "تم التوقيع" : "بانتظار التوقيع"}
+                </Tag>
               </div>
             </div>
           </Card>
@@ -605,12 +673,13 @@ const UserProfilePage = () => {
             <div className="space-y-2">
               <Button
                 type="default"
-                icon={<DollarSign className="w-4 h-4" />}
+                icon={<Euro className="w-4 h-4" />}
                 className="w-full flex items-center justify-center gap-2 border-green-400 text-green-600 hover:bg-green-50"
                 onClick={() => setIsPaymentModalVisible(true)}
               >
                 المدفوعات والمراحل
               </Button>
+
               <Button
                 type="default"
                 icon={<Activity className="w-4 h-4" />}
@@ -619,6 +688,16 @@ const UserProfilePage = () => {
               >
                 تتبع الحالة
               </Button>
+
+              <Button
+                type="default"
+                icon={<FileText className="w-4 h-4" />}
+                className="w-full flex items-center justify-center gap-2 border-amber-400 text-amber-600 hover:bg-amber-50"
+                onClick={handleOpenContract}
+              >
+                العقد والتوقيع
+              </Button>
+
               <Button
                 type="default"
                 icon={<Printer className="w-4 h-4" />}
@@ -627,6 +706,7 @@ const UserProfilePage = () => {
               >
                 طباعة الاستمارة
               </Button>
+
               <Button
                 type="default"
                 icon={<FileDown className="w-4 h-4" />}
@@ -635,6 +715,7 @@ const UserProfilePage = () => {
               >
                 تحميل PDF
               </Button>
+
               <Button
                 type="default"
                 icon={<Copy className="w-4 h-4" />}
@@ -655,7 +736,6 @@ const UserProfilePage = () => {
               onChange={setActiveTab}
               className="px-6 pb-6"
               items={[
-                // ==================== Tab 1: Personal ====================
                 {
                   key: "main",
                   label: (
@@ -856,6 +936,7 @@ const UserProfilePage = () => {
                               <Info className="w-4 h-4" />
                             )}
                           </Col>
+
                           {mainProfile?.has_children === 1 && (
                             <>
                               <Col xs={24} sm={8}>
@@ -1019,6 +1100,7 @@ const UserProfilePage = () => {
                                   وأتحمل المسؤولية
                                 </span>
                               </div>
+
                               <div className="flex items-center gap-3 p-3 bg-green-50 rounded-lg">
                                 <Tag
                                   color={
@@ -1035,6 +1117,7 @@ const UserProfilePage = () => {
                                   لقد قرأت بنود العقد وأوافق عليها
                                 </span>
                               </div>
+
                               <div className="flex items-center gap-3 p-3 bg-green-50 rounded-lg">
                                 <Tag
                                   color={
@@ -1051,12 +1134,28 @@ const UserProfilePage = () => {
                                   سياسة الخصوصية وحماية البيانات (GDPR+)
                                 </span>
                               </div>
+
+                              <div className="flex items-center gap-3 p-3 bg-amber-50 rounded-lg border border-amber-100">
+                                <Tag
+                                  color={
+                                    adminContractSigned ? "success" : "warning"
+                                  }
+                                >
+                                  {adminContractSigned
+                                    ? "تم توقيع الإدارة"
+                                    : "بانتظار توقيع الإدارة"}
+                                </Tag>
+                                <span className="text-sm font-medium">
+                                  توقيع الإدارة على العقد
+                                </span>
+                              </div>
                             </div>
                           </Col>
+
                           <Col xs={24} md={8}>
                             <Card
                               size="small"
-                              title="التوقيع"
+                              title="توقيع العميل"
                               className="text-center rounded-xl overflow-hidden"
                             >
                               {mainProfile?.signature_path ? (
@@ -1070,6 +1169,26 @@ const UserProfilePage = () => {
                                 </div>
                               )}
                             </Card>
+
+                            {(mainProfile?.admin_signature_path ||
+                              mainProfile?.admin_signed) && (
+                              <Card
+                                size="small"
+                                title="توقيع الإدارة"
+                                className="text-center rounded-xl overflow-hidden mt-4"
+                              >
+                                {mainProfile?.admin_signature_path ? (
+                                  <Image
+                                    src={mainProfile.admin_signature_path}
+                                    className="max-h-32 object-contain"
+                                  />
+                                ) : (
+                                  <div className="py-8 text-gray-400">
+                                    تم توقيع الإدارة
+                                  </div>
+                                )}
+                              </Card>
+                            )}
                           </Col>
                         </Row>
                       </div>
@@ -1173,7 +1292,6 @@ const UserProfilePage = () => {
                   ),
                 },
 
-                // ==================== Tab 2: Partner ====================
                 {
                   key: "target",
                   label: (
@@ -1191,7 +1309,6 @@ const UserProfilePage = () => {
                         />
                       ) : (
                         <>
-                          {/* Gender Badge */}
                           <div className="flex items-center gap-2 p-3 bg-blue-50 border border-blue-100 rounded-xl">
                             <Info className="w-4 h-4 text-blue-500" />
                             <span className="text-sm text-blue-700 font-medium">
@@ -1201,7 +1318,6 @@ const UserProfilePage = () => {
                             </span>
                           </div>
 
-                          {/* Basic Target Specs */}
                           <div>
                             <h3 className="text-lg font-bold text-primary flex items-center gap-2 mb-4">
                               <Heart className="w-5 h-5 text-accent" />{" "}
@@ -1281,7 +1397,6 @@ const UserProfilePage = () => {
                             </Row>
                           </div>
 
-                          {/* Requirements */}
                           <div>
                             <h3 className="text-lg font-bold text-primary flex items-center gap-2 mb-4">
                               <Scale className="w-5 h-5" /> المتطلبات والالتزام
@@ -1383,7 +1498,6 @@ const UserProfilePage = () => {
                             </Row>
                           </div>
 
-                          {/* Physical Target */}
                           <div>
                             <h3 className="text-lg font-bold text-primary flex items-center gap-2 mb-4">
                               <Scale className="w-5 h-5" /> المواصفات الجسدية
@@ -1431,7 +1545,6 @@ const UserProfilePage = () => {
                             </Row>
                           </div>
 
-                          {/* Habits */}
                           <div>
                             <h3 className="text-lg font-bold text-primary flex items-center gap-2 mb-4">
                               <Info className="w-5 h-5" /> العادات والتفضيلات
@@ -1453,7 +1566,6 @@ const UserProfilePage = () => {
                               </Col>
                             </Row>
 
-                            {/* Household Chores */}
                             {ensureArray(
                               targetProfile?.["target_house-tasks_preference"]
                             ).length > 0 && (
@@ -1477,7 +1589,6 @@ const UserProfilePage = () => {
                             )}
                           </div>
 
-                          {/* Special Conditions */}
                           <Card size="small" className="bg-gray-50">
                             <h4 className="font-bold text-primary mb-2">
                               شروط خاصة إضافية
@@ -1558,6 +1669,7 @@ const UserProfilePage = () => {
         </div>
       </Modal>
 
+      {/* ==================== Edit Modal ==================== */}
       {isEditModalVisible && (
         <UpdateProfileModal
           visible={isEditModalVisible}
@@ -1570,6 +1682,7 @@ const UserProfilePage = () => {
         />
       )}
 
+      {/* ==================== Payment Modal ==================== */}
       {isPaymentModalVisible && (
         <PaymentModal
           visible={isPaymentModalVisible}
@@ -1583,6 +1696,7 @@ const UserProfilePage = () => {
         />
       )}
 
+      {/* ==================== Status Modal ==================== */}
       {isStatusModalVisible && (
         <StatusTrackModal
           visible={isStatusModalVisible}

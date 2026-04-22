@@ -81,7 +81,7 @@ const PackageModal = ({ visible, onCancel, onSave, initialData }) => {
 
             <Form.Item
               name="price"
-              label={<span className="font-medium">السعر (بالدولار $)</span>}
+              label={<span className="font-medium">السعر (باليورو €)</span>}
               rules={[{ required: true, message: "يرجى إدخال سعر الباقة" }]}
             >
               <InputNumber
@@ -89,7 +89,7 @@ const PackageModal = ({ visible, onCancel, onSave, initialData }) => {
                 size="large"
                 className="w-full! rounded-lg"
                 min={0}
-                addonAfter="$"
+                addonAfter="€"
               />
             </Form.Item>
           </div>

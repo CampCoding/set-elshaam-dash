@@ -7,7 +7,7 @@ import {
   Clock,
   ShieldCheck,
   UserPlus,
-  DollarSign,
+  Euro,
   TrendingUp,
 } from "lucide-react";
 import {
@@ -67,7 +67,7 @@ const Home = () => {
     {
       label: "إجمالي الأرباح",
       value: `${stats?.total_earnings || 0} €`,
-      icon: <DollarSign className="w-8 h-8 text-green-500" />,
+      icon: <Euro className="w-8 h-8 text-green-500" />,
       bg: "bg-green-50",
       isText: true,
     },

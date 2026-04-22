@@ -2,7 +2,7 @@
 
 import { useEffect } from "react";
 import { Modal, Form, Input, Select, InputNumber } from "antd";
-import { Plus, DollarSign } from "lucide-react";
+import { Plus, Euro } from "lucide-react";
 
 const { TextArea } = Input;
 const { Option } = Select;
@@ -62,7 +62,7 @@ const StagePriceModal = ({
       title={
         <div className="flex items-center gap-2" dir="rtl">
           {initialData ? (
-            <DollarSign className="w-5 h-5 text-white bg-primary rounded-full p-1" />
+            <Euro className="w-5 h-5 text-white bg-primary rounded-full p-1" />
           ) : (
             <Plus className="w-5 h-5 text-white bg-primary rounded-full p-1" />
           )}

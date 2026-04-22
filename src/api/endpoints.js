@@ -1,8 +1,12 @@
+// src/api/endpoints.js
+
 // ============ ADMIN AUTH ============
 export const ADMIN_AUTH_ENDPOINTS = {
   LOGIN: "/admin/auth/login",
   PROFILE: "/admin/auth/profile",
 };
+
+// ============ ADMIN USERS ============
 export const ADMIN_USER_ENDPOINTS = {
   GET_USERS: (params = {}) => {
     const query = new URLSearchParams();
@@ -29,26 +33,24 @@ export const ADMIN_USER_ENDPOINTS = {
     const queryString = query.toString();
     return `/admin/users${queryString ? `?${queryString}` : ""}`;
   },
+
   GET_USER_DETAILS: (id) => `/admin/users/${id}`,
   CREATE_USER: "/admin/users",
   UPDATE_USER: (id) => `/admin/users/${id}`,
   DELETE_USER: (id) => `/admin/users/${id}`,
   TOGGLE_BLOCK: (id) => `/admin/users/${id}/block`,
 };
-// ============ PROFILE MANAGEMENT ============
 
+// ============ PROFILE MANAGEMENT ============
 export const PROFILE_ENDPOINTS = {
-  // Get profiles list with filters - لا ترسل null values
   GET_PROFILES: (params = {}) => {
     const query = new URLSearchParams();
 
-    // Basic params
     if (params.type) query.append("type", params.type);
     if (params.page) query.append("page", params.page);
     if (params.limit) query.append("limit", params.limit);
     if (params.search) query.append("search", params.search);
 
-    // Filters - فقط لو القيمة موجودة ومش null
     if (params.gender) query.append("gender", params.gender);
     if (params.nationality) query.append("nationality", params.nationality);
     if (params.marital_status)
@@ -61,7 +63,6 @@ export const PROFILE_ENDPOINTS = {
     if (params.education_level)
       query.append("education_level", params.education_level);
 
-    // Boolean filters (0 or 1)
     if (params.is_verified !== undefined && params.is_verified !== null) {
       query.append("is_verified", params.is_verified);
     }
@@ -81,7 +82,6 @@ export const PROFILE_ENDPOINTS = {
       query.append("has_debts", params.has_debts);
     }
 
-    // Religion commitment
     if (params.religion_commitment) {
       query.append("religion_commitment", params.religion_commitment);
     }
@@ -105,4 +105,10 @@ export const PROFILE_MANAGEMENT_ENDPOINTS = {
   DELETE_FILE: (id) => `/admin/users/${id}/profile/file`,
   GET_TARGET_PROFILE: (id) => `/admin/users/${id}/profile/target`,
   UPSERT_TARGET_PROFILE: (id) => `/admin/users/${id}/profile/target`,
+};
+
+// ============ CONTRACT ============
+// مهم: لو endpoint القديم مختلف عدّل السطر ده فقط
+export const ADMIN_CONTRACT_ENDPOINTS = {
+  GET_CONTRACT: "/contract",
 };

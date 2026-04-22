@@ -10,7 +10,7 @@ import {
   Card,
 } from "antd";
 import {
-  DollarSign,
+  Euro,
   Send,
   CheckCircle,
   Clock,
@@ -104,9 +104,7 @@ const StatusTrackModal = ({ visible, onCancel, record }) => {
   const [selectedNewStatus, setSelectedNewStatus] = useState(null);
   const [isUpdating, setIsUpdating] = useState(false);
 
-  const currentStatusConfig = STATUS_TRACK.find(
-    (s) => s.key === currentStatus
-  );
+  const currentStatusConfig = STATUS_TRACK.find((s) => s.key === currentStatus);
 
   const handleUpdateStatus = () => {
     if (!selectedNewStatus) return;
@@ -218,17 +216,17 @@ const StatusTrackModal = ({ visible, onCancel, record }) => {
               value={selectedNewStatus}
               onChange={setSelectedNewStatus}
               suffixIcon={<ChevronDown className="w-4 h-4" />}
-              options={STATUS_TRACK.filter(
-                (s) => s.key !== currentStatus
-              ).map((s) => ({
-                value: s.key,
-                label: (
-                  <div className="flex items-center gap-2">
-                    <span style={{ color: s.dotColor }}>{s.icon}</span>
-                    <span>{s.label}</span>
-                  </div>
-                ),
-              }))}
+              options={STATUS_TRACK.filter((s) => s.key !== currentStatus).map(
+                (s) => ({
+                  value: s.key,
+                  label: (
+                    <div className="flex items-center gap-2">
+                      <span style={{ color: s.dotColor }}>{s.icon}</span>
+                      <span>{s.label}</span>
+                    </div>
+                  ),
+                })
+              )}
             />
             <Button
               type="primary"
@@ -273,8 +271,9 @@ const StatusTrackModal = ({ visible, onCancel, record }) => {
                   ),
                   children: (
                     <div
-                      className={`pb-2 ${index === 0 ? "opacity-100" : "opacity-70"
-                        }`}
+                      className={`pb-2 ${
+                        index === 0 ? "opacity-100" : "opacity-70"
+                      }`}
                     >
                       <div className="flex items-center gap-2 flex-wrap">
                         <Tag
@@ -319,10 +318,10 @@ const PaymentModal = ({ visible, onCancel, record, onSend }) => {
 
   // ── Price & Note state ──
   const [customPrices, setCustomPrices] = useState({});
-  const [customNotes, setCustomNotes] = useState({});       // ✅ notes per stage
+  const [customNotes, setCustomNotes] = useState({}); // ✅ notes per stage
   const [editingStageId, setEditingStageId] = useState(null);
   const [tempPrice, setTempPrice] = useState(null);
-  const [tempNote, setTempNote] = useState("");             // ✅ temp note while editing
+  const [tempNote, setTempNote] = useState(""); // ✅ temp note while editing
 
   // ── Status Track Modal ──
   const [isStatusModalVisible, setIsStatusModalVisible] = useState(false);
@@ -345,7 +344,7 @@ const PaymentModal = ({ visible, onCancel, record, onSend }) => {
   const handleCancelEdit = () => {
     setEditingStageId(null);
     setTempPrice(null);
-    setTempNote("");  // ✅ clear note on cancel
+    setTempNote(""); // ✅ clear note on cancel
   };
 
   const handleEditClick = (stage) => {
@@ -394,8 +393,6 @@ const PaymentModal = ({ visible, onCancel, record, onSend }) => {
     }
   };
 
-
-
   const handleSend = async (stage) => {
     const priceToSend = getFinalPrice(stage);
     const noteToSend = customNotes[stage.id] || ""; // ✅ attach note
@@ -406,7 +403,7 @@ const PaymentModal = ({ visible, onCancel, record, onSend }) => {
         userId: record.user_id,
         title: stage.title,
         price: priceToSend,
-        description: noteToSend,  // ✅ sent to API
+        description: noteToSend, // ✅ sent to API
       });
       message.success(`تم إرسال المطالبة: ${stage.title}`);
       await fetchData();
@@ -445,7 +442,7 @@ const PaymentModal = ({ visible, onCancel, record, onSend }) => {
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2 text-primary">
               <div className="p-1.5 bg-primary/10 rounded-lg">
-                <DollarSign className="w-5 h-5" />
+                <Euro className="w-5 h-5" />
               </div>
               <span>المدفوعات والمراحل</span>
             </div>
@@ -510,31 +507,34 @@ const PaymentModal = ({ visible, onCancel, record, onSend }) => {
                   return (
                     <div
                       key={stage.id}
-                      className={`rounded-xl border-2 overflow-hidden transition-all ${isPaid
-                        ? "border-green-200 bg-green-50/30"
-                        : isPending
-                          ? "border-orange-200 bg-orange-50/30"
-                          : "border-gray-100 bg-white"
-                        }`}
+                      className={`rounded-xl border-2 overflow-hidden transition-all ${
+                        isPaid
+                          ? "border-green-200 bg-green-50/30"
+                          : isPending
+                            ? "border-orange-200 bg-orange-50/30"
+                            : "border-gray-100 bg-white"
+                      }`}
                     >
                       {/* ── Stage Header ── */}
                       <div
-                        className={`flex items-center justify-between px-4 py-3 ${isPaid
-                          ? "bg-green-50"
-                          : isPending
-                            ? "bg-orange-50"
-                            : "bg-gray-50"
-                          }`}
+                        className={`flex items-center justify-between px-4 py-3 ${
+                          isPaid
+                            ? "bg-green-50"
+                            : isPending
+                              ? "bg-orange-50"
+                              : "bg-gray-50"
+                        }`}
                       >
                         {/* Left: badge + title */}
                         <div className="flex items-center gap-3">
                           <div
-                            className={`w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold ${isPaid
-                              ? "bg-green-500 text-white"
-                              : isPending
-                                ? "bg-orange-400 text-white"
-                                : "bg-gray-200 text-gray-600"
-                              }`}
+                            className={`w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold ${
+                              isPaid
+                                ? "bg-green-500 text-white"
+                                : isPending
+                                  ? "bg-orange-400 text-white"
+                                  : "bg-gray-200 text-gray-600"
+                            }`}
                           >
                             {isPaid ? (
                               <CheckCircle className="w-4 h-4" />
@@ -564,12 +564,13 @@ const PaymentModal = ({ visible, onCancel, record, onSend }) => {
                             </span>
                           )}
                           <span
-                            className={`font-bold text-base ${hasCustomPrice
-                              ? "text-green-600"
-                              : isPaid
+                            className={`font-bold text-base ${
+                              hasCustomPrice
                                 ? "text-green-600"
-                                : "text-primary"
-                              }`}
+                                : isPaid
+                                  ? "text-green-600"
+                                  : "text-primary"
+                            }`}
                           >
                             {existingPayment
                               ? existingPayment.price
@@ -605,9 +606,7 @@ const PaymentModal = ({ visible, onCancel, record, onSend }) => {
                             ) : isPending ? (
                               <Tag
                                 color="warning"
-                                icon={
-                                  <Clock className="w-3 h-3 inline ml-1" />
-                                }
+                                icon={<Clock className="w-3 h-3 inline ml-1" />}
                                 className="rounded-full px-3 py-1"
                               >
                                 في انتظار الدفع
@@ -645,9 +644,7 @@ const PaymentModal = ({ visible, onCancel, record, onSend }) => {
                                   icon={<Send className="w-4 h-4 ml-1" />}
                                   className="bg-primary hover:bg-primary/90 flex items-center justify-center rounded-lg"
                                 >
-                                  {isPending
-                                    ? "إعادة إرسال"
-                                    : "إرسال المطالبة"}
+                                  {isPending ? "إعادة إرسال" : "إرسال المطالبة"}
                                 </Button>
                               )}
                             </div>
@@ -673,9 +670,7 @@ const PaymentModal = ({ visible, onCancel, record, onSend }) => {
 
                                   {/* Confirm button */}
                                   <button
-                                    onClick={() =>
-                                      handleConfirmPrice(stage.id)
-                                    }
+                                    onClick={() => handleConfirmPrice(stage.id)}
                                     disabled={
                                       tempPrice === null ||
                                       tempPrice === undefined ||
@@ -726,9 +721,7 @@ const PaymentModal = ({ visible, onCancel, record, onSend }) => {
 
                                 {hasCustomPrice && (
                                   <button
-                                    onClick={() =>
-                                      handleResetPrice(stage.id)
-                                    }
+                                    onClick={() => handleResetPrice(stage.id)}
                                     className="flex items-center gap-1 text-xs text-red-400 hover:text-red-600 border border-red-200 hover:border-red-400 rounded-lg px-2 py-1.5 transition-all bg-white"
                                   >
                                     <X className="w-3.5 h-3.5" />
@@ -763,10 +756,7 @@ const PaymentModal = ({ visible, onCancel, record, onSend }) => {
                                     }
                                   >
                                     {finalPrice < originalPrice ? "-" : "+"}
-                                    {Math.abs(
-                                      originalPrice - finalPrice
-                                    )}{" "}
-                                    €
+                                    {Math.abs(originalPrice - finalPrice)} €
                                   </span>
                                 </span>
                               </div>

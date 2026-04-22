@@ -14,7 +14,7 @@ import {
   Image as ImageIcon,
   Images,
   Layers,
-  DollarSign,
+  Euro,
 } from "lucide-react";
 
 // Auth Pages (No Lazy)
@@ -45,6 +45,9 @@ const PolicyPrivacy = lazy(
   () => import("../pages/dashboard/policies/PolicyPrivacy")
 );
 const Contract = lazy(() => import("../pages/dashboard/policies/Contract"));
+const SiteContract = lazy(
+  () => import("../pages/dashboard/profiles/components/SiteContract")
+);
 
 // ============ AUTH ROUTES ============
 export const authRoutes = [{ path: "/login", element: <Login /> }];
@@ -100,8 +103,16 @@ export const adminRoutes = [
   {
     path: "/stages-price",
     label: "سعر المراحل",
-    icon: DollarSign,
+    icon: Euro,
     element: <StagesPrice />,
+  },
+
+  {
+    path: "users/:id/contract",
+    label: "العقد",
+    icon: FileText,
+    hidden: true,
+    element: <SiteContract />,
   },
 
   {

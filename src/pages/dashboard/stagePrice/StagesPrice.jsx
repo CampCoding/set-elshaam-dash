@@ -1,7 +1,7 @@
 // src/pages/dashboard/stagePrice/StagesPrice.jsx
 
 import { Tag, Space, Button, Tooltip } from "antd";
-import { Edit, Trash2, DollarSign } from "lucide-react";
+import { Edit, Trash2, Euro } from "lucide-react";
 import DataTable, {
   getColumnSearchProps,
 } from "../../../components/common/DataTable";
@@ -115,7 +115,7 @@ const StagesPrice = () => {
         <div>
           <h1 className="text-2xl font-bold text-primary flex items-center gap-3">
             <div className="p-2 bg-primary/10 rounded-xl">
-              <DollarSign className="w-6 h-6 text-primary" />
+              <Euro className="w-6 h-6 text-primary" />
             </div>
             إدارة أسعار المراحل
           </h1>
@@ -152,7 +152,7 @@ const StagesPrice = () => {
         addButtonText="إضافة مرحلة جديدة"
         onAddClick={handleOpenAdd}
         emptyText="لا توجد أسعار مراحل مضافة حتى الآن"
-        emptyIcon={DollarSign}
+        emptyIcon={Euro}
       />
 
       <StagePriceModal
