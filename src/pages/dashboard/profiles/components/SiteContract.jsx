@@ -96,7 +96,7 @@ export default function Contract() {
       setUser(userData);
 
       // Check if user already signed
-      if (userData?.signed === true || userData?.contract_terms_accepted) {
+      if (userData?.signed === true || userData?.signature_path) {
         setUserAlreadySigned(true);
       }
 

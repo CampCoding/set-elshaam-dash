@@ -231,9 +231,7 @@ const UserProfilePage = () => {
   const [isStatusModalVisible, setIsStatusModalVisible] = useState(false);
 
   const userContractSigned = Boolean(
-    mainProfile?.contract_terms_accepted ||
-    mainProfile?.signed ||
-    mainProfile?.signature_path
+    mainProfile?.signed || mainProfile?.signature_path
   );
 
   const adminContractSigned = Boolean(
