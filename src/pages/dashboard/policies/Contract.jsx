@@ -468,38 +468,38 @@ const Contract = () => {
         </div>
       ),
     },
-    {
-      key: "en",
-      label: (
-        <span className="flex items-center gap-2 px-1 font-semibold">
-          <span className="text-base">🇬🇧</span>
-          <span>English</span>
-        </span>
-      ),
-      children: (
-        <div className="space-y-4 pt-4" dir="ltr">
-          <VariablesToolbar
-            isEnglish={true}
-            contentRef={contentEnRef}
-            content={contentEn}
-            copiedVar={copiedVar}
-            onCopy={copyVariable}
-          />
-          <EditorSection
-            isEnglish={true}
-            editorRef={editorEn}
-            content={contentEn}
-            onContentChange={(val) => {
-              contentEnRef.current = val;
-            }}
-            onBlur={(val) => {
-              contentEnRef.current = val;
-              setContentEn(val);
-            }}
-          />
-        </div>
-      ),
-    },
+    // {
+    //   key: "en",
+    //   label: (
+    //     <span className="flex items-center gap-2 px-1 font-semibold">
+    //       <span className="text-base">🇬🇧</span>
+    //       <span>English</span>
+    //     </span>
+    //   ),
+    //   children: (
+    //     <div className="space-y-4 pt-4" dir="ltr">
+    //       <VariablesToolbar
+    //         isEnglish={true}
+    //         contentRef={contentEnRef}
+    //         content={contentEn}
+    //         copiedVar={copiedVar}
+    //         onCopy={copyVariable}
+    //       />
+    //       <EditorSection
+    //         isEnglish={true}
+    //         editorRef={editorEn}
+    //         content={contentEn}
+    //         onContentChange={(val) => {
+    //           contentEnRef.current = val;
+    //         }}
+    //         onBlur={(val) => {
+    //           contentEnRef.current = val;
+    //           setContentEn(val);
+    //         }}
+    //       />
+    //     </div>
+    //   ),
+    // },
   ];
 
   return (
@@ -536,31 +536,11 @@ const Contract = () => {
           >
             {isEnglish ? "Save English" : "حفظ العربية"}
           </Button>
-
-          {/* Save both tabs */}
-          <Tooltip
-            title={
-              isEnglish
-                ? "Save both Arabic & English versions"
-                : "حفظ كلا النسختين العربية والإنجليزية"
-            }
-          >
-            <Button
-              onClick={handleSaveBoth}
-              loading={loading}
-              icon={<Save className="w-4 h-4" />}
-              className="flex items-center gap-2 border-primary text-primary"
-              size="large"
-            >
-              {isEnglish ? "Save Both" : "حفظ الكل"}
-            </Button>
-          </Tooltip>
         </div>
       </div>
 
       {/* ── Status Bar ── */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-        {/* Arabic status */}
+      {/* <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
         <div
           className={`flex items-center gap-3 p-3 rounded-xl border transition-all ${activeTab === "ar" ? "bg-primary/5 border-primary/20" : "bg-gray-50 border-gray-100"}`}
         >
@@ -576,7 +556,6 @@ const Contract = () => {
           />
         </div>
 
-        {/* English status */}
         <div
           className={`flex items-center gap-3 p-3 rounded-xl border transition-all ${activeTab === "en" ? "bg-primary/5 border-primary/20" : "bg-gray-50 border-gray-100"}`}
         >
@@ -591,7 +570,7 @@ const Contract = () => {
             className={`w-2 h-2 rounded-full flex-shrink-0 ${contentEn ? "bg-green-400" : "bg-gray-300"}`}
           />
         </div>
-      </div>
+      </div> */}
 
       {/* ── Tabs ── */}
       <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
@@ -616,15 +595,6 @@ const Contract = () => {
                 }`}
               >
                 <span>AR</span>
-              </div>
-              <div
-                className={`flex items-center gap-1.5 text-xs font-medium px-3 py-1 rounded-full transition-all ${
-                  activeTab === "en"
-                    ? "bg-primary text-white"
-                    : "bg-gray-100 text-gray-500"
-                }`}
-              >
-                <span>EN</span>
               </div>
             </div>
           }
