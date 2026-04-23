@@ -52,28 +52,52 @@ const PolicyPrivacy = () => {
     }
   };
 
-  const config = useMemo(() => ({
-    readonly: false,
-    height: 500,
-    language: "ar",
-    direction: "rtl",
-    placeholder: "ابدأ الكتابة هنا...",
-    toolbarButtonSize: "middle",
-    buttons: [
-      "bold", "italic", "underline", "strikethrough", "|",
-      "ul", "ol", "|",
-      "font", "fontsize", "brush", "paragraph", "|",
-      "image", "table", "link", "|",
-      "align", "undo", "redo", "|",
-      "hr", "eraser", "fullsize"
-    ]
-  }), []);
+  const config = useMemo(
+    () => ({
+      readonly: false,
+      height: 500,
+      language: "ar",
+      direction: "rtl",
+      placeholder: "ابدأ الكتابة هنا...",
+      toolbarButtonSize: "middle",
+      buttons: [
+        "bold",
+        "italic",
+        "underline",
+        "strikethrough",
+        "|",
+        "ul",
+        "ol",
+        "|",
+        "font",
+        "fontsize",
+        "brush",
+        "paragraph",
+        "|",
+        "image",
+        "table",
+        "link",
+        "|",
+        "align",
+        "undo",
+        "redo",
+        "|",
+        "hr",
+        "eraser",
+        "fullsize",
+      ],
+    }),
+    []
+  );
 
-  const configEn = useMemo(() => ({
-    ...config,
-    language: "en",
-    direction: "ltr",
-  }), [config]);
+  const configEn = useMemo(
+    () => ({
+      ...config,
+      language: "en",
+      direction: "ltr",
+    }),
+    [config]
+  );
 
   if (loading) {
     return (
@@ -93,7 +117,9 @@ const PolicyPrivacy = () => {
             </div>
             سياسة الخصوصية
           </h1>
-          <p className="text-gray-500 mt-1">إدارة نصوص سياسة الخصوصية بالعربية والإنجليزية</p>
+          <p className="text-gray-500 mt-1">
+            إدارة نصوص سياسة الخصوصية بالعربية والإنجليزية
+          </p>
         </div>
         <Button
           type="primary"
@@ -125,29 +151,31 @@ const PolicyPrivacy = () => {
                   <JoditEditor
                     value={data.privacy_ar}
                     config={config}
-                    onBlur={(newContent) => setData(prev => ({ ...prev, privacy_ar: newContent }))}
+                    onBlur={(newContent) =>
+                      setData((prev) => ({ ...prev, privacy_ar: newContent }))
+                    }
                   />
                 </div>
               ),
             },
-            {
-              key: "en",
-              label: (
-                <span className="flex items-center gap-2 px-4 text-left" dir="ltr">
-                  <Languages size={16} />
-                  English
-                </span>
-              ),
-              children: (
-                <div className="p-2" dir="ltr">
-                  <JoditEditor
-                    value={data.privacy_en}
-                    config={configEn}
-                    onBlur={(newContent) => setData(prev => ({ ...prev, privacy_en: newContent }))}
-                  />
-                </div>
-              ),
-            },
+            // {
+            //   key: "en",
+            //   label: (
+            //     <span className="flex items-center gap-2 px-4 text-left" dir="ltr">
+            //       <Languages size={16} />
+            //       English
+            //     </span>
+            //   ),
+            //   children: (
+            //     <div className="p-2" dir="ltr">
+            //       <JoditEditor
+            //         value={data.privacy_en}
+            //         config={configEn}
+            //         onBlur={(newContent) => setData(prev => ({ ...prev, privacy_en: newContent }))}
+            //       />
+            //     </div>
+            //   ),
+            // },
           ]}
         />
       </Card>
