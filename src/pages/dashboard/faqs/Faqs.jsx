@@ -13,8 +13,8 @@ const Faqs = () => {
   const {
     data,
     loading,
-    servicesList,
-    setServicesList,
+    pagination,
+    fetchFaqs,
     isModalVisible,
     editingRecord,
     handleOpenAdd,
@@ -27,25 +27,26 @@ const Faqs = () => {
   const columns = [
     {
       title: "السؤال",
-      dataIndex: "question",
-      key: "question",
+      dataIndex: "question_ar",
+      key: "question_ar",
       width: 250,
-      ...getColumnSearchProps("question", "ابحث في الأسئلة..."),
-      render: (text) => <span className="font-bold text-gray-800">{text}</span>,
+      ...getColumnSearchProps("question_ar", "ابحث في الأسئلة..."),
+      render: (text, record) => <span className="font-bold text-gray-800">{text || record.question}</span>,
     },
     {
       title: "الإجابة",
-      dataIndex: "answer",
-      key: "answer",
-      render: (text) => (
+      dataIndex: "answer_ar",
+      key: "answer_ar",
+      render: (text, record) => (
         <Paragraph
-          ellipsis={{ rows: 2, expandable: false, tooltip: text }}
+          ellipsis={{ rows: 2, expandable: false, tooltip: text || record.answer }}
           className="m-0 text-gray-500"
         >
-          {text}
+          {text || record.answer}
         </Paragraph>
       ),
     },
+
 
     {
       title: "الإجراءات",
@@ -99,6 +100,10 @@ const Faqs = () => {
         columns={columns}
         data={data}
         loading={loading}
+        pagination={{
+          ...pagination,
+          onChange: (page, pageSize) => fetchFaqs(page, pageSize),
+        }}
         searchPlaceholder="ابحث باسم السؤال..."
         addButton={true}
         addButtonText="إضافة سؤال جديد"
@@ -113,9 +118,8 @@ const Faqs = () => {
         onCancel={handleCloseModal}
         onSave={handleSave}
         initialData={editingRecord}
-        servicesList={servicesList}
-        setServicesList={setServicesList}
       />
+
     </div>
   );
 };

@@ -24,55 +24,58 @@ const Packages = () => {
   const columns = [
     {
       title: "اسم الباقة",
-      dataIndex: "name",
-      key: "name",
+      dataIndex: "name_ar",
+      key: "name_ar",
       width: 200,
-      ...getColumnSearchProps("name", "ابحث باسم الباقة..."),
-      render: (text) => (
-        <span className="font-bold text-gray-800 text-base">{text}</span>
+      ...getColumnSearchProps("name_ar", "ابحث باسم الباقة..."),
+      render: (text, record) => (
+        <span className="font-bold text-gray-800 text-base">{text || record.name}</span>
       ),
     },
     {
       title: "السعر",
-      dataIndex: "price",
-      key: "price",
-      width: 120,
-      sorter: (a, b) => Number(a.price) - Number(b.price),
-      render: (price) => (
-        <div className="font-bold text-lg text-primary bg-primary/5 px-3 py-1 rounded-lg inline-block border border-primary/10">
-          {price} $
+      dataIndex: "price_text_ar",
+      key: "price_text_ar",
+      width: 150,
+      render: (price, record) => (
+        <div className="font-bold text-base text-primary bg-primary/5 px-3 py-1 rounded-lg inline-block border border-primary/10">
+          {price || record.price || "غير محدد"}
         </div>
       ),
     },
     {
-      title: "الخدمات المشمولة",
-      dataIndex: "services",
-      key: "services",
-      render: (services) => (
-        <div className="flex flex-wrap gap-1.5">
-          {services.map((service, index) => (
-            <Tag
-              key={index}
-              color="blue"
-              className="rounded-full px-3 py-1 text-xs border-blue-200 bg-blue-50 text-blue-700 m-0"
-            >
-              {service}
-            </Tag>
-          ))}
-        </div>
-      ),
+      title: "الميزات",
+      dataIndex: "features_ar",
+      key: "features_ar",
+      render: (features, record) => {
+        const list = features || record.services || [];
+        return (
+          <div className="flex flex-wrap gap-1.5">
+            {list.map((feature, index) => (
+              <Tag
+                key={index}
+                color="blue"
+                className="rounded-full px-3 py-1 text-xs border-blue-200 bg-blue-50 text-blue-700 m-0"
+              >
+                {feature}
+              </Tag>
+            ))}
+          </div>
+        );
+      },
     },
     {
-      title: "عدد الخدمات",
-      key: "servicesCount",
+      title: "عدد الميزات",
+      key: "featuresCount",
       width: 120,
       align: "center",
       render: (_, record) => (
         <span className="bg-gray-100 text-gray-600 rounded-full px-3 py-1 text-sm font-medium">
-          {record.services?.length || 0} خدمات
+          {(record.features_ar?.length || record.services?.length || 0)} ميزات
         </span>
       ),
     },
+
     {
       title: "الإجراءات",
       key: "actions",

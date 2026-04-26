@@ -10,8 +10,7 @@ import GalleryItemModal from "./GalleryItemModal";
 const GalleryItems = () => {
   const {
     data,
-    categories,
-    getCategoryLabel,
+    loading,
     isModalVisible,
     editingRecord,
     handleOpenAdd,
@@ -24,47 +23,49 @@ const GalleryItems = () => {
   const columns = [
     {
       title: "الصورة",
-      dataIndex: "url",
-      key: "url",
+      dataIndex: "image_path",
+      key: "image_path",
       width: 100,
-      render: (url, record) => (
-        <div className="w-16 h-12 rounded-lg overflow-hidden border border-gray-200 shadow-sm">
-          <Image
-            src={url}
-            alt={record.label}
-            height={"100%"}
-            width={"100%"}
-            className="!w-full !h-full object-cover"
-            preview={{
-              mask: (
-                <div className="flex items-center gap-1">
-                  <Eye className="w-3 h-3" />
-                  <span className="text-[10px]">عرض</span>
-                </div>
-              ),
-            }}
-          />
+      render: (image_path, record) => (
+        <div className="w-16 h-12 rounded-lg overflow-hidden border border-gray-200 shadow-sm bg-gray-50 flex items-center justify-center">
+          {image_path ? (
+            <Image
+              src={image_path}
+              alt={record.title_ar}
+              height={"100%"}
+              width={"100%"}
+              className="!w-full !h-full object-cover"
+              preview={{
+                mask: (
+                  <div className="flex items-center gap-1">
+                    <Eye className="w-3 h-3" />
+                    <span className="text-[10px]">عرض</span>
+                  </div>
+                ),
+              }}
+            />
+          ) : (
+            <Images size={20} className="text-gray-300" />
+          )}
         </div>
       ),
     },
     {
       title: "العنوان",
-      dataIndex: "label",
-      key: "label",
-      ...getColumnSearchProps("label", "ابحث باسم الصورة..."),
+      dataIndex: "title_ar",
+      key: "title_ar",
+      ...getColumnSearchProps("title_ar", "ابحث باسم الصورة..."),
       render: (text) => (
-        <span className="font-semibold text-gray-800">{text}</span>
+        <span className="font-semibold text-gray-800">{text || "—"}</span>
       ),
     },
     {
       title: "التصنيف",
-      dataIndex: "category",
-      key: "category",
-      filters: categories.map((cat) => ({ text: cat.label, value: cat.id })),
-      onFilter: (value, record) => record.category === value,
-      render: (categoryId) => (
-        <Tag color="cyan" className="rounded-full px-3 py-1 text-xs border">
-          {getCategoryLabel(categoryId)}
+      dataIndex: "category_ar",
+      key: "category_ar",
+      render: (category) => (
+        <Tag color="cyan" className="rounded-full px-3 py-0.5 text-xs border border-cyan-100">
+          {category || "—"}
         </Tag>
       ),
     },
@@ -79,6 +80,7 @@ const GalleryItems = () => {
             <Button
               type="text"
               icon={<Edit className="w-4 h-4 text-accent-dark" />}
+              className="hover:bg-accent/10 flex items-center justify-center"
               onClick={() => handleOpenEdit(record)}
             />
           </Tooltip>
@@ -87,6 +89,7 @@ const GalleryItems = () => {
               type="text"
               danger
               icon={<Trash2 className="w-4 h-4 text-red-500" />}
+              className="hover:bg-red-50 flex items-center justify-center"
               onClick={() => handleDelete(record)}
             />
           </Tooltip>
@@ -103,29 +106,33 @@ const GalleryItems = () => {
             <div className="p-2 bg-primary/10 rounded-xl">
               <Images className="w-6 h-6 text-primary" />
             </div>
-            عناصر المعرض
+            معرض الصور
           </h1>
           <p className="text-gray-500 mt-1 text-sm">
-            إضافة الصور وربطها بالتصنيفات المناسبة.
+            إدارة صور الموقع وتصنيفها لعرضها في المعرض العام.
           </p>
         </div>
       </div>
+
       <DataTable
         columns={columns}
         data={data}
+        loading={loading}
         addButton={true}
-        addButtonText="إضافة صورة"
+        addButtonText="إضافة صورة للمعرض"
         onAddClick={handleOpenAdd}
         emptyIcon={Images}
+        emptyText="لا يوجد صور في المعرض حالياً"
       />
+
       <GalleryItemModal
         visible={isModalVisible}
         onCancel={handleCloseModal}
         onSave={handleSave}
         initialData={editingRecord}
-        categories={categories}
       />
     </div>
   );
 };
+
 export default GalleryItems;

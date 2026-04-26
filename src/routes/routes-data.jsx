@@ -15,6 +15,8 @@ import {
   Images,
   Layers,
   Euro,
+  Phone,
+  Newspaper,
 } from "lucide-react";
 
 // Auth Pages (No Lazy)
@@ -52,6 +54,27 @@ const Contract = lazy(() => import("../pages/dashboard/policies/Contract"));
 const SiteContract = lazy(
   () => import("../pages/dashboard/profiles/components/SiteContract")
 );
+
+const PagesContent = lazy(
+  () => import("../pages/dashboard/pagesContent/PagesContent")
+);
+
+const SiteSettings = lazy(
+  () => import("../pages/dashboard/settings/SiteSettings")
+);
+
+const ContactInfo = lazy(
+  () => import("../pages/dashboard/contactInfo/ContactInfo")
+);
+
+const Banners = lazy(
+  () => import("../pages/dashboard/banners/Banners")
+);
+
+const News = lazy(
+  () => import("../pages/dashboard/news/News")
+);
+
 
 // ============ AUTH ROUTES ============
 export const authRoutes = [{ path: "/login", element: <Login /> }];
@@ -98,11 +121,53 @@ export const adminRoutes = [
   },
 
   {
+    path: "/pages-content",
+    label: "محتوى الصفحات",
+    icon: FileText,
+    element: <PagesContent />,
+  },
+  {
+    path: "/news",
+    label: "الأخبار والمقالات",
+    icon: Newspaper,
+    element: <News />,
+  },
+  {
+    path: "/gallery",
+    label: "المعرض",
+    icon: Images,
+    element: <GalleryItems />,
+  },
+
+
+
+  {
+    path: "/settings",
+    label: "إعدادات الموقع",
+    icon: Settings,
+    element: <SiteSettings />,
+  },
+  {
+    path: "/contact-info",
+    label: "بيانات التواصل",
+    icon: Phone,
+    element: <ContactInfo />,
+  },
+  {
+    path: "/banners",
+    label: "إدارة البنرات",
+    icon: Layers,
+    element: <Banners />,
+  },
+  {
     path: "/faqs",
     label: "الأسئلة الشائعة",
     icon: MessageCircleQuestion,
     element: <Faqs />,
   },
+
+
+
 
   {
     path: "/stages-price",
@@ -131,24 +196,13 @@ export const adminRoutes = [
   },
 
   {
-    path: "/gallery",
+    path: "/gallery/items",
     label: "إدارة المعرض",
     icon: Images,
-    children: [
-      {
-        path: "categories",
-        element: <Categories />,
-        label: "التصنيفات",
-        icon: Layers,
-      },
-      {
-        path: "items",
-        element: <GalleryItems />,
-        label: "عناصر المعرض",
-        icon: ImageIcon,
-      },
-    ],
+    element: <GalleryItems />,
   },
+
+
 
   {
     path: "/policies",

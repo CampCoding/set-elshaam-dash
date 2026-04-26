@@ -142,20 +142,17 @@ const SOCIAL_MEDIA = [
 const getDocumentQuestion = (questionKey, profile) => {
   switch (questionKey) {
     case "marital_status":
-      return `الحالة الاجتماعية: ${
-        getLabelByValue(MARITAL_STATUS, profile?.marital_status) || "غير محدد"
-      }`;
+      return `الحالة الاجتماعية: ${getLabelByValue(MARITAL_STATUS, profile?.marital_status) || "غير محدد"
+        }`;
     case "education_level":
-      return `المستوى التعليمي: ${
-        getLabelByValue(EDUCATION_LEVELS, profile?.education_level) ||
+      return `المستوى التعليمي: ${getLabelByValue(EDUCATION_LEVELS, profile?.education_level) ||
         "غير محدد"
-      }`;
+        }`;
     case "work_experience":
       return `الخبرات العملية: ${profile?.work_experience || "غير محدد"}`;
     case "has_criminal_record":
-      return `السجل الجنائي: ${
-        profile?.has_criminal_record ? "يوجد" : "لا يوجد"
-      }`;
+      return `السجل الجنائي: ${profile?.has_criminal_record ? "يوجد" : "لا يوجد"
+        }`;
     case "has_debts":
       return `الديون: ${profile?.has_debts ? "يوجد" : "لا يوجد"}`;
     default:
@@ -769,8 +766,8 @@ const UserProfilePage = () => {
                               "تاريخ الوصول لفنلندا",
                               mainProfile?.arrival_date_finland
                                 ? dayjs(
-                                    mainProfile.arrival_date_finland
-                                  ).format("YYYY-MM-DD")
+                                  mainProfile.arrival_date_finland
+                                ).format("YYYY-MM-DD")
                                 : null,
                               <Calendar className="w-4 h-4" />
                             )}
@@ -1042,29 +1039,29 @@ const UserProfilePage = () => {
                       {/* Gallery */}
                       {ensureArray(mainProfile?.user_gallery_photos).length >
                         0 && (
-                        <div>
-                          <h3 className="text-lg font-bold text-primary flex items-center gap-2 mb-4">
-                            <ImageIcon className="w-5 h-5" /> معرض الصور
-                          </h3>
-                          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
-                            {ensureArray(mainProfile.user_gallery_photos).map(
-                              (photo, i) => (
-                                <div
-                                  key={i}
-                                  className="rounded-xl overflow-hidden border border-gray-100 shadow-sm aspect-square"
-                                >
-                                  <Image
-                                    src={photo}
-                                    alt={`صورة ${i + 1}`}
-                                    className="w-full h-full object-cover"
-                                    width="100%"
-                                  />
-                                </div>
-                              )
-                            )}
+                          <div>
+                            <h3 className="text-lg font-bold text-primary flex items-center gap-2 mb-4">
+                              <ImageIcon className="w-5 h-5" /> معرض الصور
+                            </h3>
+                            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
+                              {ensureArray(mainProfile.user_gallery_photos).map(
+                                (photo, i) => (
+                                  <div
+                                    key={i}
+                                    className="rounded-xl overflow-hidden border border-gray-100 shadow-sm aspect-square"
+                                  >
+                                    <Image
+                                      src={photo}
+                                      alt={`صورة ${i + 1}`}
+                                      className="w-full h-full object-cover"
+                                      width="100%"
+                                    />
+                                  </div>
+                                )
+                              )}
+                            </div>
                           </div>
-                        </div>
-                      )}
+                        )}
 
                       {/* About Me */}
                       {mainProfile?.about_me_more && (
@@ -1175,23 +1172,23 @@ const UserProfilePage = () => {
 
                             {(mainProfile?.admin_signature_path ||
                               mainProfile?.admin_signed) && (
-                              <Card
-                                size="small"
-                                title="توقيع الإدارة"
-                                className="text-center rounded-xl overflow-hidden mt-4"
-                              >
-                                {mainProfile?.admin_signature_path ? (
-                                  <Image
-                                    src={mainProfile.admin_signature_path}
-                                    className="max-h-32 object-contain"
-                                  />
-                                ) : (
-                                  <div className="py-8 text-gray-400">
-                                    تم توقيع الإدارة
-                                  </div>
-                                )}
-                              </Card>
-                            )}
+                                <Card
+                                  size="small"
+                                  title="توقيع الإدارة"
+                                  className="text-center rounded-xl overflow-hidden mt-4"
+                                >
+                                  {mainProfile?.admin_signature_path ? (
+                                    <Image
+                                      src={mainProfile.admin_signature_path}
+                                      className="max-h-32 object-contain"
+                                    />
+                                  ) : (
+                                    <div className="py-8 text-gray-400">
+                                      تم توقيع الإدارة
+                                    </div>
+                                  )}
+                                </Card>
+                              )}
                           </Col>
                         </Row>
                       </div>
@@ -1361,7 +1358,7 @@ const UserProfilePage = () => {
                               </Col>
                               <Col xs={24} sm={8}>
                                 {renderInfoItem(
-                                  "الجنس المطلوب",
+                                  "الجنس",
                                   targetProfile?.target_gender === "male"
                                     ? "ذكر"
                                     : targetProfile?.target_gender === "female"
@@ -1572,24 +1569,24 @@ const UserProfilePage = () => {
                             {ensureArray(
                               targetProfile?.["target_house-tasks_preference"]
                             ).length > 0 && (
-                              <div className="mt-4 p-3 bg-gray-50 rounded-xl border border-gray-100">
-                                <div className="text-xs text-gray-400 font-medium mb-2 flex items-center gap-1">
-                                  <Home className="w-3 h-3" /> تفضيلات المهام
-                                  المنزلية
-                                </div>
-                                <div className="flex flex-wrap gap-2">
-                                  {ensureArray(
-                                    targetProfile[
+                                <div className="mt-4 p-3 bg-gray-50 rounded-xl border border-gray-100">
+                                  <div className="text-xs text-gray-400 font-medium mb-2 flex items-center gap-1">
+                                    <Home className="w-3 h-3" /> تفضيلات المهام
+                                    المنزلية
+                                  </div>
+                                  <div className="flex flex-wrap gap-2">
+                                    {ensureArray(
+                                      targetProfile[
                                       "target_house-tasks_preference"
-                                    ]
-                                  ).map((item, i) => (
-                                    <Tag key={i} className="rounded-full">
-                                      {item}
-                                    </Tag>
-                                  ))}
+                                      ]
+                                    ).map((item, i) => (
+                                      <Tag key={i} className="rounded-full">
+                                        {item}
+                                      </Tag>
+                                    ))}
+                                  </div>
                                 </div>
-                              </div>
-                            )}
+                              )}
                           </div>
 
                           <Card size="small" className="bg-gray-50">

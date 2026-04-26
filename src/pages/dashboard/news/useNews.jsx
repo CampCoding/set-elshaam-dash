@@ -1,29 +1,31 @@
-// src/pages/dashboard/gallery/items/useGalleryItems.jsx
+// src/pages/dashboard/news/useNews.jsx
 import { useState, useEffect } from "react";
 import { message, Modal } from "antd";
-import galleryService from "../../../../api/services/gallery.service";
+import newsService from "../../../api/services/news.service";
 
-export const useGalleryItems = () => {
+export const useNews = () => {
   const [data, setData] = useState([]);
   const [loading, setLoading] = useState(false);
+
+  // Modal States
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [editingRecord, setEditingRecord] = useState(null);
 
-  const fetchGallery = async () => {
+  const fetchNews = async () => {
     setLoading(true);
     try {
-      const response = await galleryService.getGallery();
-      setData(response.data || []);
+      const res = await newsService.getNews();
+      setData(res.data || []);
     } catch (error) {
-      console.error("Error fetching gallery:", error);
-      message.error("فشل في جلب بيانات المعرض");
+      console.error("Error fetching news:", error);
+      message.error("فشل في جلب الأخبار");
     } finally {
       setLoading(false);
     }
   };
 
   useEffect(() => {
-    fetchGallery();
+    fetchNews();
   }, []);
 
   const handleOpenAdd = () => {
@@ -44,30 +46,29 @@ export const useGalleryItems = () => {
   const handleSave = async (values) => {
     setLoading(true);
     const formData = new FormData();
+    formData.append("title_ar", values.title_ar);
+    formData.append("slug", values.slug);
+    formData.append("summary_ar", values.summary_ar);
+    formData.append("content_ar", values.content_ar);
+    formData.append("category_ar", values.category_ar);
 
     if (values.image_file) {
       formData.append("image", values.image_file);
     }
 
-    formData.append("category_ar", values.category_ar);
-
-    if (!editingRecord) {
-      formData.append("title_ar", values.title_ar);
-    }
-
     try {
       if (editingRecord) {
-        await galleryService.updateGallery(editingRecord.id, formData);
-        message.success("تم تعديل الصورة بنجاح");
+        await newsService.updateNews(editingRecord.id, formData);
+        message.success("تم تحديث الخبر بنجاح");
       } else {
-        await galleryService.createGallery(formData);
-        message.success("تم إضافة الصورة بنجاح");
+        await newsService.createNews(formData);
+        message.success("تم إضافة الخبر بنجاح");
       }
+      fetchNews();
       handleCloseModal();
-      fetchGallery();
     } catch (error) {
-      console.error("Error saving gallery item:", error);
-      message.error("فشل في حفظ البيانات");
+      console.error("Error saving news:", error);
+      message.error("فشل في حفظ الخبر");
     } finally {
       setLoading(false);
     }
@@ -76,18 +77,18 @@ export const useGalleryItems = () => {
   const handleDelete = (record) => {
     Modal.confirm({
       title: "تأكيد الحذف",
-      content: `هل أنت متأكد من حذف "${record.title_ar || 'هذه الصورة'}"؟`,
+      content: `هل أنت متأكد من حذف الخبر "${record.title_ar}"؟`,
       okText: "نعم، احذف",
       cancelText: "إلغاء",
       okButtonProps: { danger: true },
       onOk: async () => {
         try {
-          await galleryService.deleteGallery(record.id);
-          message.success("تم الحذف بنجاح");
-          fetchGallery();
+          await newsService.deleteNews(record.id);
+          message.success("تم حذف الخبر بنجاح");
+          fetchNews();
         } catch (error) {
-          console.error("Error deleting gallery item:", error);
-          message.error("فشل في الحذف");
+          console.error("Error deleting news:", error);
+          message.error("فشل في حذف الخبر");
         }
       },
     });

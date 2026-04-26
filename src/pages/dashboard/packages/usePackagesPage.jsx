@@ -1,122 +1,93 @@
 // src/pages/dashboard/packages/usePackagesPage.jsx
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { message, Modal } from "antd";
-
-// البيانات المبدئية للباقات
-const initialMockData = [
-  {
-    id: 1,
-    name: "الباقة الملكية",
-    price: "1200",
-    services: [
-      "البحث عن شريك",
-      "فرقة زفة ودقة ستي للسيدات",
-      "فرقة العراضة الشامية رجال",
-      "تأجير بدلات",
-    ],
-  },
-  {
-    id: 2,
-    name: "الباقة المميزة",
-    price: "900",
-    services: [
-      "البحث عن شريك",
-      "فرقة زفة ودقة ستي للسيدات",
-      "فرقة العراضة الشامية رجال",
-      "تأجير بدلات",
-    ],
-  },
-  {
-    id: 3,
-    name: "الباقة الاقتصادية",
-    price: "500",
-    services: [
-      "البحث عن شريك",
-      "فرقة زفة ودقة ستي للسيدات",
-      "فرقة العراضة الشامية رجال",
-      "تأجير بدلات",
-    ],
-  },
-];
-
-// قائمة بكل الخدمات المتاحة في النظام (للاستخدام في الـ Select)
-export const availableServicesList = [
-  "البحث عن شريك",
-  "حجز صالة الأفراح",
-  "بوفيه طعام",
-  "فرقة زفة ودقة ستي للسيدات",
-  "زغاريد",
-  "فرقة العراضة الشامية رجال",
-  "تأجير بدلات",
-  "تصوير المناسبات",
-  "DJ",
-];
+import packagesService from "../../../api/services/packages.service";
 
 export const usePackagesPage = () => {
-  const [data, setData] = useState(initialMockData);
+  const [data, setData] = useState([]);
   const [loading, setLoading] = useState(false);
 
   // Modal States
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [editingRecord, setEditingRecord] = useState(null);
 
-  // 1. فتح مودال الإضافة
+  const fetchPackages = async () => {
+    setLoading(true);
+    try {
+      const res = await packagesService.getPackages();
+      setData(res.data || []);
+    } catch (error) {
+      console.error("Error fetching packages:", error);
+      message.error("فشل في جلب الباقات");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchPackages();
+  }, []);
+
   const handleOpenAdd = () => {
     setEditingRecord(null);
     setIsModalVisible(true);
   };
 
-  // 2. فتح مودال التعديل
   const handleOpenEdit = (record) => {
     setEditingRecord(record);
     setIsModalVisible(true);
   };
 
-  // 3. إغلاق المودال
   const handleCloseModal = () => {
     setIsModalVisible(false);
     setEditingRecord(null);
   };
 
-  // 4. حفظ البيانات (إضافة أو تعديل)
-  const handleSave = (values) => {
+  const handleSave = async (values) => {
     setLoading(true);
+    
+    // Mapping UI fields to API fields
+    const payload = {
+      name_ar: values.name_ar || values.name,
+      features_ar: values.features_ar || values.services || [],
+      price_text_ar: values.price_text_ar || values.price,
+      is_active: values.is_active !== undefined ? (values.is_active ? 1 : 0) : 1,
+    };
 
-    setTimeout(() => {
+    try {
       if (editingRecord) {
-        // تعديل
-        const updatedData = data.map((item) =>
-          item.id === editingRecord.id ? { ...item, ...values } : item
-        );
-        setData(updatedData);
+        await packagesService.updatePackage(editingRecord.id, payload);
         message.success("تم تعديل الباقة بنجاح");
       } else {
-        // إضافة
-        const newRecord = {
-          ...values,
-          id: Date.now(), // ID وهمي
-        };
-        setData([newRecord, ...data]);
+        await packagesService.createPackage(payload);
         message.success("تم إضافة الباقة بنجاح");
       }
-
-      setLoading(false);
+      fetchPackages();
       handleCloseModal();
-    }, 500);
+    } catch (error) {
+      console.error("Error saving package:", error);
+      message.error("فشل في حفظ الباقة");
+    } finally {
+      setLoading(false);
+    }
   };
 
-  // 5. حذف عنصر
   const handleDelete = (record) => {
     Modal.confirm({
       title: "تأكيد الحذف",
-      content: `هل أنت متأكد من حذف "${record.name}"؟`,
+      content: `هل أنت متأكد من حذف "${record.name_ar || record.name}"؟`,
       okText: "نعم، احذف",
       cancelText: "إلغاء",
       okButtonProps: { danger: true },
-      onOk: () => {
-        const newData = data.filter((item) => item.id !== record.id);
-        setData(newData);
-        message.success("تم حذف الباقة بنجاح");
+      onOk: async () => {
+        try {
+          await packagesService.deletePackage(record.id);
+          message.success("تم حذف الباقة بنجاح");
+          fetchPackages();
+        } catch (error) {
+          console.error("Error deleting package:", error);
+          message.error("فشل في حذف الباقة");
+        }
       },
     });
   };

@@ -1,7 +1,7 @@
 // src/pages/dashboard/faqs/components/FaqModal.jsx
-import { useEffect, useState, useRef } from "react";
-import { Modal, Form, Input, Select, Divider, Space, Button } from "antd";
-import { MessageCircleQuestion, Plus } from "lucide-react";
+import { useEffect } from "react";
+import { Modal, Form, Input, InputNumber } from "antd";
+import { MessageCircleQuestion } from "lucide-react";
 
 const { TextArea } = Input;
 
@@ -10,35 +10,24 @@ const FaqModal = ({
   onCancel,
   onSave,
   initialData,
-  servicesList,
-  setServicesList,
 }) => {
   const [form] = Form.useForm();
-  const [newServiceName, setNewServiceName] = useState("");
-  const inputRef = useRef(null);
 
   useEffect(() => {
     if (visible) {
       if (initialData) {
-        form.setFieldsValue(initialData);
+        form.setFieldsValue({
+          ...initialData,
+          question_ar: initialData.question_ar || initialData.question,
+          answer_ar: initialData.answer_ar || initialData.answer,
+          order_index: initialData.order_index || 0,
+        });
       } else {
         form.resetFields();
-        form.setFieldsValue({ relatedService: "عام" }); // قيمة افتراضية
+        form.setFieldsValue({ order_index: 0 });
       }
     }
   }, [visible, initialData, form]);
-
-  // دالة لإضافة خدمة جديدة للـ Select List أثناء الكتابة
-  const onServiceAdd = (e) => {
-    e.preventDefault();
-    if (newServiceName && !servicesList.includes(newServiceName)) {
-      setServicesList([...servicesList, newServiceName]);
-      setNewServiceName("");
-      setTimeout(() => {
-        inputRef.current?.focus();
-      }, 0);
-    }
-  };
 
   const handleSubmit = () => {
     form
@@ -81,8 +70,8 @@ const FaqModal = ({
       <Form form={form} layout="vertical" className="mt-2" dir="rtl">
         <div className="bg-gray-50 rounded-xl p-5 border border-gray-100 space-y-4">
           <Form.Item
-            name="question"
-            label={<span className="font-medium">السؤال</span>}
+            name="question_ar"
+            label={<span className="font-medium">السؤال (بالعربية)</span>}
             rules={[{ required: true, message: "يرجى إدخال السؤال" }]}
           >
             <Input
@@ -93,14 +82,26 @@ const FaqModal = ({
           </Form.Item>
 
           <Form.Item
-            name="answer"
-            label={<span className="font-medium">الإجابة</span>}
+            name="answer_ar"
+            label={<span className="font-medium">الإجابة (بالعربية)</span>}
             rules={[{ required: true, message: "يرجى إدخال الإجابة" }]}
           >
             <TextArea
               placeholder="اكتب الإجابة التفصيلية هنا..."
               autoSize={{ minRows: 4, maxRows: 8 }}
               className="rounded-lg"
+            />
+          </Form.Item>
+
+          <Form.Item
+            name="order_index"
+            label={<span className="font-medium">ترتيب العرض</span>}
+          >
+            <InputNumber
+              min={0}
+              className="w-full rounded-lg"
+              size="large"
+              placeholder="مثال: 10"
             />
           </Form.Item>
         </div>

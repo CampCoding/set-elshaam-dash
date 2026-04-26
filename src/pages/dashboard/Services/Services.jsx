@@ -12,6 +12,8 @@ const Services = () => {
   const {
     data,
     loading,
+    pagination,
+    handleTableChange,
     // مودال الإضافة/التعديل
     isModalVisible,
     editingRecord,
@@ -31,97 +33,41 @@ const Services = () => {
   const columns = [
     {
       title: "الصورة",
-      dataIndex: "image",
-      key: "image",
+      dataIndex: "slider_images",
+      key: "slider_images",
       width: 90,
-      render: (image, record) => (
-        <div className="w-14 h-14 rounded-xl overflow-hidden border-2 border-gray-100 shadow-sm">
-          <img
-            src={image || "https://via.placeholder.com/150"}
-            alt={record.name}
-            className="w-full h-full object-cover"
-            onError={(e) => {
-              e.target.src = "https://via.placeholder.com/150?text=No+Image";
-            }}
-          />
-        </div>
-      ),
+      render: (slider_images, record) => {
+        const image = Array.isArray(slider_images) && slider_images.length > 0 
+          ? slider_images[0].path || slider_images[0]
+          : record.image; // fallback
+        return (
+          <div className="w-14 h-14 rounded-xl overflow-hidden border-2 border-gray-100 shadow-sm">
+            <img
+              src={image || "https://via.placeholder.com/150"}
+              alt={record.title_ar}
+              className="w-full h-full object-cover"
+              onError={(e) => {
+                e.target.src = "https://via.placeholder.com/150?text=No+Image";
+              }}
+            />
+          </div>
+        );
+      },
     },
     {
       title: "اسم الخدمة",
-      dataIndex: "name",
-      key: "name",
-      ...getColumnSearchProps("name", "ابحث باسم الخدمة..."),
+      dataIndex: "title_ar",
+      key: "title_ar",
+      ...getColumnSearchProps("title_ar", "ابحث باسم الخدمة..."),
       render: (text, record) => (
         <div>
-          <div className="font-semibold text-gray-800">{text}</div>
-          {record.subtitle && (
+          <div className="font-semibold text-gray-800">{text || record.name}</div>
+          {record.subtitle_ar && (
             <div className="text-xs text-gray-400 mt-0.5 line-clamp-1">
-              {record.subtitle}
+              {record.subtitle_ar}
             </div>
           )}
         </div>
-      ),
-    },
-    // {
-    //   title: "التصنيف",
-    //   dataIndex: "category",
-    //   key: "category",
-    //   width: 130,
-    //   filters: [
-    //     { text: "زواج", value: "زواج" },
-    //     { text: "قاعات", value: "قاعات" },
-    //     { text: "ضيافة", value: "ضيافة" },
-    //     { text: "فرق موسيقية", value: "فرق موسيقية" },
-    //     { text: "تراث", value: "تراث" },
-    //     { text: "ملابس", value: "ملابس" },
-    //     { text: "صوتيات", value: "صوتيات" },
-    //     { text: "تصوير", value: "تصوير" },
-    //   ],
-    //   onFilter: (value, record) => record.category === value,
-    //   render: (category) => (
-    //     <Tag color="blue" className="rounded-full px-3 py-0.5">
-    //       {category}
-    //     </Tag>
-    //   ),
-    // },
-    // {
-    //   title: "الصور",
-    //   dataIndex: "images",
-    //   key: "images",
-    //   width: 80,
-    //   align: "center",
-    //   render: (images) => (
-    //     <div className="flex! items-center justify-center bg-gray-100 text-gray-600 rounded-full px-2.5 py-1 text-xs font-medium">
-    //       {images?.length || 0} صور
-    //     </div>
-    //   ),
-    // },
-    {
-      title: "الوصول",
-      dataIndex: "requiresLogin",
-      key: "requiresLogin",
-      width: 100,
-      align: "center",
-      filters: [
-        { text: "يتطلب تسجيل", value: true },
-        { text: "متاح للجميع", value: false },
-      ],
-      onFilter: (value, record) => record.requiresLogin === value,
-      render: (requiresLogin) => (
-        <Tooltip title={requiresLogin ? "تتطلب تسجيل دخول" : "متاحة للجميع"}>
-          <div
-            className={`inline-flex items-center justify-center w-8 h-8 rounded-full ${
-              requiresLogin ? "bg-orange-100" : "bg-green-100"
-            }`}
-          >
-            {requiresLogin ? (
-              <Lock className="w-4 h-4 text-orange-500" />
-            ) : (
-              <Unlock className="w-4 h-4 text-green-500" />
-            )}
-          </div>
-        </Tooltip>
       ),
     },
     {
@@ -135,7 +81,7 @@ const Services = () => {
       ],
       onFilter: (value, record) => record.status === value,
       render: (status) => {
-        const isActive = status === "active";
+        const isActive = status === "active" || status === 1;
         return (
           <Tag
             color={isActive ? "success" : "error"}
@@ -203,18 +149,18 @@ const Services = () => {
         <div className="flex gap-3">
           <div className="bg-green-50 rounded-xl px-4 py-2 text-center">
             <div className="text-lg font-bold text-green-600">
-              {data.filter((s) => s.status === "active").length}
+              {data.filter((s) => s.status === "active" || s.status === 1).length}
             </div>
             <div className="text-xs text-green-500">مفعّل</div>
           </div>
           <div className="bg-red-50 rounded-xl px-4 py-2 text-center">
             <div className="text-lg font-bold text-red-600">
-              {data.filter((s) => s.status === "inactive").length}
+              {data.filter((s) => s.status === "inactive" || s.status === 0).length}
             </div>
             <div className="text-xs text-red-500">متوقف</div>
           </div>
           <div className="bg-primary/10 rounded-xl px-4 py-2 text-center">
-            <div className="text-lg font-bold text-primary">{data.length}</div>
+            <div className="text-lg font-bold text-primary">{pagination.total}</div>
             <div className="text-xs text-primary">إجمالي</div>
           </div>
         </div>
@@ -225,6 +171,8 @@ const Services = () => {
         columns={columns}
         data={data}
         loading={loading}
+        pagination={pagination}
+        onChange={handleTableChange}
         searchPlaceholder="ابحث في الخدمات..."
         addButton={true}
         addButtonText="إضافة خدمة جديدة"
@@ -250,5 +198,6 @@ const Services = () => {
     </div>
   );
 };
+
 
 export default Services;

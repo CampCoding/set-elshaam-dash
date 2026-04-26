@@ -1,71 +1,42 @@
 // src/pages/dashboard/faqs/useFaqsPage.jsx
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { message, Modal } from "antd";
-
-// البيانات المبدئية للأسئلة الشائعة
-const initialMockData = [
-  {
-    id: 1,
-    question: "كيف تتم عملية المطابقة؟",
-    answer:
-      "نقوم بدراسة ملفك الشخصي بعناية فائقة، ثم نستخدم نظاماً متقدماً لمطابقة المعايير الشخصية والثقافية والدينية. بعد ذلك نرشح لك أنسب الخيارات المتوافقة مع تطلعاتك.",
-    relatedService: "البحث عن شريك",
-  },
-  {
-    id: 2,
-    question: "هل تقدمون باقات شاملة؟",
-    answer:
-      "نعم، نقدم باقات متنوعة تشمل تنظيم حفلات الزفاف الكاملة من الألف إلى الياء، بما في ذلك التصوير، الديكور، الإضاءة، الموسيقى.",
-    relatedService: "عام",
-  },
-  {
-    id: 3,
-    question: "هل التصوير يشمل داخلي وخارجي؟",
-    answer:
-      "بالتأكيد! باقاتنا للتصوير تشمل جلسات داخلية في قاعات الأفراح وجلسات خارجية في أجمل المواقع الطبيعية أو التاريخية.",
-    relatedService: "تصوير المناسبات",
-  },
-  {
-    id: 4,
-    question: "هل يمكن الدفع بالتقسيط؟",
-    answer:
-      "نعم، نوفر خيارات دفع مرنة تشمل الدفع بالتقسيط على عدة أشهر، حسب الباقة المختارة. نهدف لتسهيل عملية التخطيط المالي.",
-    relatedService: "عام",
-  },
-  {
-    id: 5,
-    question: "ماذا يحدث في حال إلغاء الحجز؟",
-    answer:
-      "سياسة الإلغاء تختلف حسب وقت الإلغاء ونوع الباقة. في حال الإلغاء قبل موعد الفعالية بفترة كافية، يمكن استرداد جزء من المبلغ.",
-    relatedService: "حجز صالة الأفراح",
-  },
-  {
-    id: 6,
-    question: "هل الفرق الاستعراضية خاصة بكم؟",
-    answer:
-      "نتعاون مع أفضل الفرق الاستعراضية والفنية في المنطقة، ونضمن لك تجربة ترفيهية احترافية ومميزة. يمكنك اختيار نوع العروض.",
-    relatedService: "فرقة العراضة الشامية رجال",
-  },
-];
-
-// قائمة الخدمات الافتراضية اللي هتظهر في الـ Select
-const defaultServices = [
-  "عام",
-  "البحث عن شريك",
-  "حجز صالة الأفراح",
-  "بوفيه طعام",
-  "تصوير المناسبات",
-  "فرقة العراضة الشامية رجال",
-];
+import faqsService from "../../../api/services/faqs.service";
 
 export const useFaqsPage = () => {
-  const [data, setData] = useState(initialMockData);
-  const [servicesList, setServicesList] = useState(defaultServices);
+  const [data, setData] = useState([]);
   const [loading, setLoading] = useState(false);
+  const [pagination, setPagination] = useState({
+    current: 1,
+    pageSize: 10,
+    total: 0,
+  });
 
   // Modal States
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [editingRecord, setEditingRecord] = useState(null);
+
+  const fetchFaqs = async (page = pagination.current, limit = pagination.pageSize) => {
+    setLoading(true);
+    try {
+      const res = await faqsService.getFaqs({ page, limit });
+      setData(res.data || []);
+      setPagination({
+        ...pagination,
+        current: page,
+        total: res.total || res.data?.length || 0,
+      });
+    } catch (error) {
+      console.error("Error fetching FAQs:", error);
+      message.error("فشل في جلب الأسئلة الشائعة");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchFaqs();
+  }, []);
 
   const handleOpenAdd = () => {
     setEditingRecord(null);
@@ -82,43 +53,50 @@ export const useFaqsPage = () => {
     setEditingRecord(null);
   };
 
-  const handleSave = (values) => {
+  const handleSave = async (values) => {
     setLoading(true);
+    
+    // Mapping UI fields to API fields
+    const payload = {
+      question_ar: values.question_ar || values.question,
+      answer_ar: values.answer_ar || values.answer,
+      order_index: values.order_index || 0,
+    };
 
-    setTimeout(() => {
+    try {
       if (editingRecord) {
-        // تعديل
-        const updatedData = data.map((item) =>
-          item.id === editingRecord.id ? { ...item, ...values } : item
-        );
-        setData(updatedData);
+        await faqsService.updateFaq(editingRecord.id, payload);
         message.success("تم تعديل السؤال بنجاح");
       } else {
-        // إضافة
-        const newRecord = {
-          ...values,
-          id: Date.now(),
-        };
-        setData([newRecord, ...data]);
+        await faqsService.createFaq(payload);
         message.success("تم إضافة السؤال بنجاح");
       }
-
-      setLoading(false);
+      fetchFaqs();
       handleCloseModal();
-    }, 500);
+    } catch (error) {
+      console.error("Error saving FAQ:", error);
+      message.error("فشل في حفظ السؤال");
+    } finally {
+      setLoading(false);
+    }
   };
 
   const handleDelete = (record) => {
     Modal.confirm({
       title: "تأكيد الحذف",
-      content: `هل أنت متأكد من حذف سؤال "${record.question}"؟`,
+      content: `هل أنت متأكد من حذف سؤال "${record.question_ar || record.question}"؟`,
       okText: "نعم، احذف",
       cancelText: "إلغاء",
       okButtonProps: { danger: true },
-      onOk: () => {
-        const newData = data.filter((item) => item.id !== record.id);
-        setData(newData);
-        message.success("تم حذف السؤال بنجاح");
+      onOk: async () => {
+        try {
+          await faqsService.deleteFaq(record.id);
+          message.success("تم حذف السؤال بنجاح");
+          fetchFaqs();
+        } catch (error) {
+          console.error("Error deleting FAQ:", error);
+          message.error("فشل في حذف السؤال");
+        }
       },
     });
   };
@@ -126,8 +104,8 @@ export const useFaqsPage = () => {
   return {
     data,
     loading,
-    servicesList,
-    setServicesList,
+    pagination,
+    fetchFaqs,
     isModalVisible,
     editingRecord,
     handleOpenAdd,

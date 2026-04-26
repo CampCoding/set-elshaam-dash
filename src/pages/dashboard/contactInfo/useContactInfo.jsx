@@ -1,29 +1,31 @@
-// src/pages/dashboard/gallery/items/useGalleryItems.jsx
+// src/pages/dashboard/contactInfo/useContactInfo.jsx
 import { useState, useEffect } from "react";
 import { message, Modal } from "antd";
-import galleryService from "../../../../api/services/gallery.service";
+import contactInfoService from "../../../api/services/contactInfo.service";
 
-export const useGalleryItems = () => {
+export const useContactInfo = () => {
   const [data, setData] = useState([]);
   const [loading, setLoading] = useState(false);
+
+  // Modal States
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [editingRecord, setEditingRecord] = useState(null);
 
-  const fetchGallery = async () => {
+  const fetchContactInfo = async () => {
     setLoading(true);
     try {
-      const response = await galleryService.getGallery();
-      setData(response.data || []);
+      const res = await contactInfoService.getContactInfo();
+      setData(res.data || []);
     } catch (error) {
-      console.error("Error fetching gallery:", error);
-      message.error("فشل في جلب بيانات المعرض");
+      console.error("Error fetching contact info:", error);
+      message.error("فشل في جلب بيانات التواصل");
     } finally {
       setLoading(false);
     }
   };
 
   useEffect(() => {
-    fetchGallery();
+    fetchContactInfo();
   }, []);
 
   const handleOpenAdd = () => {
@@ -44,29 +46,29 @@ export const useGalleryItems = () => {
   const handleSave = async (values) => {
     setLoading(true);
     const formData = new FormData();
-
-    if (values.image_file) {
-      formData.append("image", values.image_file);
+    formData.append("type", values.type);
+    formData.append("value", values.value);
+    
+    if (values.icon_file) {
+      formData.append("icon", values.icon_file);
     }
 
-    formData.append("category_ar", values.category_ar);
-
-    if (!editingRecord) {
-      formData.append("title_ar", values.title_ar);
+    if (editingRecord) {
+      formData.append("is_active", values.is_active ? "1" : "0");
     }
 
     try {
       if (editingRecord) {
-        await galleryService.updateGallery(editingRecord.id, formData);
-        message.success("تم تعديل الصورة بنجاح");
+        await contactInfoService.updateContactInfo(editingRecord.id, formData);
+        message.success("تم تحديث بيانات التواصل بنجاح");
       } else {
-        await galleryService.createGallery(formData);
-        message.success("تم إضافة الصورة بنجاح");
+        await contactInfoService.createContactInfo(formData);
+        message.success("تم إضافة بيانات التواصل بنجاح");
       }
+      fetchContactInfo();
       handleCloseModal();
-      fetchGallery();
     } catch (error) {
-      console.error("Error saving gallery item:", error);
+      console.error("Error saving contact info:", error);
       message.error("فشل في حفظ البيانات");
     } finally {
       setLoading(false);
@@ -76,18 +78,18 @@ export const useGalleryItems = () => {
   const handleDelete = (record) => {
     Modal.confirm({
       title: "تأكيد الحذف",
-      content: `هل أنت متأكد من حذف "${record.title_ar || 'هذه الصورة'}"؟`,
+      content: `هل أنت متأكد من حذف "${record.value}"؟`,
       okText: "نعم، احذف",
       cancelText: "إلغاء",
       okButtonProps: { danger: true },
       onOk: async () => {
         try {
-          await galleryService.deleteGallery(record.id);
+          await contactInfoService.deleteContactInfo(record.id);
           message.success("تم الحذف بنجاح");
-          fetchGallery();
+          fetchContactInfo();
         } catch (error) {
-          console.error("Error deleting gallery item:", error);
-          message.error("فشل في الحذف");
+          console.error("Error deleting contact info:", error);
+          message.error("فشل في حذف البيانات");
         }
       },
     });

@@ -16,7 +16,15 @@ import {
 const ServiceDetailsModal = ({ visible, onClose, service }) => {
   if (!service) return null;
 
-  const isActive = service.status === "active";
+  const isActive = service.status === "active" || service.status === 1;
+
+  const mainImage = Array.isArray(service.slider_images) && service.slider_images.length > 0
+    ? service.slider_images[0].path || service.slider_images[0]
+    : service.image;
+
+  const gallery = Array.isArray(service.gallery_images)
+    ? service.gallery_images.map(img => img.path || img)
+    : service.images || [];
 
   return (
     <Modal
@@ -50,8 +58,8 @@ const ServiceDetailsModal = ({ visible, onClose, service }) => {
           <div className="w-full md:w-2/5">
             <div className="relative rounded-2xl overflow-hidden shadow-lg border border-gray-100 h-64">
               <Image
-                src={service.image}
-                alt={service.name}
+                src={mainImage}
+                alt={service.title_ar || service.name}
                 width="100%"
                 height="100%"
                 className="!w-full !h-full"
@@ -80,11 +88,11 @@ const ServiceDetailsModal = ({ visible, onClose, service }) => {
           <div className="flex-1 space-y-4">
             <div>
               <h2 className="text-2xl font-bold text-gray-800 mb-2">
-                {service.name}
+                {service.title_ar || service.name}
               </h2>
-              {service.subtitle && (
+              {(service.subtitle_ar || service.subtitle) && (
                 <p className="text-gray-500 text-base leading-relaxed">
-                  {service.subtitle}
+                  {service.subtitle_ar || service.subtitle}
                 </p>
               )}
             </div>
@@ -118,7 +126,7 @@ const ServiceDetailsModal = ({ visible, onClose, service }) => {
             <div className="grid grid-cols-2 gap-4 pt-3">
               <div className="bg-gradient-to-br from-primary/10 to-primary/5 rounded-xl p-4 text-center border border-primary/10">
                 <div className="text-3xl font-bold text-primary mb-1">
-                  {service.images?.length || 0}
+                  {gallery.length}
                 </div>
                 <div className="text-sm text-gray-600">صور المعرض</div>
               </div>
@@ -143,9 +151,9 @@ const ServiceDetailsModal = ({ visible, onClose, service }) => {
             الوصف التفصيلي
           </h3>
           <div className="bg-gray-50 rounded-xl p-5 border border-gray-100">
-            {service.description && service.description.length > 0 ? (
+            {service.description_ar || (service.description && service.description.length > 0) ? (
               <div className="space-y-4">
-                {service.description.map((paragraph, index) => (
+                {(service.description_ar ? service.description_ar.split("\n") : service.description).map((paragraph, index) => (
                   <div key={index} className="flex gap-3">
                     <span className="flex-shrink-0 w-6 h-6 bg-primary/10 text-primary rounded-full flex items-center justify-center text-xs font-bold">
                       {index + 1}
@@ -198,7 +206,7 @@ const ServiceDetailsModal = ({ visible, onClose, service }) => {
         )}
 
         {/* ===== قسم معرض الصور ===== */}
-        {service.images && service.images.length > 0 && (
+        {gallery.length > 0 && (
           <div>
             <h3 className="text-lg font-bold text-gray-800 mb-4 flex items-center gap-2">
               <div className="p-1.5 bg-primary/10 rounded-lg">
@@ -206,7 +214,7 @@ const ServiceDetailsModal = ({ visible, onClose, service }) => {
               </div>
               معرض الصور
               <span className="text-sm font-normal text-gray-400 bg-gray-100 px-2 py-0.5 rounded-full">
-                {service.images.length} صور
+                {gallery.length} صور
               </span>
             </h3>
             <div className="bg-gray-50 rounded-xl p-4 border border-gray-100">
@@ -220,7 +228,7 @@ const ServiceDetailsModal = ({ visible, onClose, service }) => {
                 }}
               >
                 <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3">
-                  {service.images.map((img, index) => (
+                  {gallery.map((img, index) => (
                     <div
                       key={index}
                       className="relative aspect-square rounded-xl overflow-hidden border-2 border-gray-200 shadow-sm hover:shadow-lg hover:border-primary/30 transition-all duration-300 cursor-pointer group"
