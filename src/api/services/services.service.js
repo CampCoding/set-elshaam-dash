@@ -17,7 +17,7 @@ const servicesService = {
   },
 
   updateService: async (id, formData) => {
-    const response = await api.put(ADMIN_SERVICES_ENDPOINTS.UPDATE_SERVICE(id), formData, {
+    const response = await api.put(`${ADMIN_SERVICES_ENDPOINTS.UPDATE_SERVICE(id)}`, formData, {
       headers: {
         "Content-Type": "multipart/form-data",
       },

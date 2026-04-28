@@ -80,25 +80,34 @@ export const useServicesPage = () => {
     formData.append("description_ar", values.description.join("\n"));
     formData.append("slug", values.slug);
 
+    formData.append("category", values.category);
+    formData.append("status", values.status);
+    formData.append("requires_login", values.requiresLogin ? 1 : 0);
     formData.append("cta_text_ar", values.cta_text_ar || "احجز الآن");
 
     // Send File objects
     if (values.slider_files && values.slider_files.length > 0) {
       formData.append("main_image", values.slider_files[0]);
+
       values.slider_files.forEach((file) => {
         formData.append("slider_images", file);
       });
     }
 
     if (values.gallery_files && values.gallery_files.length > 0) {
+      console.log("kkkkkkkkk");
+
       values.gallery_files.forEach((file) => {
         formData.append("gallery_images", file);
       });
     }
 
-
-
-
+    if (values.faqs && values.faqs.length > 0) {
+      values.faqs.forEach((faq, index) => {
+        formData.append(`faqs[${index}][question]`, faq.question);
+        formData.append(`faqs[${index}][answer]`, faq.answer);
+      });
+    }
 
     try {
       if (editingRecord) {

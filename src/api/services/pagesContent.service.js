@@ -18,7 +18,7 @@ const pagesContentService = {
   },
 
   updateContent: async (id, formData) => {
-    const response = await api.post(`${ADMIN_PAGES_CONTENT_ENDPOINTS.UPDATE_CONTENT(id)}?_method=PUT`, formData, {
+    const response = await api.put(`${ADMIN_PAGES_CONTENT_ENDPOINTS.UPDATE_CONTENT(id)}`, formData, {
       headers: {
         "Content-Type": "multipart/form-data",
       },

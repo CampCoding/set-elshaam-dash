@@ -5,7 +5,7 @@ const BASE_URL = "https://api.setalshaam.com/api";
 
 const api = axios.create({
   baseURL: BASE_URL,
-  timeout: 30000, // 30 seconds
+  timeout: 60000, // 60 seconds
 });
 
 // Request interceptor - Add token to headers

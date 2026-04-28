@@ -1,5 +1,5 @@
 // src/pages/dashboard/services/Services.jsx
-import { Tag, Space, Button, Tooltip } from "antd";
+import { Tag, Space, Button, Tooltip, Image } from "antd";
 import { Edit, Trash2, LayoutList, Eye, Lock, Unlock } from "lucide-react";
 import DataTable, {
   getColumnSearchProps,
@@ -37,17 +37,23 @@ const Services = () => {
       key: "slider_images",
       width: 90,
       render: (slider_images, record) => {
-        const image = Array.isArray(slider_images) && slider_images.length > 0 
+        const image = Array.isArray(slider_images) && slider_images.length > 0
           ? slider_images[0].path || slider_images[0]
           : record.image; // fallback
         return (
           <div className="w-14 h-14 rounded-xl overflow-hidden border-2 border-gray-100 shadow-sm">
-            <img
-              src={image || "https://via.placeholder.com/150"}
+            <Image
+              src={record?.main_image || "https://via.placeholder.com/150"}
               alt={record.title_ar}
-              className="w-full h-full object-cover"
-              onError={(e) => {
-                e.target.src = "https://via.placeholder.com/150?text=No+Image";
+              className=" !h-14 !w-14  "
+              fallback="https://via.placeholder.com/150?text=No+Image"
+              preview={{
+                mask: (
+                  <div className="flex items-center gap-1">
+                    <Eye className="w-3 h-3" />
+                    <span className="text-[10px]">عرض</span>
+                  </div>
+                ),
               }}
             />
           </div>
@@ -187,6 +193,7 @@ const Services = () => {
         onCancel={handleCloseModal}
         onSave={handleSave}
         initialData={editingRecord}
+        loading={loading}
       />
 
       {/* Modal - التفاصيل */}

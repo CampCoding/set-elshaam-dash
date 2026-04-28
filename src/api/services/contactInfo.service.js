@@ -19,7 +19,7 @@ const contactInfoService = {
 
   updateContactInfo: async (id, formData) => {
     // Using POST with _method=PUT for multipart/form-data compatibility
-    const response = await api.post(`${ADMIN_CONTACT_INFO_ENDPOINTS.UPDATE_CONTACT_INFO(id)}?_method=PUT`, formData, {
+    const response = await api.put(`${ADMIN_CONTACT_INFO_ENDPOINTS.UPDATE_CONTACT_INFO(id)}`, formData, {
       headers: {
         "Content-Type": "multipart/form-data",
       },

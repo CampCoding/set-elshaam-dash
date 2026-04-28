@@ -1356,17 +1356,7 @@ const UserProfilePage = () => {
                                   RELIGIONS
                                 )}
                               </Col>
-                              <Col xs={24} sm={8}>
-                                {renderInfoItem(
-                                  "الجنس",
-                                  targetProfile?.target_gender === "male"
-                                    ? "ذكر"
-                                    : targetProfile?.target_gender === "female"
-                                      ? "أنثى"
-                                      : "لا يهم",
-                                  <Info className="w-4 h-4" />
-                                )}
-                              </Col>
+
                               <Col xs={24} sm={8}>
                                 {renderInfoItem(
                                   "المدينة المطلوبة",

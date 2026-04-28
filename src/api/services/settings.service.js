@@ -12,7 +12,7 @@ const settingsService = {
     // Note: User specified PUT, but with multipart/form-data (images), 
     // many backends require POST with _method=PUT or just POST.
     // I'll use the _method=PUT convention to be safe if it's Laravel/PHP.
-    const response = await api.post(`${ADMIN_SETTINGS_ENDPOINTS.UPDATE_SETTING}?_method=PUT`, formData, {
+    const response = await api.put(`${ADMIN_SETTINGS_ENDPOINTS.UPDATE_SETTING}`, formData, {
       headers: {
         "Content-Type": "multipart/form-data",
       },

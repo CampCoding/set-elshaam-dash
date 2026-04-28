@@ -26,7 +26,7 @@ import faqsService from "../../../../api/services/faqs.service";
 const { TextArea } = Input;
 const { Option } = Select;
 
-const ServiceModal = ({ visible, onCancel, onSave, initialData }) => {
+const ServiceModal = ({ visible, onCancel, onSave, initialData, loading }) => {
   const [form] = Form.useForm();
   const [sliderUrls, setSliderUrls] = useState([]);
   const [uploading, setUploading] = useState(false);
@@ -98,7 +98,7 @@ const ServiceModal = ({ visible, onCancel, onSave, initialData }) => {
       setUploading(true);
       return;
     }
-    if (info.file.status === "done" || info.file.originFileObj) {
+    if (info.file.status === "done") {
       setUploading(false);
       const url = URL.createObjectURL(info.file.originFileObj);
       setSliderUrls((prev) => [...prev, url]);
@@ -122,7 +122,7 @@ const ServiceModal = ({ visible, onCancel, onSave, initialData }) => {
       setGalleryUploading(true);
       return;
     }
-    if (info.file.status === "done" || info.file.originFileObj) {
+    if (info.file.status === "done") {
       setGalleryUploading(false);
       const url = URL.createObjectURL(info.file.originFileObj);
       setGalleryImages((prev) => [...prev, url]);
@@ -180,7 +180,7 @@ const ServiceModal = ({ visible, onCancel, onSave, initialData }) => {
       onCancel={handleCancel}
       okText="حفظ"
       cancelText="إلغاء"
-      okButtonProps={{ className: "bg-primary h-10 px-6", loading: uploading || galleryUploading }}
+      okButtonProps={{ className: "bg-primary h-10 px-6", loading: loading || uploading || galleryUploading }}
       cancelButtonProps={{ className: "h-10 px-6" }}
       destroyOnClose
       width={750}
