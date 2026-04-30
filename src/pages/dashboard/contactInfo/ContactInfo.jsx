@@ -1,7 +1,26 @@
 // src/pages/dashboard/contactInfo/ContactInfo.jsx
-import { Tag, Space, Button, Tooltip, Image as AntImage, Badge, Switch } from "antd";
-import { Edit, Trash2, Phone, Mail, Globe, MapPin, MessageCircle, ExternalLink } from "lucide-react";
-import DataTable, { getColumnSearchProps } from "../../../components/common/DataTable";
+import {
+  Tag,
+  Space,
+  Button,
+  Tooltip,
+  Image as AntImage,
+  Badge,
+  Switch,
+} from "antd";
+import {
+  Edit,
+  Trash2,
+  Phone,
+  Mail,
+  Globe,
+  MapPin,
+  MessageCircle,
+  ExternalLink,
+} from "lucide-react";
+import DataTable, {
+  getColumnSearchProps,
+} from "../../../components/common/DataTable";
 import { useContactInfo } from "./useContactInfo";
 import ContactModal from "./components/ContactModal";
 
@@ -20,11 +39,16 @@ const ContactInfo = () => {
 
   const getTypeIcon = (type) => {
     switch (type) {
-      case "phone": return <Phone size={16} className="text-blue-500" />;
-      case "email": return <Mail size={16} className="text-purple-500" />;
-      case "whatsapp": return <MessageCircle size={16} className="text-green-500" />;
-      case "address": return <MapPin size={16} className="text-red-500" />;
-      default: return <Globe size={16} className="text-gray-500" />;
+      case "phone":
+        return <Phone size={16} className="text-blue-500" />;
+      case "email":
+        return <Mail size={16} className="text-purple-500" />;
+      case "whatsapp":
+        return <MessageCircle size={16} className="text-green-500" />;
+      case "address":
+        return <MapPin size={16} className="text-red-500" />;
+      default:
+        return <Globe size={16} className="text-gray-500" />;
     }
   };
 
@@ -35,9 +59,19 @@ const ContactInfo = () => {
       key: "icon",
       width: 80,
       align: "center",
-      render: (url) => url ? (
-        <AntImage src={url} width={40} height={40} className="rounded-lg object-contain bg-gray-50 p-1 border border-gray-100" />
-      ) : <div className="w-10 h-10 bg-gray-50 rounded-lg flex items-center justify-center border border-gray-100"><Globe className="w-5 h-5 text-gray-300" /></div>,
+      render: (url) =>
+        url ? (
+          <AntImage
+            src={url}
+            width={40}
+            height={40}
+            className="rounded-lg object-contain bg-gray-50 p-1 border border-gray-100"
+          />
+        ) : (
+          <div className="w-10 h-10 bg-gray-50 rounded-lg flex items-center justify-center border border-gray-100">
+            <Globe className="w-5 h-5 text-gray-300" />
+          </div>
+        ),
     },
     {
       title: "النوع",
@@ -47,7 +81,9 @@ const ContactInfo = () => {
       render: (type) => (
         <div className="flex items-center gap-2">
           {getTypeIcon(type)}
-          <span className="font-bold text-gray-700 uppercase text-xs tracking-wider">{type}</span>
+          <span className="font-bold text-gray-700 uppercase text-xs tracking-wider">
+            {type}
+          </span>
         </div>
       ),
     },
@@ -56,7 +92,9 @@ const ContactInfo = () => {
       dataIndex: "value",
       key: "value",
       ...getColumnSearchProps("value", "ابحث بالقيمة..."),
-      render: (text) => <span className="font-medium text-gray-800">{text}</span>,
+      render: (text) => (
+        <span className="font-medium text-gray-800">{text}</span>
+      ),
     },
     {
       title: "الحالة",
@@ -65,7 +103,10 @@ const ContactInfo = () => {
       width: 100,
       align: "center",
       render: (active) => (
-        <Tag color={active === 1 || active === true ? "success" : "default"} className="rounded-full px-3">
+        <Tag
+          color={active === 1 || active === true ? "success" : "default"}
+          className="rounded-full px-3"
+        >
           {active === 1 || active === true ? "مفعل" : "معطل"}
         </Tag>
       ),
@@ -110,7 +151,10 @@ const ContactInfo = () => {
             </div>
             بيانات التواصل
           </h1>
-          <p className="text-gray-500 mt-1 text-sm">إدارة أرقام الهواتف، البريد الإلكتروني، وروابط التواصل الاجتماعي المتاحة للعملاء.</p>
+          <p className="text-gray-500 mt-1 text-sm">
+            إدارة أرقام الهواتف، البريد الإلكتروني، وروابط التواصل الاجتماعي
+            المتاحة للعملاء.
+          </p>
         </div>
       </div>
 

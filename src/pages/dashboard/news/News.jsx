@@ -1,7 +1,24 @@
 // src/pages/dashboard/news/News.jsx
-import { Tag, Space, Button, Tooltip, Image as AntImage, Badge, Typography } from "antd";
-import { Edit, Trash2, Newspaper, Calendar, Hash, Bookmark } from "lucide-react";
-import DataTable, { getColumnSearchProps } from "../../../components/common/DataTable";
+import {
+  Tag,
+  Space,
+  Button,
+  Tooltip,
+  Image as AntImage,
+  Badge,
+  Typography,
+} from "antd";
+import {
+  Edit,
+  Trash2,
+  Newspaper,
+  Calendar,
+  Hash,
+  Bookmark,
+} from "lucide-react";
+import DataTable, {
+  getColumnSearchProps,
+} from "../../../components/common/DataTable";
 import { useNews } from "./useNews";
 import NewsModal from "./components/NewsModal";
 
@@ -28,7 +45,16 @@ const News = () => {
       width: 100,
       render: (url) => (
         <div className="w-16 h-10 rounded-lg overflow-hidden border border-gray-100 bg-gray-50 flex items-center justify-center">
-          {url ? <AntImage src={url} width="100%" height="100%" style={{ objectFit: "cover" }} /> : <Newspaper size={16} className="text-gray-300" />}
+          {url ? (
+            <AntImage
+              src={url}
+              width="100%"
+              height="100%"
+              style={{ objectFit: "cover" }}
+            />
+          ) : (
+            <Newspaper size={16} className="text-gray-300" />
+          )}
         </div>
       ),
     },
@@ -41,7 +67,9 @@ const News = () => {
       render: (text, record) => (
         <div className="flex flex-col">
           <span className="font-bold text-gray-800 line-clamp-1">{text}</span>
-          <span className="text-[10px] text-gray-400 font-mono">/{record.slug}</span>
+          <span className="text-[10px] text-gray-400 font-mono">
+            /{record.slug}
+          </span>
         </div>
       ),
     },
@@ -51,7 +79,10 @@ const News = () => {
       key: "category_ar",
       width: 120,
       render: (cat) => (
-        <Tag color="cyan" className="rounded-full px-3 border-none !flex items-center gap-1 w-fit">
+        <Tag
+          color="cyan"
+          className="rounded-full px-3 border-none !flex items-center gap-1 w-fit"
+        >
           <Bookmark size={10} />
           {cat || "عام"}
         </Tag>
@@ -61,8 +92,12 @@ const News = () => {
       title: "الملخص",
       dataIndex: "summary_ar",
       key: "summary_ar",
+      width: 400,
       render: (text) => (
-        <Paragraph ellipsis={{ rows: 2, tooltip: true }} className="m-0 text-gray-500 text-xs">
+        <Paragraph
+          ellipsis={{ rows: 2, tooltip: true }}
+          className="m-0 text-gray-500 text-xs"
+        >
           {text}
         </Paragraph>
       ),
@@ -107,7 +142,9 @@ const News = () => {
             </div>
             إدارة الأخبار والمقالات
           </h1>
-          <p className="text-gray-500 mt-1 text-sm">إدارة المحتوى الإخباري، المقالات، والفعاليات المنشورة على الموقع.</p>
+          <p className="text-gray-500 mt-1 text-sm">
+            إدارة المحتوى الإخباري، المقالات، والفعاليات المنشورة على الموقع.
+          </p>
         </div>
       </div>
 

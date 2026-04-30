@@ -41,7 +41,9 @@ const Categories = lazy(
 const StagesPrice = lazy(
   () => import("../pages/dashboard/stagePrice/StagesPrice")
 );
-const TicketsList = lazy(() => import("../pages/dashboard/Tickets/TicketsList"));
+const TicketsList = lazy(
+  () => import("../pages/dashboard/Tickets/TicketsList")
+);
 const TicketDetails = lazy(
   () => import("../pages/dashboard/Tickets/TicketDetails")
 );
@@ -67,14 +69,9 @@ const ContactInfo = lazy(
   () => import("../pages/dashboard/contactInfo/ContactInfo")
 );
 
-const Banners = lazy(
-  () => import("../pages/dashboard/banners/Banners")
-);
+const Banners = lazy(() => import("../pages/dashboard/banners/Banners"));
 
-const News = lazy(
-  () => import("../pages/dashboard/news/News")
-);
-
+const News = lazy(() => import("../pages/dashboard/news/News"));
 
 // ============ AUTH ROUTES ============
 export const authRoutes = [{ path: "/login", element: <Login /> }];
@@ -139,8 +136,6 @@ export const adminRoutes = [
     element: <GalleryItems />,
   },
 
-
-
   {
     path: "/settings",
     label: "إعدادات الموقع",
@@ -165,9 +160,6 @@ export const adminRoutes = [
     icon: MessageCircleQuestion,
     element: <Faqs />,
   },
-
-
-
 
   {
     path: "/stages-price",
@@ -195,14 +187,12 @@ export const adminRoutes = [
     element: <SiteContract />,
   },
 
-  {
-    path: "/gallery/items",
-    label: "إدارة المعرض",
-    icon: Images,
-    element: <GalleryItems />,
-  },
-
-
+  // {
+  //   path: "/gallery/items",
+  //   label: "إدارة المعرض",
+  //   icon: Images,
+  //   element: <GalleryItems />,
+  // },
 
   {
     path: "/policies",

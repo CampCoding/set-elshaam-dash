@@ -64,7 +64,10 @@ const GalleryItems = () => {
       dataIndex: "category_ar",
       key: "category_ar",
       render: (category) => (
-        <Tag color="cyan" className="rounded-full px-3 py-0.5 text-xs border border-cyan-100">
+        <Tag
+          color="cyan"
+          className="rounded-full px-3 py-0.5 text-xs border border-cyan-100"
+        >
           {category || "—"}
         </Tag>
       ),

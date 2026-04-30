@@ -31,22 +31,30 @@ const Faqs = () => {
       key: "question_ar",
       width: 250,
       ...getColumnSearchProps("question_ar", "ابحث في الأسئلة..."),
-      render: (text, record) => <span className="font-bold text-gray-800">{text || record.question}</span>,
+      render: (text, record) => (
+        <span className="font-bold text-gray-800">
+          {text || record.question}
+        </span>
+      ),
     },
     {
       title: "الإجابة",
       dataIndex: "answer_ar",
+      width: 400,
       key: "answer_ar",
       render: (text, record) => (
         <Paragraph
-          ellipsis={{ rows: 2, expandable: false, tooltip: text || record.answer }}
+          ellipsis={{
+            rows: 2,
+            expandable: false,
+            tooltip: text || record.answer,
+          }}
           className="m-0 text-gray-500"
         >
           {text || record.answer}
         </Paragraph>
       ),
     },
-
 
     {
       title: "الإجراءات",
@@ -119,7 +127,6 @@ const Faqs = () => {
         onSave={handleSave}
         initialData={editingRecord}
       />
-
     </div>
   );
 };

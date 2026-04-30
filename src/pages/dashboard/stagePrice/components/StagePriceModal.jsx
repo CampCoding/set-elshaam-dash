@@ -43,7 +43,7 @@ const StagePriceModal = ({
           description: values.description,
           price: values.price,
           details: values.details,
-          is_active: values.is_active,
+          is_active: values.is_active?.toString(),
         };
         onSave(payload);
       })

@@ -123,8 +123,6 @@ export const INFORMATION_ENDPOINTS = {
   UPDATE_INFORMATION: "/information",
 };
 
-
-
 // ============ SERVICES MANAGEMENT ============
 export const ADMIN_SERVICES_ENDPOINTS = {
   GET_SERVICES: (params = {}) => {
@@ -137,6 +135,7 @@ export const ADMIN_SERVICES_ENDPOINTS = {
   CREATE_SERVICE: "/admin/services",
   UPDATE_SERVICE: (id) => `/admin/services/${id}`,
   DELETE_SERVICE: (id) => `/admin/services/${id}`,
+  REMOVE_SERVICE_IMAGE: (id) => `/admin/services/${id}/remove-image`,
 };
 
 // ============ FAQ MANAGEMENT ============
@@ -206,10 +205,3 @@ export const ADMIN_GALLERY_ENDPOINTS = {
   UPDATE_GALLERY: (id) => `/admin/gallery/${id}`,
   DELETE_GALLERY: (id) => `/admin/gallery/${id}`,
 };
-
-
-
-
-
-
-

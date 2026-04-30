@@ -142,17 +142,20 @@ const SOCIAL_MEDIA = [
 const getDocumentQuestion = (questionKey, profile) => {
   switch (questionKey) {
     case "marital_status":
-      return `الحالة الاجتماعية: ${getLabelByValue(MARITAL_STATUS, profile?.marital_status) || "غير محدد"
-        }`;
+      return `الحالة الاجتماعية: ${
+        getLabelByValue(MARITAL_STATUS, profile?.marital_status) || "غير محدد"
+      }`;
     case "education_level":
-      return `المستوى التعليمي: ${getLabelByValue(EDUCATION_LEVELS, profile?.education_level) ||
+      return `المستوى التعليمي: ${
+        getLabelByValue(EDUCATION_LEVELS, profile?.education_level) ||
         "غير محدد"
-        }`;
+      }`;
     case "work_experience":
       return `الخبرات العملية: ${profile?.work_experience || "غير محدد"}`;
     case "has_criminal_record":
-      return `السجل الجنائي: ${profile?.has_criminal_record ? "يوجد" : "لا يوجد"
-        }`;
+      return `السجل الجنائي: ${
+        profile?.has_criminal_record ? "يوجد" : "لا يوجد"
+      }`;
     case "has_debts":
       return `الديون: ${profile?.has_debts ? "يوجد" : "لا يوجد"}`;
     default:
@@ -197,6 +200,13 @@ const getSectLabel = (religion, sect) => {
   return getLabelByValue(sects, sect);
 };
 
+// ✅ fallback helper عشان لو القيمة موجودة ومش متطابقة مع options ترجع القيمة نفسها
+const getOptionLabelOrValue = (options, value) => {
+  if (value === null || value === undefined || value === "") return "غير محدد";
+  if (!options) return value;
+  return getLabelByValue(options, value) || value;
+};
+
 // ==================== UserProfilePage ====================
 const UserProfilePage = () => {
   const {
@@ -234,6 +244,36 @@ const UserProfilePage = () => {
   const adminContractSigned = Boolean(
     mainProfile?.admin_signed || mainProfile?.admin_signature_path
   );
+
+  // ✅ fallback keys للحقول اللي كانت ساعات مش بتظهر
+  const residenceCountry =
+    mainProfile?.country ||
+    mainProfile?.residence_country ||
+    mainProfile?.residency_country ||
+    mainProfile?.living_country;
+
+  const motherCountry =
+    mainProfile?.mother_country ||
+    mainProfile?.mother_nationality ||
+    mainProfile?.mother_origin_country;
+
+  const mainWorkStatus =
+    mainProfile?.work_status ||
+    mainProfile?.job_status ||
+    mainProfile?.employment_status ||
+    mainProfile?.work ||
+    mainProfile?.job_title;
+
+  const socialMediaPresence =
+    mainProfile?.social_media_presence ||
+    mainProfile?.social_media_activity ||
+    mainProfile?.social_media;
+
+  const targetWorkStatus =
+    targetProfile?.target_work_status ||
+    targetProfile?.target_job_status ||
+    targetProfile?.target_employment_status ||
+    targetProfile?.target_work;
 
   // ==================== Open Contract Page ====================
   const handleOpenContract = useCallback(() => {
@@ -402,7 +442,7 @@ const UserProfilePage = () => {
   const renderInfoItem = (label, value, icon, options = null) => {
     let displayValue = value;
 
-    if (options && value !== null && value !== undefined) {
+    if (options && value !== null && value !== undefined && value !== "") {
       const arrayValue = ensureArray(value);
 
       if (
@@ -415,13 +455,13 @@ const UserProfilePage = () => {
           <div className="flex flex-wrap gap-1 mt-1">
             {arrayValue.map((v) => (
               <Tag key={v} className="m-0 text-[10px] px-2 py-0">
-                {getLabelByValue(options, v)}
+                {getOptionLabelOrValue(options, v)}
               </Tag>
             ))}
           </div>
         );
       } else {
-        displayValue = getLabelByValue(options, arrayValue[0]);
+        displayValue = getOptionLabelOrValue(options, arrayValue[0]);
       }
     }
 
@@ -504,23 +544,6 @@ const UserProfilePage = () => {
               onClick={() => setIsPrintModalVisible(true)}
             >
               طباعة الاستمارة
-            </Button>
-          </Tooltip>
-
-          <Tooltip title="نسخ رقم الاستمارة للمشاركة">
-            <Button
-              type="default"
-              icon={
-                copied ? (
-                  <Check className="w-4 h-4 text-green-500" />
-                ) : (
-                  <Copy className="w-4 h-4" />
-                )
-              }
-              className="flex items-center gap-2"
-              onClick={handleCopyProfileId}
-            >
-              {copied ? "تم النسخ!" : "نسخ الرقم"}
             </Button>
           </Tooltip>
 
@@ -766,8 +789,8 @@ const UserProfilePage = () => {
                               "تاريخ الوصول لفنلندا",
                               mainProfile?.arrival_date_finland
                                 ? dayjs(
-                                  mainProfile.arrival_date_finland
-                                ).format("YYYY-MM-DD")
+                                    mainProfile.arrival_date_finland
+                                  ).format("YYYY-MM-DD")
                                 : null,
                               <Calendar className="w-4 h-4" />
                             )}
@@ -882,6 +905,14 @@ const UserProfilePage = () => {
                           </Col>
                           <Col xs={24} sm={8}>
                             {renderInfoItem(
+                              "بلد الإقامة",
+                              residenceCountry,
+                              <Globe className="w-4 h-4" />,
+                              COUNTRIES
+                            )}
+                          </Col>
+                          <Col xs={24} sm={8}>
+                            {renderInfoItem(
                               "الديانة",
                               mainProfile?.religion,
                               <Info className="w-4 h-4" />,
@@ -909,7 +940,7 @@ const UserProfilePage = () => {
                           <Col xs={24} sm={8}>
                             {renderInfoItem(
                               "بلد الأم",
-                              mainProfile?.mother_country,
+                              motherCountry,
                               <Info className="w-4 h-4" />,
                               COUNTRIES
                             )}
@@ -927,6 +958,14 @@ const UserProfilePage = () => {
                               mainProfile?.religion_commitment,
                               <Info className="w-4 h-4" />,
                               RELIGION_COMMITMENT
+                            )}
+                          </Col>
+                          <Col xs={24} sm={8}>
+                            {renderInfoItem(
+                              "النشاط على السوشيال ميديا",
+                              socialMediaPresence,
+                              <Globe className="w-4 h-4" />,
+                              SOCIAL_MEDIA
                             )}
                           </Col>
                           <Col xs={24} sm={8}>
@@ -977,6 +1016,14 @@ const UserProfilePage = () => {
                               mainProfile?.education_level,
                               <GraduationCap className="w-4 h-4" />,
                               EDUCATION_LEVELS
+                            )}
+                          </Col>
+                          <Col xs={24} sm={12}>
+                            {renderInfoItem(
+                              "الحالة الوظيفية / العمل",
+                              mainWorkStatus,
+                              <Briefcase className="w-4 h-4" />,
+                              WORK_STATUS
                             )}
                           </Col>
                           <Col xs={24} sm={12}>
@@ -1039,29 +1086,29 @@ const UserProfilePage = () => {
                       {/* Gallery */}
                       {ensureArray(mainProfile?.user_gallery_photos).length >
                         0 && (
-                          <div>
-                            <h3 className="text-lg font-bold text-primary flex items-center gap-2 mb-4">
-                              <ImageIcon className="w-5 h-5" /> معرض الصور
-                            </h3>
-                            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
-                              {ensureArray(mainProfile.user_gallery_photos).map(
-                                (photo, i) => (
-                                  <div
-                                    key={i}
-                                    className="rounded-xl overflow-hidden border border-gray-100 shadow-sm aspect-square"
-                                  >
-                                    <Image
-                                      src={photo}
-                                      alt={`صورة ${i + 1}`}
-                                      className="w-full h-full object-cover"
-                                      width="100%"
-                                    />
-                                  </div>
-                                )
-                              )}
-                            </div>
+                        <div>
+                          <h3 className="text-lg font-bold text-primary flex items-center gap-2 mb-4">
+                            <ImageIcon className="w-5 h-5" /> معرض الصور
+                          </h3>
+                          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
+                            {ensureArray(mainProfile.user_gallery_photos).map(
+                              (photo, i) => (
+                                <div
+                                  key={i}
+                                  className="rounded-xl overflow-hidden border border-gray-100 shadow-sm aspect-square"
+                                >
+                                  <Image
+                                    src={photo}
+                                    alt={`صورة ${i + 1}`}
+                                    className="w-full h-full object-cover"
+                                    width="100%"
+                                  />
+                                </div>
+                              )
+                            )}
                           </div>
-                        )}
+                        </div>
+                      )}
 
                       {/* About Me */}
                       {mainProfile?.about_me_more && (
@@ -1172,23 +1219,23 @@ const UserProfilePage = () => {
 
                             {(mainProfile?.admin_signature_path ||
                               mainProfile?.admin_signed) && (
-                                <Card
-                                  size="small"
-                                  title="توقيع الإدارة"
-                                  className="text-center rounded-xl overflow-hidden mt-4"
-                                >
-                                  {mainProfile?.admin_signature_path ? (
-                                    <Image
-                                      src={mainProfile.admin_signature_path}
-                                      className="max-h-32 object-contain"
-                                    />
-                                  ) : (
-                                    <div className="py-8 text-gray-400">
-                                      تم توقيع الإدارة
-                                    </div>
-                                  )}
-                                </Card>
-                              )}
+                              <Card
+                                size="small"
+                                title="توقيع الإدارة"
+                                className="text-center rounded-xl overflow-hidden mt-4"
+                              >
+                                {mainProfile?.admin_signature_path ? (
+                                  <Image
+                                    src={mainProfile.admin_signature_path}
+                                    className="max-h-32 object-contain"
+                                  />
+                                ) : (
+                                  <div className="py-8 text-gray-400">
+                                    تم توقيع الإدارة
+                                  </div>
+                                )}
+                              </Card>
+                            )}
                           </Col>
                         </Row>
                       </div>
@@ -1320,7 +1367,7 @@ const UserProfilePage = () => {
 
                           <div>
                             <h3 className="text-lg font-bold text-primary flex items-center gap-2 mb-4">
-                              <Heart className="w-5 h-5 text-accent" />{" "}
+                              <Heart className="w-5 h-5 text-accent" />
                               المواصفات الأساسية
                             </h3>
                             <Row gutter={[16, 16]}>
@@ -1449,7 +1496,7 @@ const UserProfilePage = () => {
                               <Col xs={24} sm={8}>
                                 {renderInfoItem(
                                   "حالة العمل المطلوبة",
-                                  targetProfile?.target_work_status,
+                                  targetWorkStatus,
                                   <Briefcase className="w-4 h-4" />,
                                   WORK_STATUS
                                 )}
@@ -1559,24 +1606,24 @@ const UserProfilePage = () => {
                             {ensureArray(
                               targetProfile?.["target_house-tasks_preference"]
                             ).length > 0 && (
-                                <div className="mt-4 p-3 bg-gray-50 rounded-xl border border-gray-100">
-                                  <div className="text-xs text-gray-400 font-medium mb-2 flex items-center gap-1">
-                                    <Home className="w-3 h-3" /> تفضيلات المهام
-                                    المنزلية
-                                  </div>
-                                  <div className="flex flex-wrap gap-2">
-                                    {ensureArray(
-                                      targetProfile[
-                                      "target_house-tasks_preference"
-                                      ]
-                                    ).map((item, i) => (
-                                      <Tag key={i} className="rounded-full">
-                                        {item}
-                                      </Tag>
-                                    ))}
-                                  </div>
+                              <div className="mt-4 p-3 bg-gray-50 rounded-xl border border-gray-100">
+                                <div className="text-xs text-gray-400 font-medium mb-2 flex items-center gap-1">
+                                  <Home className="w-3 h-3" /> تفضيلات المهام
+                                  المنزلية
                                 </div>
-                              )}
+                                <div className="flex flex-wrap gap-2">
+                                  {ensureArray(
+                                    targetProfile[
+                                      "target_house-tasks_preference"
+                                    ]
+                                  ).map((item, i) => (
+                                    <Tag key={i} className="rounded-full">
+                                      {item}
+                                    </Tag>
+                                  ))}
+                                </div>
+                              </div>
+                            )}
                           </div>
 
                           <Card size="small" className="bg-gray-50">

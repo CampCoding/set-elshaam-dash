@@ -22,6 +22,20 @@ import {
   YES_NO_OPTIONS,
 } from "../../../../constants/userOptions";
 
+const WORK_STATUS = [
+  { value: "not_important", label: "غير مهم" },
+  { value: "working", label: "يعمل" },
+  { value: "not_working", label: "لا يعمل" },
+  { value: "student", label: "طالب" },
+];
+
+const SOCIAL_MEDIA = [
+  { value: "normal", label: "عادي" },
+  { value: "active", label: "نشط جداً" },
+  { value: "minimal", label: "محدود" },
+  { value: "not_important", label: "غير مهم" },
+];
+
 const PrintableProfile = forwardRef(
   ({ mainProfile, targetProfile, profileId }, ref) => {
     const getSectLabel = (religion, sect) => {
@@ -38,9 +52,43 @@ const PrintableProfile = forwardRef(
 
     const getVal = (value, options = null) => {
       if (value === null || value === undefined || value === "") return "—";
-      if (options) return getLabelByValue(options, value) || "—";
+      if (options)
+        return getLabelByValue(options, value) || String(value) || "—";
       return value;
     };
+
+    // ✅ fallback keys عشان لو اسم الحقل مختلف في الـ API
+    const residenceCountry =
+      mainProfile?.country ||
+      mainProfile?.residence_country ||
+      mainProfile?.residency_country ||
+      mainProfile?.living_country;
+
+    const motherCountry =
+      mainProfile?.mother_country ||
+      mainProfile?.mother_nationality ||
+      mainProfile?.mother_origin_country;
+
+    const mainWorkStatus =
+      mainProfile?.work_status ||
+      mainProfile?.job_status ||
+      mainProfile?.employment_status ||
+      mainProfile?.work;
+
+    const socialMediaPresence =
+      mainProfile?.social_media_presence ||
+      mainProfile?.social_media_activity ||
+      mainProfile?.social_media;
+
+    const targetWorkStatus =
+      targetProfile?.target_work_status ||
+      targetProfile?.target_job_status ||
+      targetProfile?.target_work;
+
+    const targetSocialMedia =
+      targetProfile?.target_social_media_presence ||
+      targetProfile?.target_social_media_activity ||
+      targetProfile?.target_social_media;
 
     const personalRows = [
       [
@@ -57,8 +105,15 @@ const PrintableProfile = forwardRef(
           ? dayjs().diff(dayjs(mainProfile.date_of_birth), "year")
           : "—",
       ],
-      ["بلد الأم", getVal(mainProfile?.country, COUNTRIES)],
+      // ✅ بلد الإقامة
+      ["بلد الإقامة", getVal(residenceCountry, COUNTRIES)],
+      // ✅ بلد الأم (كان خطأ يستخدم country بدل mother_country)
+      ["بلد الأم", getVal(motherCountry, COUNTRIES)],
       ["الجنسية", getVal(mainProfile?.nationality, NATIONALITIES)],
+      [
+        "الجنسية الثانية",
+        getVal(mainProfile?.second_nationality, NATIONALITIES),
+      ],
       ["الطول", mainProfile?.height ? `${mainProfile.height} سم` : "—"],
       ["الوزن", mainProfile?.weight ? `${mainProfile.weight} كجم` : "—"],
       ["لون البشرة", getVal(mainProfile?.skin_color, SKIN_COLORS)],
@@ -67,88 +122,58 @@ const PrintableProfile = forwardRef(
       ["المظهر الخارجي", getVal(mainProfile?.appearance)],
       ["نوع الإقامة", getVal(mainProfile?.residency_type, RESIDENCY_TYPES)],
       [
-        "الجنسية (إضافية)",
-        getVal(mainProfile?.second_nationality, NATIONALITIES),
-      ],
-      [
         "الحالة الاجتماعية",
         getVal(mainProfile?.marital_status, MARITAL_STATUS),
       ],
-      ["العنوان", mainProfile?.city || "—"],
-      [
-        "أعزب",
-        mainProfile?.marital_status === "single"
-          ? "X أعزب"
-          : mainProfile?.marital_status === "divorced"
-            ? "X مطلق"
-            : mainProfile?.marital_status === "widowed"
-              ? "X أرمل"
-              : "—",
-      ],
+      ["المدينة", mainProfile?.city || "—"],
       ["عدد الأولاد", mainProfile?.children_count ?? "—"],
-      [
-        "بدون أولاد",
-        formatYesNo(!mainProfile?.has_children) === "نعم"
-          ? "X بدون أولاد"
-          : "—",
-      ],
-      ["لديها أولاد", formatYesNo(mainProfile?.has_children)],
+      ["لديه أولاد", formatYesNo(mainProfile?.has_children)],
       ["الوصاية والإقامة", mainProfile?.custody_info || "—"],
-      ["العمل", getVal(mainProfile?.income_source, INCOME_SOURCES)],
+      // ✅ الحالة الوظيفية (كان ناقص)
+      ["الحالة الوظيفية", getVal(mainWorkStatus, WORK_STATUS)],
+      ["مصدر الدخل", getVal(mainProfile?.income_source, INCOME_SOURCES)],
       [
         "التحصيل العلمي",
         getVal(mainProfile?.education_level, EDUCATION_LEVELS),
       ],
-      ["النشاط الاجتماعي", getVal(mainProfile?.social_activity)],
-      ["النشاط على السوشيل ميديا", getVal(mainProfile?.social_media_activity)],
-      ["الديانة", getVal(mainProfile?.religion, RELIGIONS)],
       ["التحصيل العلمي بلد الأم", mainProfile?.home_country_education || "—"],
       ["التحصيل العلمي في فنلندا", mainProfile?.finland_education || "—"],
+      ["الخبرات العملية", mainProfile?.work_experience || "—"],
+      ["الديانة", getVal(mainProfile?.religion, RELIGIONS)],
+      ["المذهب", getSectLabel(mainProfile?.religion, mainProfile?.sect)],
       [
-        "الديانة (تفصيل)",
-        getSectLabel(mainProfile?.religion, mainProfile?.sect),
+        "الالتزام الديني",
+        getVal(mainProfile?.religion_commitment, RELIGION_COMMITMENT),
       ],
       [
         "التدخين",
-        getVal(
-          mainProfile?.is_smoker === 1
-            ? "يدخن"
-            : mainProfile?.is_smoker === 0
-              ? "لا يدخن"
-              : null
-        ),
+        mainProfile?.is_smoker === 1
+          ? "يدخن"
+          : mainProfile?.is_smoker === 0
+            ? "لا يدخن"
+            : "—",
       ],
-      ["الصفات الأخلاقية المطلوبة", mainProfile?.moral_traits || "—"],
-      ["أشياء غير مرغوبة", mainProfile?.unwanted_traits || "—"],
-      ["الأعمال المنزلية", mainProfile?.housework || "—"],
+      ...(mainProfile?.gender === "female"
+        ? [["حالة الحجاب", getVal(mainProfile?.hijab_status, HIJAB_STATUS)]]
+        : []),
+      // ✅ النشاط على السوشيال ميديا (كان خطأ في الـ key)
+      ["النشاط على السوشيال ميديا", getVal(socialMediaPresence, SOCIAL_MEDIA)],
       ["القدرة المالية", mainProfile?.financial_capability || "—"],
+      ...(mainProfile?.gender === "male"
+        ? [["الاستطاعة المالية (المهر)", mainProfile?.dowry_capability || "—"]]
+        : []),
+      ["السجل الجنائي", formatYesNo(mainProfile?.has_criminal_record)],
+      ["الديون", formatYesNo(mainProfile?.has_debts)],
+      ["قروض سابقة", formatYesNo(mainProfile?.has_previous_loans)],
+      ["علامة مميزة", mainProfile?.distinguishing_mark || "—"],
       ["شروط أخرى", mainProfile?.other_conditions || "—"],
     ];
 
     const partnerRows = targetProfile
       ? [
-          ["العمر", getVal(targetProfile?.target_age_range, AGE_RANGES)],
-          ["الجنسية", getVal(targetProfile?.target_nationality, NATIONALITIES)],
-          ["اللباس", targetProfile?.target_dress || "—"],
           [
-            "الطول",
-            targetProfile?.target_height
-              ? `${targetProfile.target_height} سم`
-              : "—",
-          ],
-          [
-            "الوزن",
-            targetProfile?.target_weight
-              ? `${targetProfile.target_weight} كجم`
-              : "—",
-          ],
-          ["لون البشرة", getVal(targetProfile?.target_skin_color, SKIN_COLORS)],
-          ["لون العيون", getVal(targetProfile?.target_eye_color, EYE_COLORS)],
-          ["لون الشعر", getVal(targetProfile?.target_hair_type, HAIR_TYPES)],
-          ["المظهر الخارجي", targetProfile?.target_appearance || "—"],
-          [
-            "نوع الإقامة",
-            getVal(targetProfile?.target_residency_type, RESIDENCY_TYPES),
+            "الفئة العمرية",
+            getVal(targetProfile?.target_age_range, AGE_RANGES),
           ],
           ["الجنسية", getVal(targetProfile?.target_nationality, NATIONALITIES)],
           [
@@ -157,6 +182,13 @@ const PrintableProfile = forwardRef(
           ],
           ["الديانة", getVal(targetProfile?.target_religion, RELIGIONS)],
           [
+            "المذهب المطلوب",
+            getSectLabel(
+              targetProfile?.target_religion,
+              targetProfile?.target_sect
+            ),
+          ],
+          [
             "الالتزام الديني",
             getVal(
               targetProfile?.target_religion_commitment,
@@ -164,20 +196,62 @@ const PrintableProfile = forwardRef(
             ),
           ],
           [
+            "نوع الإقامة",
+            getVal(targetProfile?.target_residency_type, RESIDENCY_TYPES),
+          ],
+          ["المدينة", targetProfile?.target_city || "—"],
+          [
             "تقبل وجود أطفال",
             getVal(targetProfile?.target_has_children, YES_NO_OPTIONS),
           ],
-          ["العمل", targetProfile?.target_work || "—"],
+          ...(mainProfile?.gender === "male"
+            ? [
+                [
+                  "حالة الحجاب المطلوبة",
+                  getVal(targetProfile?.target_hijab_status, HIJAB_STATUS),
+                ],
+              ]
+            : []),
+          ...(mainProfile?.gender === "female"
+            ? [
+                [
+                  "قبول التعدد",
+                  formatYesNo(targetProfile?.target_accepts_polygamy),
+                ],
+              ]
+            : []),
+          [
+            "الطول المطلوب",
+            targetProfile?.target_height
+              ? `${targetProfile.target_height} سم`
+              : "—",
+          ],
+          [
+            "الوزن المطلوب",
+            targetProfile?.target_weight
+              ? `${targetProfile.target_weight} كجم`
+              : "—",
+          ],
+          ["لون البشرة", getVal(targetProfile?.target_skin_color, SKIN_COLORS)],
+          ["لون العيون", getVal(targetProfile?.target_eye_color, EYE_COLORS)],
+          ["لون الشعر", getVal(targetProfile?.target_hair_type, HAIR_TYPES)],
+          ["المظهر الخارجي", targetProfile?.target_appearance || "—"],
+          // ✅ حالة العمل المطلوبة (كان ناقص الـ options)
+          ["حالة العمل المطلوبة", getVal(targetWorkStatus, WORK_STATUS)],
           [
             "التحصيل العلمي",
             getVal(targetProfile?.target_education_level, EDUCATION_LEVELS),
           ],
-          ["النشاط الاجتماعي", targetProfile?.target_social_activity || "—"],
+          // ✅ النشاط على السوشيال ميديا (كان خطأ في الـ key)
           [
-            "النشاط على السوشيل ميديا",
-            targetProfile?.target_social_media || "—",
+            "النشاط على السوشيال ميديا",
+            getVal(targetSocialMedia, SOCIAL_MEDIA),
           ],
-          ["الأخلاق والعادات", targetProfile?.target_morals || "—"],
+          ["النشاط الاجتماعي", targetProfile?.target_social_activity || "—"],
+          ["أسلوب اللباس", targetProfile?.target_clothing_style || "—"],
+          ["يقبل مدخن", formatYesNo(targetProfile?.target_is_smoker)],
+          ["عادات مرغوبة", targetProfile?.target_desired_habits || "—"],
+          ["عادات غير مرغوبة", targetProfile?.target_unwanted_habits || "—"],
           ["شروط أخرى", targetProfile?.target_special_conditions || "—"],
         ]
       : [];
@@ -199,7 +273,6 @@ const PrintableProfile = forwardRef(
             flex-direction: column;
           }
 
-          /* ── HEADER ── */
           .pp-header {
             background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 40%, #1a1a1a 100%);
             text-align: center;
@@ -216,7 +289,6 @@ const PrintableProfile = forwardRef(
             object-position: center;
           }
 
-          /* ── ID BAR ── */
           .pp-id-bar {
             background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%);
             display: flex;
@@ -231,7 +303,6 @@ const PrintableProfile = forwardRef(
             font-size: 10px;
             font-weight: 700;
             color: #dfb163;
-            
           }
 
           .pp-id-date {
@@ -239,14 +310,12 @@ const PrintableProfile = forwardRef(
             color: #aaa;
           }
 
-          /* ── GOLD LINE ── */
           .pp-gold-line {
             height: 3px;
             background: linear-gradient(90deg, #dfb163, #c9973f, #dfb163);
             flex-shrink: 0;
           }
 
-          /* ── TWO-COLUMN BODY ── */
           .pp-columns {
             display: grid;
             grid-template-columns: 1fr 1fr;
@@ -266,7 +335,6 @@ const PrintableProfile = forwardRef(
             border-left: 2px solid #333;
           }
 
-          /* ── COL HEADER ── */
           .pp-col-header {
             background: linear-gradient(135deg, #eacb42 0%, #d4a820 100%);
             padding: 6px 12px;
@@ -281,7 +349,6 @@ const PrintableProfile = forwardRef(
             margin: 0;
           }
 
-          /* ── TABLE ROWS ── */
           .pp-table {
             width: 100%;
             border-collapse: collapse;
@@ -326,7 +393,6 @@ const PrintableProfile = forwardRef(
             vertical-align: middle;
           }
 
-          /* ── FOOTER ── */
           .pp-footer {
             background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%);
             padding: 6px 20px;
@@ -396,12 +462,12 @@ const PrintableProfile = forwardRef(
           *::-webkit-scrollbar-thumb:hover { background: #c9973f; }
         `}</style>
 
-        {/* ── HEADER ── */}
+        {/* HEADER */}
         <div className="pp-header">
           <img src={header} alt="" />
         </div>
 
-        {/* ── ID BAR ── */}
+        {/* ID BAR */}
         <div className="pp-id-bar">
           <span className="pp-id-badge">
             رقم الاستماره : {profileId || "—"} #
@@ -411,7 +477,7 @@ const PrintableProfile = forwardRef(
 
         <div className="pp-gold-line" />
 
-        {/* ── TWO COLUMNS ── */}
+        {/* TWO COLUMNS */}
         <div className="pp-columns">
           {/* RIGHT — Personal Info */}
           <div className="pp-col">
@@ -458,7 +524,7 @@ const PrintableProfile = forwardRef(
 
         <div className="pp-gold-line" />
 
-        {/* ── FOOTER ── */}
+        {/* FOOTER */}
         <div className="pp-footer">
           <span className="pp-footer-text">منصة زواج المسلمين في فنلندا</span>
         </div>

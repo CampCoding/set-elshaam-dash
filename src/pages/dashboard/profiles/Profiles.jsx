@@ -217,10 +217,20 @@ const ProfilesPage = () => {
                 </Tag>
               )}
               <Tag
-                color={record.gender === "male" ? "blue" : "pink"}
+                color={
+                  record.gender === "male"
+                    ? "blue"
+                    : record.gender === "female"
+                      ? "pink"
+                      : "default"
+                }
                 className="rounded-full px-3"
               >
-                {record.gender === "male" ? "♂ ذكر" : "♀ أنثى"}
+                {record.gender === "male"
+                  ? "♂ ذكر"
+                  : record.gender === "female"
+                    ? "♀ أنثى"
+                    : "-"}
               </Tag>
             </Space>
           );

@@ -117,7 +117,7 @@ const Home = () => {
             مرحباً بك مجدداً، إليك ملخص نشاط منصة "ست الشام" اليوم
           </p>
         </div>
-        <Button
+        {/* <Button
           type="primary"
           size="large"
           icon={<UserPlus className="w-5 h-5" />}
@@ -125,7 +125,7 @@ const Home = () => {
           onClick={() => navigate("/users")}
         >
           إضافة مستخدم جديد
-        </Button>
+        </Button> */}
       </div>
 
       {/* Stats Cards */}

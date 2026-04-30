@@ -185,7 +185,9 @@ const UsersPage = () => {
         filterMultiple: false,
         render: (gender) => (
           <Tag
-            color={gender === "male" ? "blue" : "pink"}
+            color={
+              gender === "male" ? "blue" : gender == "female" ? "pink" : "gray"
+            }
             className="rounded-full px-3"
             icon={
               gender === "male" ? (
@@ -195,7 +197,7 @@ const UsersPage = () => {
               )
             }
           >
-            {gender === "male" ? "ذكر" : "أنثى"}
+            {gender === "male" ? "ذكر" : gender == "female" ? "أنثى" : "-"}
           </Tag>
         ),
       },

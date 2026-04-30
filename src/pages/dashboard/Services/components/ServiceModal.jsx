@@ -5,11 +5,11 @@ import {
   Form,
   Input,
   Select,
-  Switch,
   Upload,
   message,
   Image,
   AutoComplete,
+  Spin,
 } from "antd";
 import {
   Plus,
@@ -17,8 +17,8 @@ import {
   Upload as UploadIcon,
   Image as ImageIcon,
   X,
-  Images,
   MessageCircleQuestion,
+  ServerCrash,
 } from "lucide-react";
 import Button from "../../../../components/common/Button";
 import faqsService from "../../../../api/services/faqs.service";
@@ -26,16 +26,57 @@ import faqsService from "../../../../api/services/faqs.service";
 const { TextArea } = Input;
 const { Option } = Select;
 
-const ServiceModal = ({ visible, onCancel, onSave, initialData, loading }) => {
-  const [form] = Form.useForm();
-  const [sliderUrls, setSliderUrls] = useState([]);
-  const [uploading, setUploading] = useState(false);
-  const [globalFaqs, setGlobalFaqs] = useState([]);
+// ✅ مكوّن صورة واحدة مع زر حذف
+const ImageItem = ({ src, onRemove, isServer, removing }) => (
+  <div className="relative aspect-square rounded-lg overflow-hidden border-2 border-gray-200 group">
+    <Image
+      src={src}
+      width="100%"
+      height="100%"
+      style={{ objectFit: "cover" }}
+      className="!w-full !h-full"
+    />
+    {/* badge يوضح إن الصورة من السيرفر */}
+    {isServer && (
+      <div className="absolute bottom-1 left-1 bg-blue-500/80 text-white text-[9px] px-1.5 py-0.5 rounded-full">
+        محفوظة
+      </div>
+    )}
+    <button
+      onClick={onRemove}
+      disabled={removing}
+      className="absolute top-1 right-1 w-6 h-6 bg-red-500 text-white rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity disabled:opacity-50"
+    >
+      {removing ? <Spin size="small" /> : <X className="w-3 h-3" />}
+    </button>
+  </div>
+);
 
-  // صور المعرض الفرعية
-  const [galleryImages, setGalleryImages] = useState([]);
+const ServiceModal = ({
+  visible,
+  onCancel,
+  onSave,
+  initialData,
+  loading,
+  onRemoveServerImage, // ✅ prop جديد
+}) => {
+  const [form] = Form.useForm();
+
+  // صور السلايدر
+  // serverSliderUrls = URLs موجودة على السيرفر
+  // newSliderUrls    = URLs محلية (blob) للصور الجديدة
+  const [serverSliderUrls, setServerSliderUrls] = useState([]);
+  const [newSliderUrls, setNewSliderUrls] = useState([]);
+  const [uploading, setUploading] = useState(false);
+  const [removingSlider, setRemovingSlider] = useState(null); // index اللي بيتمسح
+
+  // صور المعرض
+  const [serverGalleryUrls, setServerGalleryUrls] = useState([]);
+  const [newGalleryUrls, setNewGalleryUrls] = useState([]);
   const [galleryUploading, setGalleryUploading] = useState(false);
-  const [galleryUrlInput, setGalleryUrlInput] = useState("");
+  const [removingGallery, setRemovingGallery] = useState(null);
+
+  const [globalFaqs, setGlobalFaqs] = useState([]);
 
   useEffect(() => {
     const fetchFaqs = async () => {
@@ -49,48 +90,100 @@ const ServiceModal = ({ visible, onCancel, onSave, initialData, loading }) => {
 
     if (visible) {
       fetchFaqs();
+
       if (initialData) {
+        const descriptionList = initialData.description_ar
+          ? initialData.description_ar
+              .split("\n")
+              .filter((t) => t.trim())
+              .map((text) => ({ text }))
+          : [{ text: "" }];
+
         form.setFieldsValue({
-          ...initialData,
-          name: initialData.title_ar || initialData.name,
-          subtitle: initialData.subtitle_ar || initialData.subtitle,
-          descriptionList: (initialData.description_ar || initialData.description)?.split("\n").map((text) => ({
-            text,
-          })) || (Array.isArray(initialData.description) ? initialData.description.map(text => ({ text })) : [{ text: "" }]),
+          title_ar: initialData.title_ar,
+          subtitle_ar: initialData.subtitle_ar,
+          slug: initialData.slug,
+          cta_text_ar: initialData.cta_text_ar,
+          is_active: initialData.is_active,
+          descriptionList,
           faqs: initialData.faqs || [],
         });
 
-        // Handle Slider Images
+        // ✅ فصل صور السيرفر عن الجديدة
         const slider = Array.isArray(initialData.slider_images)
-          ? initialData.slider_images.map(img => img.path || img)
-          : initialData.image ? [initialData.image] : [];
-        setSliderUrls(slider);
+          ? initialData.slider_images.map((img) =>
+              typeof img === "string" ? img : img.path
+            )
+          : [];
+        setServerSliderUrls(slider);
+        setNewSliderUrls([]);
 
         const gallery = Array.isArray(initialData.gallery_images)
-          ? initialData.gallery_images.map(img => img.path || img)
-          : initialData.images || [];
-        setGalleryImages(gallery);
+          ? initialData.gallery_images.map((img) =>
+              typeof img === "string" ? img : img.path
+            )
+          : [];
+        setServerGalleryUrls(gallery);
+        setNewGalleryUrls([]);
       } else {
         form.resetFields();
         form.setFieldsValue({
-          status: "active",
-          category: "زواج",
-          requiresLogin: false,
+          is_active: 1,
           descriptionList: [{ text: "" }],
           faqs: [],
         });
-        setSliderUrls([]);
-        setGalleryImages([]);
+        setServerSliderUrls([]);
+        setNewSliderUrls([]);
+        setServerGalleryUrls([]);
+        setNewGalleryUrls([]);
       }
     }
   }, [visible, initialData, form]);
 
-  const handleFaqSelect = (selectedValue, fieldName) => {
-    const foundFaq = globalFaqs.find((faq) => (faq.question_ar || faq.question) === selectedValue);
-    if (foundFaq) {
-      form.setFieldValue(["faqs", fieldName, "answer"], foundFaq.answer_ar || foundFaq.answer);
-      message.success("تم جلب الإجابة تلقائياً");
+  // ✅ مسح صورة سيرفر من السلايدر
+  const handleRemoveServerSlider = async (url, index) => {
+    if (!initialData?.id || !onRemoveServerImage) return;
+    setRemovingSlider(index);
+    const success = await onRemoveServerImage(initialData.id, url, "slider");
+    if (success) {
+      setServerSliderUrls((prev) => prev.filter((_, i) => i !== index));
     }
+    setRemovingSlider(null);
+  };
+
+  // ✅ مسح صورة سيرفر من الجاليري
+  const handleRemoveServerGallery = async (url, index) => {
+    if (!initialData?.id || !onRemoveServerImage) return;
+    setRemovingGallery(index);
+    const success = await onRemoveServerImage(initialData.id, url, "gallery");
+    if (success) {
+      setServerGalleryUrls((prev) => prev.filter((_, i) => i !== index));
+    }
+    setRemovingGallery(null);
+  };
+
+  // مسح صورة جديدة (لسه مرفعتش) من السلايدر
+  const handleRemoveNewSlider = (index) => {
+    setNewSliderUrls((prev) => prev.filter((_, i) => i !== index));
+    const currentFiles = form.getFieldValue("slider_files") || [];
+    form.setFieldsValue({
+      slider_files: currentFiles.filter((_, i) => i !== index),
+    });
+    message.success("تم حذف الصورة");
+  };
+
+  // مسح صورة جديدة من الجاليري
+  const handleRemoveNewGallery = (index) => {
+    setNewGalleryUrls((prev) => prev.filter((_, i) => i !== index));
+    const currentFiles = form.getFieldValue("gallery_files") || [];
+    form.setFieldsValue({
+      gallery_files: currentFiles.filter((_, i) => i !== index),
+    });
+    message.success("تم حذف الصورة");
+  };
+
+  const customUpload = ({ file, onSuccess }) => {
+    setTimeout(() => onSuccess("ok"), 500);
   };
 
   const handleUpload = (info) => {
@@ -101,20 +194,13 @@ const ServiceModal = ({ visible, onCancel, onSave, initialData, loading }) => {
     if (info.file.status === "done") {
       setUploading(false);
       const url = URL.createObjectURL(info.file.originFileObj);
-      setSliderUrls((prev) => [...prev, url]);
-      
+      setNewSliderUrls((prev) => [...prev, url]);
       const currentFiles = form.getFieldValue("slider_files") || [];
-      form.setFieldsValue({ slider_files: [...currentFiles, info.file.originFileObj] });
-      
+      form.setFieldsValue({
+        slider_files: [...currentFiles, info.file.originFileObj],
+      });
       message.success("تم إضافة الصورة للسلايدر");
     }
-  };
-
-  const handleRemoveSliderImage = (indexToRemove) => {
-    setSliderUrls((prev) => prev.filter((_, index) => index !== indexToRemove));
-    const currentFiles = form.getFieldValue("slider_files") || [];
-    form.setFieldsValue({ slider_files: currentFiles.filter((_, index) => index !== indexToRemove) });
-    message.success("تم حذف صورة السلايدر");
   };
 
   const handleGalleryUpload = (info) => {
@@ -125,54 +211,64 @@ const ServiceModal = ({ visible, onCancel, onSave, initialData, loading }) => {
     if (info.file.status === "done") {
       setGalleryUploading(false);
       const url = URL.createObjectURL(info.file.originFileObj);
-      setGalleryImages((prev) => [...prev, url]);
-      
+      setNewGalleryUrls((prev) => [...prev, url]);
       const currentFiles = form.getFieldValue("gallery_files") || [];
-      form.setFieldsValue({ gallery_files: [...currentFiles, info.file.originFileObj] });
-      
+      form.setFieldsValue({
+        gallery_files: [...currentFiles, info.file.originFileObj],
+      });
       message.success("تم تجهيز الصورة للمعرض");
     }
   };
 
-  const handleRemoveGalleryImage = (indexToRemove) => {
-    setGalleryImages((prev) => prev.filter((_, index) => index !== indexToRemove));
-    const currentFiles = form.getFieldValue("gallery_files") || [];
-    form.setFieldsValue({ gallery_files: currentFiles.filter((_, index) => index !== indexToRemove) });
-    message.success("تم حذف الصورة");
-  };
-
-  const customUpload = ({ file, onSuccess }) => {
-    setTimeout(() => onSuccess("ok"), 500);
+  const handleFaqSelect = (selectedValue, fieldName) => {
+    const foundFaq = globalFaqs.find(
+      (faq) => (faq.question_ar || faq.question) === selectedValue
+    );
+    if (foundFaq) {
+      form.setFieldValue(
+        ["faqs", fieldName, "answer"],
+        foundFaq.answer_ar || foundFaq.answer
+      );
+      message.success("تم جلب الإجابة تلقائياً");
+    }
   };
 
   const handleSubmit = () => {
-    form.validateFields().then((values) => {
-      const allValues = form.getFieldsValue(true);
-      const processedValues = {
-        ...allValues,
-        ...values,
-        description: values.descriptionList?.map((item) => item?.text?.trim()).filter((text) => text) || [],
-      };
-      onSave(processedValues);
-    }).catch(info => console.log("Validate Failed:", info));
+    form
+      .validateFields()
+      .then((values) => {
+        const allValues = form.getFieldsValue(true);
+        onSave({ ...allValues, ...values });
+      })
+      .catch((info) => console.log("Validate Failed:", info));
   };
 
   const handleCancel = () => {
     form.resetFields();
-    setSliderUrls([]);
-    setGalleryImages([]);
-    setGalleryUrlInput("");
+    setServerSliderUrls([]);
+    setNewSliderUrls([]);
+    setServerGalleryUrls([]);
+    setNewGalleryUrls([]);
     onCancel();
   };
+
+  const totalSlider = serverSliderUrls.length + newSliderUrls.length;
+  const totalGallery = serverGalleryUrls.length + newGalleryUrls.length;
 
   return (
     <Modal
       title={
         <div className="flex items-center gap-3 text-right" dir="rtl">
           <div className="p-2 rounded-xl">
-            {initialData ? <ImageIcon className="w-5 h-5 text-primary" /> : <Plus className="w-5 h-5 text-primary" />}
+            {initialData ? (
+              <ImageIcon className="w-5 h-5 text-primary" />
+            ) : (
+              <Plus className="w-5 h-5 text-primary" />
+            )}
           </div>
-          <span className="text-lg font-bold">{initialData ? "تعديل الخدمة" : "إضافة خدمة جديدة"}</span>
+          <span className="text-lg font-bold">
+            {initialData ? "تعديل الخدمة" : "إضافة خدمة جديدة"}
+          </span>
         </div>
       }
       open={visible}
@@ -180,89 +276,216 @@ const ServiceModal = ({ visible, onCancel, onSave, initialData, loading }) => {
       onCancel={handleCancel}
       okText="حفظ"
       cancelText="إلغاء"
-      okButtonProps={{ className: "bg-primary h-10 px-6", loading: loading || uploading || galleryUploading }}
+      okButtonProps={{
+        className: "bg-primary h-10 px-6",
+        loading: loading || uploading || galleryUploading,
+      }}
       cancelButtonProps={{ className: "h-10 px-6" }}
       destroyOnClose
       width={750}
       centered
-      styles={{ body: { direction: "rtl", padding: "24px", maxHeight: "75vh", overflowY: "auto" }, header: { direction: "rtl" } }}
+      styles={{
+        body: {
+          direction: "rtl",
+          padding: "24px",
+          maxHeight: "75vh",
+          overflowY: "auto",
+        },
+        header: { direction: "rtl" },
+      }}
     >
       <Form form={form} layout="vertical" className="mt-2" dir="rtl">
-        <Form.Item name="slider_files" hidden><Input /></Form.Item>
-        <Form.Item name="gallery_files" hidden><Input /></Form.Item>
+        <Form.Item name="slider_files" hidden>
+          <Input />
+        </Form.Item>
+        <Form.Item name="gallery_files" hidden>
+          <Input />
+        </Form.Item>
 
+        {/* المعلومات الأساسية */}
         <div className="bg-gray-50 rounded-xl p-4 mb-5 border border-gray-100">
-          <h4 className="text-sm font-bold text-gray-600 mb-4 flex items-center gap-2">المعلومات الأساسية</h4>
+          <h4 className="text-sm font-bold text-gray-600 mb-4">
+            المعلومات الأساسية
+          </h4>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <Form.Item name="name" label="اسم الخدمة" rules={[{ required: true }]}><Input placeholder="اسم الخدمة" size="large" /></Form.Item>
-            <Form.Item name="category" label="التصنيف" rules={[{ required: true }]}>
-              <Select size="large" placeholder="اختر تصنيف">
-                {["زواج", "قاعات", "ضيافة", "فرق موسيقية", "تراث", "ملابس", "صوتيات", "تصوير"].map(c => <Option key={c} value={c}>{c}</Option>)}
-              </Select>
+            <Form.Item
+              name="title_ar"
+              label="اسم الخدمة"
+              rules={[{ required: true, message: "يرجى إدخال اسم الخدمة" }]}
+            >
+              <Input placeholder="اسم الخدمة" size="large" />
+            </Form.Item>
+            <Form.Item
+              name="slug"
+              label="الرابط (Slug)"
+              rules={[{ required: true, message: "يرجى إدخال الرابط" }]}
+            >
+              <Input placeholder="slug" size="large" />
             </Form.Item>
           </div>
-          <Form.Item name="subtitle" label="العنوان الفرعي" rules={[{ required: true }]}><Input placeholder="العنوان الفرعي" size="large" /></Form.Item>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <Form.Item name="slug" label="الرابط (Slug)" rules={[{ required: true }]}><Input placeholder="slug" size="large" /></Form.Item>
-            <Form.Item name="cta_text_ar" label="نص الزر"><Input placeholder="احجز الآن" size="large" /></Form.Item>
-          </div>
+          <Form.Item
+            name="subtitle_ar"
+            label="العنوان الفرعي"
+            rules={[{ required: true, message: "يرجى إدخال العنوان الفرعي" }]}
+          >
+            <Input placeholder="العنوان الفرعي" size="large" />
+          </Form.Item>
+          <Form.Item name="cta_text_ar" label="نص الزر">
+            <Input placeholder="احجز الآن" size="large" />
+          </Form.Item>
         </div>
 
+        {/* صور السلايدر */}
         <div className="bg-gray-50 rounded-xl p-4 mb-5 border border-gray-100">
-          <h4 className="text-sm font-bold text-gray-600 mb-4 flex items-center gap-2">صور السلايدر (Slider) <span className="text-xs font-normal text-gray-400 me-auto">({sliderUrls.length} صور)</span></h4>
-          {sliderUrls.length > 0 && (
+          <h4 className="text-sm font-bold text-gray-600 mb-4 flex items-center gap-2">
+            صور السلايدر (Slider)
+            <span className="text-xs font-normal text-gray-400 me-auto">
+              ({totalSlider} صور)
+            </span>
+          </h4>
+
+          {totalSlider > 0 && (
             <div className="grid grid-cols-3 sm:grid-cols-4 gap-3 mb-4">
               <Image.PreviewGroup>
-                {sliderUrls.map((img, index) => (
-                  <div key={index} className="relative aspect-square rounded-lg overflow-hidden border-2 border-gray-200 group">
-                    <Image src={img} width="100%" height="100%" style={{ objectFit: "cover" }} className="!w-full !h-full" />
-                    <button onClick={() => handleRemoveSliderImage(index)} className="absolute top-1 right-1 w-6 h-6 bg-red-500 text-white rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"><X className="w-3 h-3" /></button>
-                  </div>
+                {/* صور السيرفر */}
+                {serverSliderUrls.map((img, index) => (
+                  <ImageItem
+                    key={`server-slider-${index}`}
+                    src={img}
+                    isServer
+                    removing={removingSlider === index}
+                    onRemove={() => handleRemoveServerSlider(img, index)}
+                  />
+                ))}
+                {/* صور جديدة */}
+                {newSliderUrls.map((img, index) => (
+                  <ImageItem
+                    key={`new-slider-${index}`}
+                    src={img}
+                    isServer={false}
+                    onRemove={() => handleRemoveNewSlider(index)}
+                  />
                 ))}
               </Image.PreviewGroup>
             </div>
           )}
-          <Upload showUploadList={false} customRequest={customUpload} onChange={handleUpload} accept="image/*" multiple>
-            <Button icon={<UploadIcon className="w-4 h-4" />} loading={uploading} className="h-10">رفع صور للسلايدر</Button>
+
+          <Upload
+            showUploadList={false}
+            customRequest={customUpload}
+            onChange={handleUpload}
+            accept="image/*"
+            multiple
+          >
+            <Button
+              icon={<UploadIcon className="w-4 h-4" />}
+              loading={uploading}
+              className="h-10"
+            >
+              رفع صور للسلايدر
+            </Button>
           </Upload>
         </div>
 
+        {/* الوصف التفصيلي */}
         <div className="bg-gray-50 rounded-xl p-4 mb-5 border border-gray-100">
-          <h4 className="text-sm font-bold text-gray-600 mb-4 flex items-center gap-2">الوصف التفصيلي</h4>
+          <h4 className="text-sm font-bold text-gray-600 mb-4">
+            الوصف التفصيلي
+          </h4>
           <Form.List name="descriptionList">
             {(fields, { add, remove }) => (
               <div className="space-y-3">
                 {fields.map((field, index) => (
-                  <div key={field.key} className="flex gap-2 items-start bg-white p-3 rounded-lg border border-gray-100">
-                    <Form.Item {...field} name={[field.name, "text"]} className="flex-1 mb-0"><TextArea placeholder={`الفقرة ${index + 1}...`} autoSize={{ minRows: 2 }} /></Form.Item>
-                    {fields.length > 1 && <Button type="text" danger onClick={() => remove(field.name)}><Trash2 className="w-4 h-4" /></Button>}
+                  <div
+                    key={field.key}
+                    className="flex gap-2 items-start bg-white p-3 rounded-lg border border-gray-100"
+                  >
+                    <Form.Item
+                      {...field}
+                      name={[field.name, "text"]}
+                      className="flex-1 mb-0"
+                    >
+                      <TextArea
+                        placeholder={`الفقرة ${index + 1}...`}
+                        autoSize={{ minRows: 2 }}
+                      />
+                    </Form.Item>
+                    {fields.length > 1 && (
+                      <Button
+                        type="text"
+                        danger
+                        onClick={() => remove(field.name)}
+                      >
+                        <Trash2 className="w-4 h-4" />
+                      </Button>
+                    )}
                   </div>
                 ))}
-                <Button onClick={() => add({ text: "" })} block icon={<Plus className="w-4 h-4" />}>إضافة فقرة</Button>
+                <Button
+                  onClick={() => add({ text: "" })}
+                  block
+                  icon={<Plus className="w-4 h-4" />}
+                >
+                  إضافة فقرة
+                </Button>
               </div>
             )}
           </Form.List>
         </div>
 
+        {/* معرض الصور */}
         <div className="bg-gray-50 rounded-xl p-4 mb-5 border border-gray-100">
-          <h4 className="text-sm font-bold text-gray-600 mb-4 flex items-center gap-2">معرض الصور الفرعية <span className="text-xs font-normal text-gray-400 me-auto">({galleryImages.length} صور)</span></h4>
-          {galleryImages.length > 0 && (
+          <h4 className="text-sm font-bold text-gray-600 mb-4 flex items-center gap-2">
+            معرض الصور الفرعية
+            <span className="text-xs font-normal text-gray-400 me-auto">
+              ({totalGallery} صور)
+            </span>
+          </h4>
+
+          {totalGallery > 0 && (
             <div className="grid grid-cols-3 sm:grid-cols-4 gap-3 mb-4">
               <Image.PreviewGroup>
-                {galleryImages.map((img, index) => (
-                  <div key={index} className="relative aspect-square rounded-lg overflow-hidden border-2 border-gray-200 group">
-                    <Image src={img} width="100%" height="100%" style={{ objectFit: "cover" }} className="!w-full !h-full" />
-                    <button onClick={() => handleRemoveGalleryImage(index)} className="absolute top-1 right-1 w-6 h-6 bg-red-500 text-white rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"><X className="w-3 h-3" /></button>
-                  </div>
+                {/* صور السيرفر */}
+                {serverGalleryUrls.map((img, index) => (
+                  <ImageItem
+                    key={`server-gallery-${index}`}
+                    src={img}
+                    isServer
+                    removing={removingGallery === index}
+                    onRemove={() => handleRemoveServerGallery(img, index)}
+                  />
+                ))}
+                {/* صور جديدة */}
+                {newGalleryUrls.map((img, index) => (
+                  <ImageItem
+                    key={`new-gallery-${index}`}
+                    src={img}
+                    isServer={false}
+                    onRemove={() => handleRemoveNewGallery(index)}
+                  />
                 ))}
               </Image.PreviewGroup>
             </div>
           )}
-          <Upload showUploadList={false} customRequest={customUpload} onChange={handleGalleryUpload} accept="image/*" multiple>
-            <Button icon={<UploadIcon className="w-4 h-4" />} loading={galleryUploading} className="h-10">رفع صور للمعرض</Button>
+
+          <Upload
+            showUploadList={false}
+            customRequest={customUpload}
+            onChange={handleGalleryUpload}
+            accept="image/*"
+            multiple
+          >
+            <Button
+              icon={<UploadIcon className="w-4 h-4" />}
+              loading={galleryUploading}
+              className="h-10"
+            >
+              رفع صور للمعرض
+            </Button>
           </Upload>
         </div>
 
+        {/* الأسئلة الشائعة */}
         <div className="bg-gray-50 rounded-xl p-4 mb-5 border border-gray-100">
           <h4 className="text-sm font-bold text-gray-600 mb-4 flex items-center gap-2">
             الأسئلة الشائعة (FAQ)
@@ -270,7 +493,6 @@ const ServiceModal = ({ visible, onCancel, onSave, initialData, loading }) => {
               اختر سؤالاً مسبقاً أو اكتب سؤالاً جديداً
             </span>
           </h4>
-
           <Form.List name="faqs">
             {(fields, { add, remove }) => (
               <div className="space-y-4">
@@ -286,7 +508,6 @@ const ServiceModal = ({ visible, onCancel, onSave, initialData, loading }) => {
                     >
                       <Trash2 className="w-4 h-4" />
                     </button>
-
                     <div className="flex gap-2 items-center mb-3">
                       <div className="w-6 h-6 bg-purple-100 text-purple-600 rounded-full flex items-center justify-center text-xs font-bold">
                         {index + 1}
@@ -295,7 +516,6 @@ const ServiceModal = ({ visible, onCancel, onSave, initialData, loading }) => {
                         سؤال وإجابة
                       </span>
                     </div>
-
                     <Form.Item
                       {...field}
                       name={[field.name, "question"]}
@@ -318,7 +538,6 @@ const ServiceModal = ({ visible, onCancel, onSave, initialData, loading }) => {
                         size="large"
                       />
                     </Form.Item>
-
                     <Form.Item
                       {...field}
                       name={[field.name, "answer"]}
@@ -348,19 +567,15 @@ const ServiceModal = ({ visible, onCancel, onSave, initialData, loading }) => {
           </Form.List>
         </div>
 
+        {/* الإعدادات */}
         <div className="bg-gray-50 rounded-xl p-4 border border-gray-100">
-          <h4 className="text-sm font-bold text-gray-600 mb-4 flex items-center gap-2">الإعدادات</h4>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <Form.Item name="status" label="حالة الخدمة">
-              <Select size="large">
-                <Option value="active">مفعّل</Option>
-                <Option value="inactive">غير مفعّل</Option>
-              </Select>
-            </Form.Item>
-            <Form.Item name="requiresLogin" label="تتطلب تسجيل دخول" valuePropName="checked">
-              <Switch checkedChildren="نعم" unCheckedChildren="لا" />
-            </Form.Item>
-          </div>
+          <h4 className="text-sm font-bold text-gray-600 mb-4">الإعدادات</h4>
+          <Form.Item name="is_active" label="حالة الخدمة">
+            <Select size="large">
+              <Option value={1}>مفعّل</Option>
+              <Option value={0}>غير مفعّل</Option>
+            </Select>
+          </Form.Item>
         </div>
       </Form>
     </Modal>

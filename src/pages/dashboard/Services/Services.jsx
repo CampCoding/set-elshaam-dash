@@ -1,6 +1,6 @@
 // src/pages/dashboard/services/Services.jsx
 import { Tag, Space, Button, Tooltip, Image } from "antd";
-import { Edit, Trash2, LayoutList, Eye, Lock, Unlock } from "lucide-react";
+import { Edit, Trash2, LayoutList, Eye } from "lucide-react";
 import DataTable, {
   getColumnSearchProps,
 } from "../../../components/common/DataTable";
@@ -14,7 +14,6 @@ const Services = () => {
     loading,
     pagination,
     handleTableChange,
-    // مودال الإضافة/التعديل
     isModalVisible,
     editingRecord,
     handleOpenAdd,
@@ -22,43 +21,37 @@ const Services = () => {
     handleCloseModal,
     handleSave,
     handleDelete,
-    // مودال التفاصيل
     isDetailsModalVisible,
     selectedRecord,
     handleOpenDetails,
     handleCloseDetails,
+    handleRemoveServerImage,
   } = useServicesPage();
 
-  // تعريف أعمدة الجدول
   const columns = [
     {
       title: "الصورة",
-      dataIndex: "slider_images",
-      key: "slider_images",
+      dataIndex: "main_image",
+      key: "main_image",
       width: 90,
-      render: (slider_images, record) => {
-        const image = Array.isArray(slider_images) && slider_images.length > 0
-          ? slider_images[0].path || slider_images[0]
-          : record.image; // fallback
-        return (
-          <div className="w-14 h-14 rounded-xl overflow-hidden border-2 border-gray-100 shadow-sm">
-            <Image
-              src={record?.main_image || "https://via.placeholder.com/150"}
-              alt={record.title_ar}
-              className=" !h-14 !w-14  "
-              fallback="https://via.placeholder.com/150?text=No+Image"
-              preview={{
-                mask: (
-                  <div className="flex items-center gap-1">
-                    <Eye className="w-3 h-3" />
-                    <span className="text-[10px]">عرض</span>
-                  </div>
-                ),
-              }}
-            />
-          </div>
-        );
-      },
+      render: (main_image, record) => (
+        <div className="w-14 h-14 rounded-xl overflow-hidden border-2 border-gray-100 shadow-sm">
+          <Image
+            src={main_image || "https://via.placeholder.com/150"}
+            alt={record.title_ar}
+            className="!h-14 !w-14"
+            fallback="https://via.placeholder.com/150?text=No+Image"
+            preview={{
+              mask: (
+                <div className="flex items-center gap-1">
+                  <Eye className="w-3 h-3" />
+                  <span className="text-[10px]">عرض</span>
+                </div>
+              ),
+            }}
+          />
+        </div>
+      ),
     },
     {
       title: "اسم الخدمة",
@@ -67,7 +60,7 @@ const Services = () => {
       ...getColumnSearchProps("title_ar", "ابحث باسم الخدمة..."),
       render: (text, record) => (
         <div>
-          <div className="font-semibold text-gray-800">{text || record.name}</div>
+          <div className="font-semibold text-gray-800">{text}</div>
           {record.subtitle_ar && (
             <div className="text-xs text-gray-400 mt-0.5 line-clamp-1">
               {record.subtitle_ar}
@@ -78,25 +71,22 @@ const Services = () => {
     },
     {
       title: "الحالة",
-      dataIndex: "status",
-      key: "status",
+      dataIndex: "is_active",
+      key: "is_active",
       width: 100,
       filters: [
-        { text: "مفعّل", value: "active" },
-        { text: "غير مفعّل", value: "inactive" },
+        { text: "مفعّل", value: 1 },
+        { text: "غير مفعّل", value: 0 },
       ],
-      onFilter: (value, record) => record.status === value,
-      render: (status) => {
-        const isActive = status === "active" || status === 1;
-        return (
-          <Tag
-            color={isActive ? "success" : "error"}
-            className="rounded-full px-3 py-0.5"
-          >
-            {isActive ? "مفعّل" : "غير مفعّل"}
-          </Tag>
-        );
-      },
+      onFilter: (value, record) => record.is_active === value,
+      render: (is_active) => (
+        <Tag
+          color={is_active === 1 ? "success" : "error"}
+          className="rounded-full px-3 py-0.5"
+        >
+          {is_active === 1 ? "مفعّل" : "غير مفعّل"}
+        </Tag>
+      ),
     },
     {
       title: "الإجراءات",
@@ -151,28 +141,28 @@ const Services = () => {
             الخ...)
           </p>
         </div>
-        {/* إحصائية سريعة */}
         <div className="flex gap-3">
           <div className="bg-green-50 rounded-xl px-4 py-2 text-center">
             <div className="text-lg font-bold text-green-600">
-              {data.filter((s) => s.status === "active" || s.status === 1).length}
+              {data.filter((s) => s.is_active === 1).length}
             </div>
             <div className="text-xs text-green-500">مفعّل</div>
           </div>
           <div className="bg-red-50 rounded-xl px-4 py-2 text-center">
             <div className="text-lg font-bold text-red-600">
-              {data.filter((s) => s.status === "inactive" || s.status === 0).length}
+              {data.filter((s) => s.is_active === 0).length}
             </div>
             <div className="text-xs text-red-500">متوقف</div>
           </div>
           <div className="bg-primary/10 rounded-xl px-4 py-2 text-center">
-            <div className="text-lg font-bold text-primary">{pagination.total}</div>
+            <div className="text-lg font-bold text-primary">
+              {pagination.total}
+            </div>
             <div className="text-xs text-primary">إجمالي</div>
           </div>
         </div>
       </div>
 
-      {/* Data Table Component */}
       <DataTable
         columns={columns}
         data={data}
@@ -187,16 +177,15 @@ const Services = () => {
         emptyIcon={LayoutList}
       />
 
-      {/* Modal - إضافة/تعديل */}
       <ServiceModal
         visible={isModalVisible}
         onCancel={handleCloseModal}
         onSave={handleSave}
         initialData={editingRecord}
         loading={loading}
+        onRemoveServerImage={handleRemoveServerImage}
       />
 
-      {/* Modal - التفاصيل */}
       <ServiceDetailsModal
         visible={isDetailsModalVisible}
         onClose={handleCloseDetails}
@@ -205,6 +194,5 @@ const Services = () => {
     </div>
   );
 };
-
 
 export default Services;

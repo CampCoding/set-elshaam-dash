@@ -12,24 +12,25 @@ export const useServicesPage = () => {
     total: 0,
   });
 
-  // Modal States - للإضافة والتعديل
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [editingRecord, setEditingRecord] = useState(null);
 
-  // Modal State - للتفاصيل
   const [isDetailsModalVisible, setIsDetailsModalVisible] = useState(false);
   const [selectedRecord, setSelectedRecord] = useState(null);
 
-  const fetchServices = async (page = pagination.current, limit = pagination.pageSize) => {
+  const fetchServices = async (
+    page = pagination.current,
+    limit = pagination.pageSize
+  ) => {
     setLoading(true);
     try {
       const response = await servicesService.getServices({ page, limit });
       setData(response.data || []);
-      setPagination({
-        ...pagination,
-        current: response.current_page || page,
-        total: response.total || 0,
-      });
+      setPagination((prev) => ({
+        ...prev,
+        current: response.pagination?.page || page,
+        total: response.pagination?.total || 0,
+      }));
     } catch (error) {
       console.error("Error fetching services:", error);
       message.error("فشل في جلب بيانات الخدمات");
@@ -71,32 +72,72 @@ export const useServicesPage = () => {
     setSelectedRecord(null);
   };
 
+  // ✅ مسح صورة من السيرفر
+  const handleRemoveServerImage = async (serviceId, imagePath, type) => {
+    try {
+      await servicesService.removeImage(serviceId, {
+        imagePath,
+        type,
+      });
+      message.success("تم حذف الصورة بنجاح");
+
+      // تحديث الـ editingRecord محلياً بدون fetch جديد
+      setEditingRecord((prev) => {
+        if (!prev) return prev;
+        if (type === "slider") {
+          return {
+            ...prev,
+            slider_images: prev.slider_images.filter((img) => {
+              const url = typeof img === "string" ? img : img.path;
+              return url !== imagePath;
+            }),
+          };
+        }
+        if (type === "gallery") {
+          return {
+            ...prev,
+            gallery_images: prev.gallery_images.filter((img) => {
+              const url = typeof img === "string" ? img : img.path;
+              return url !== imagePath;
+            }),
+          };
+        }
+        return prev;
+      });
+
+      return true;
+    } catch (error) {
+      console.error("Error removing image:", error);
+      message.error("فشل في حذف الصورة");
+      return false;
+    }
+  };
+
   const handleSave = async (values) => {
     setLoading(true);
     const formData = new FormData();
 
-    formData.append("title_ar", values.name);
-    formData.append("subtitle_ar", values.subtitle);
-    formData.append("description_ar", values.description.join("\n"));
+    formData.append("title_ar", values.title_ar);
+    formData.append("subtitle_ar", values.subtitle_ar);
     formData.append("slug", values.slug);
-
-    formData.append("category", values.category);
-    formData.append("status", values.status);
-    formData.append("requires_login", values.requiresLogin ? 1 : 0);
     formData.append("cta_text_ar", values.cta_text_ar || "احجز الآن");
+    formData.append("is_active", values.is_active ?? 1);
 
-    // Send File objects
+    const description_ar =
+      values.descriptionList
+        ?.map((item) => item?.text?.trim())
+        .filter((t) => t)
+        .join("\n") || "";
+    formData.append("description_ar", description_ar);
+
     if (values.slider_files && values.slider_files.length > 0) {
       formData.append("main_image", values.slider_files[0]);
-
       values.slider_files.forEach((file) => {
         formData.append("slider_images", file);
       });
     }
 
     if (values.gallery_files && values.gallery_files.length > 0) {
-      console.log("kkkkkkkkk");
-
       values.gallery_files.forEach((file) => {
         formData.append("gallery_images", file);
       });
@@ -130,7 +171,7 @@ export const useServicesPage = () => {
   const handleDelete = (record) => {
     Modal.confirm({
       title: "تأكيد الحذف",
-      content: `هل أنت متأكد من حذف خدمة "${record.title_ar || record.name}"؟`,
+      content: `هل أنت متأكد من حذف خدمة "${record.title_ar}"؟`,
       okText: "نعم، احذف",
       cancelText: "إلغاء",
       okButtonProps: { danger: true },
@@ -159,10 +200,10 @@ export const useServicesPage = () => {
     handleCloseModal,
     handleSave,
     handleDelete,
+    handleRemoveServerImage, // ✅
     isDetailsModalVisible,
     selectedRecord,
     handleOpenDetails,
     handleCloseDetails,
   };
 };
-
