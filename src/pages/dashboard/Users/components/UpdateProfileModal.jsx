@@ -503,6 +503,44 @@ const UpdateProfileModal = ({
               <TextArea rows={3} />
             </Form.Item>
 
+            <Divider orientation="right">كيف عرفتنا؟</Divider>
+            <Row gutter={24}>
+              <Col span={12}>
+                <Form.Item name="how_did_you_know_us" label="كيف عرفتنا؟">
+                  <Select
+                    options={[
+                      {
+                        value: "social_media",
+                        label: "وسائل التواصل الاجتماعي",
+                      },
+                      { value: "friend", label: "عن طريق صديق" },
+                      { value: "search_engine", label: "محرك البحث" },
+                      { value: "advertisement", label: "إعلان" },
+                      { value: "other", label: "أخرى" },
+                    ]}
+                    allowClear
+                  />
+                </Form.Item>
+              </Col>
+              <Col span={12}>
+                <Form.Item
+                  noStyle
+                  shouldUpdate={(prevValues, currentValues) =>
+                    prevValues.how_did_you_know_us !==
+                    currentValues.how_did_you_know_us
+                  }
+                >
+                  {({ getFieldValue }) =>
+                    getFieldValue("how_did_you_know_us") === "friend" ? (
+                      <Form.Item name="friend_name" label="اسم الصديق">
+                        <Input />
+                      </Form.Item>
+                    ) : null
+                  }
+                </Form.Item>
+              </Col>
+            </Row>
+
             <Divider orientation="right">الوثائق والصور</Divider>
             <div className="grid grid-cols-2 gap-4">
               {renderUpload("user_gallery_photos", "معرض الصور", 10, true)}

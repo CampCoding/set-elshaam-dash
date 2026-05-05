@@ -1004,6 +1004,35 @@ const UserProfilePage = () => {
                         </Row>
                       </div>
 
+                      {/* How did you know us */}
+                      {(mainProfile?.how_did_you_know_us ||
+                        mainProfile?.friend_name) && (
+                        <div>
+                          <h3 className="text-lg font-bold text-primary flex items-center gap-2 mb-4">
+                            <Globe className="w-5 h-5" /> كيف عرفتنا؟
+                          </h3>
+                          <Row gutter={[16, 16]}>
+                            <Col xs={24} sm={12}>
+                              {renderInfoItem(
+                                "كيف عرفتنا؟",
+                                mainProfile?.how_did_you_know_us === "friend"
+                                  ? "عن طريق صديق"
+                                  : mainProfile?.how_did_you_know_us,
+                                <Info className="w-4 h-4" />
+                              )}
+                            </Col>
+                            {mainProfile?.how_did_you_know_us === "friend" && (
+                              <Col xs={24} sm={12}>
+                                {renderInfoItem(
+                                  "اسم الصديق",
+                                  mainProfile?.friend_name,
+                                  <User className="w-4 h-4" />
+                                )}
+                              </Col>
+                            )}
+                          </Row>
+                        </div>
+                      )}
                       {/* Education & Work */}
                       <div>
                         <h3 className="text-lg font-bold text-primary flex items-center gap-2 mb-4">

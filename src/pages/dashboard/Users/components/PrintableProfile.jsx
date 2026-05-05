@@ -167,6 +167,7 @@ const PrintableProfile = forwardRef(
       ["قروض سابقة", formatYesNo(mainProfile?.has_previous_loans)],
       ["علامة مميزة", mainProfile?.distinguishing_mark || "—"],
       ["شروط أخرى", mainProfile?.other_conditions || "—"],
+      
     ];
 
     const partnerRows = targetProfile
