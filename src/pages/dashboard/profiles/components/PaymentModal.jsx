@@ -331,7 +331,7 @@ const PaymentModal = ({ visible, onCancel, record, onSend }) => {
   // ─────────────────────────────────────────────
 
   const handleConfirmPrice = (stageId) => {
-    if (tempPrice !== null && tempPrice !== undefined && tempPrice > 0) {
+    if (tempPrice !== null && tempPrice !== undefined && tempPrice >= 0) {
       setCustomPrices((prev) => ({ ...prev, [stageId]: tempPrice }));
       // ✅ save note alongside price
       setCustomNotes((prev) => ({ ...prev, [stageId]: tempNote }));
@@ -659,7 +659,7 @@ const PaymentModal = ({ visible, onCancel, record, onSend }) => {
                                 {/* Row 1: InputNumber + confirm/cancel */}
                                 <div className="flex items-center gap-2">
                                   <InputNumber
-                                    min={1}
+                                    min={0}
                                     value={tempPrice}
                                     onChange={(val) => setTempPrice(val)}
                                     className="w-32"
@@ -673,8 +673,7 @@ const PaymentModal = ({ visible, onCancel, record, onSend }) => {
                                     onClick={() => handleConfirmPrice(stage.id)}
                                     disabled={
                                       tempPrice === null ||
-                                      tempPrice === undefined ||
-                                      tempPrice <= 0
+                                      tempPrice === undefined
                                     }
                                     className="flex items-center justify-center w-7 h-7 bg-green-500 hover:bg-green-600 disabled:opacity-40 disabled:cursor-not-allowed text-white rounded-md transition-colors"
                                   >
