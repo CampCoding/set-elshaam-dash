@@ -1,4 +1,4 @@
-// src/components/common/DataTable.jsx
+
 import { useState, useMemo, useEffect } from "react";
 import { Table, Input, Button, Space, DatePicker, ConfigProvider } from "antd";
 import { Search, Plus, RotateCcw, Filter } from "lucide-react";
@@ -6,9 +6,9 @@ import arEG from "antd/locale/ar_EG";
 
 const { RangePicker } = DatePicker;
 
-// ============ Filter Helpers ============
 
-// Text Search Filter
+
+
 export const getColumnSearchProps = (dataIndex, placeholder = "بحث...") => ({
   filterDropdown: ({
     setSelectedKeys,
@@ -61,7 +61,7 @@ export const getColumnSearchProps = (dataIndex, placeholder = "بحث...") => ({
   },
 });
 
-// Number Range Filter
+
 export const getColumnNumberRangeProps = (dataIndex) => ({
   filterDropdown: ({
     setSelectedKeys,
@@ -134,7 +134,7 @@ export const getColumnNumberRangeProps = (dataIndex) => ({
   },
 });
 
-// Date Range Filter
+
 export const getColumnDateRangeProps = (dataIndex) => ({
   filterDropdown: ({
     setSelectedKeys,
@@ -183,7 +183,7 @@ export const getColumnDateRangeProps = (dataIndex) => ({
   },
 });
 
-// Select Filter (for status, category, etc.)
+
 export const getColumnSelectFilterProps = (dataIndex, filters) => ({
   filters: filters,
   filterIcon: (filtered) => (
@@ -194,7 +194,7 @@ export const getColumnSelectFilterProps = (dataIndex, filters) => ({
   onFilter: (value, record) => record[dataIndex] === value,
 });
 
-// ============ Main DataTable Component ============
+
 
 const DataTable = ({
   columns = [],
@@ -202,7 +202,7 @@ const DataTable = ({
   loading = false,
   searchable = true,
   searchPlaceholder = "بحث في الجدول...",
-  searchValue: controlledSearchValue, // ← Controlled search value
+  searchValue: controlledSearchValue,
   onSearch,
   addButton = false,
   addButtonText = "إضافة",
@@ -217,16 +217,16 @@ const DataTable = ({
   headerExtra,
   ...rest
 }) => {
-  // Internal search state (for uncontrolled mode)
+
   const [internalSearchText, setInternalSearchText] = useState("");
 
-  // Determine if controlled or uncontrolled
+
   const isControlled = controlledSearchValue !== undefined;
   const searchText = isControlled ? controlledSearchValue : internalSearchText;
 
-  // Global search filter (only for uncontrolled mode - local filtering)
+
   const filteredData = useMemo(() => {
-    // If controlled (server-side search), don't filter locally
+
     if (isControlled || !searchText || !searchable) return data;
 
     return data.filter((item) =>
@@ -244,10 +244,10 @@ const DataTable = ({
     const value = e.target.value;
 
     if (isControlled) {
-      // Controlled: just call parent handler
+
       onSearch?.(value);
     } else {
-      // Uncontrolled: update internal state
+
       setInternalSearchText(value);
       onSearch?.(value);
     }
@@ -262,7 +262,7 @@ const DataTable = ({
     }
   };
 
-  // Default row class for zebra striping
+
   const defaultRowClassName = (record, index) => {
     let className = index % 2 === 0 ? "table-row-light" : "table-row-dark";
 
@@ -332,14 +332,14 @@ const DataTable = ({
             pagination={
               showPagination
                 ? {
-                    pageSize: pageSize,
-                    showSizeChanger: true,
-                    showTotal: (total, range) =>
-                      `${range[0]}-${range[1]} من ${total} عنصر`,
-                    pageSizeOptions: ["10", "20", "50", "100"],
-                    locale: { items_per_page: "/ صفحة" },
-                    position: ["bottomCenter"],
-                  }
+                  pageSize: pageSize,
+                  showSizeChanger: true,
+                  showTotal: (total, range) =>
+                    `${range[0]}-${range[1]} من ${total} عنصر`,
+                  pageSizeOptions: ["10", "20", "50", "100"],
+                  locale: { items_per_page: "/ صفحة" },
+                  position: ["bottomCenter"],
+                }
                 : false
             }
             rowClassName={defaultRowClassName}

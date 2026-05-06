@@ -1,4 +1,4 @@
-// src/pages/dashboard/services/components/ServiceDetailsModal.jsx
+
 import { Modal, Tag, Image, Divider, Collapse } from "antd";
 import {
   Eye,

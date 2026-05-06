@@ -1,4 +1,4 @@
-// src/pages/dashboard/packages/Packages.jsx
+
 import { Tag, Space, Button, Tooltip } from "antd";
 import { Edit, Trash2, Package } from "lucide-react";
 import DataTable, {
@@ -20,7 +20,7 @@ const Packages = () => {
     handleDelete,
   } = usePackagesPage();
 
-  // تعريف أعمدة الجدول
+
   const columns = [
     {
       title: "اسم الباقة",

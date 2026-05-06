@@ -1,4 +1,4 @@
-// src/components/common/Input.jsx
+
 import { Input as AntInput } from "antd";
 import { Mail, Lock, User, Eye, EyeOff } from "lucide-react";
 

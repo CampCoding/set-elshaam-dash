@@ -9,7 +9,7 @@ export const AuthProvider = ({ children }) => {
   const [loading, setLoading] = useState(true);
   const [token, setAuthToken] = useState(null);
 
-  // Initialize from storage
+
   useEffect(() => {
     const storedUser = getUser();
     const storedToken = getToken();
@@ -21,7 +21,7 @@ export const AuthProvider = ({ children }) => {
     setLoading(false);
   }, []);
 
-  // ============ LOGIN ============
+
   const login = async (email, password, persist = true) => {
     try {
       const response = await fetch(`${API_BASE_URL}/api/admin/auth/login`, {
@@ -52,7 +52,7 @@ export const AuthProvider = ({ children }) => {
         setUser(userData);
         setAuthToken(tokenValue);
 
-        // Store using utility
+
         setStoredUser(userData);
         setToken(tokenValue);
 
@@ -75,7 +75,7 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
-  // ============ LOGOUT ============
+
   const logout = async () => {
     try {
       if (token) {
@@ -90,14 +90,14 @@ export const AuthProvider = ({ children }) => {
     } catch (error) {
       console.error("Logout error:", error);
     } finally {
-      // Clear all state
+
       setUser(null);
       setAuthToken(null);
       clearAuth();
     }
   };
 
-  // ============ VERIFY TOKEN ============
+
   const verifyToken = async () => {
     if (!token) return false;
 

@@ -1,4 +1,4 @@
-// src/pages/dashboard/Users/Contract.jsx
+
 import React, { useState, useRef, useEffect, useCallback } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import SignatureCanvas from "react-signature-canvas";
@@ -12,17 +12,17 @@ export default function Contract() {
   const navigate = useNavigate();
   const { id } = useParams();
 
-  // ── State ──
+
   const [user, setUser] = useState(null);
   const [contractData, setContractData] = useState(null);
   const [contractLoading, setContractLoading] = useState(true);
   const [profileLoading, setProfileLoading] = useState(true);
   const [saving, setSaving] = useState(false);
 
-  // ── User contract state ──
+
   const [userAlreadySigned, setUserAlreadySigned] = useState(false);
 
-  // ── Admin contract state ──
+
   const [isAdminAgreed, setIsAdminAgreed] = useState(false);
   const [adminAlreadySigned, setAdminAlreadySigned] = useState(false);
   const [isAdminSignatureEmpty, setIsAdminSignatureEmpty] = useState(true);
@@ -31,7 +31,7 @@ export default function Contract() {
   const adminSignatureRef = useRef(null);
   const contractContentRef = useRef(null);
 
-  // ── Contract text ──
+
   const contractText =
     contractData?.data?.contract_text ||
     contractData?.contract_text ||
@@ -41,9 +41,9 @@ export default function Contract() {
 
   const totalCheckboxes = (contractText.match(/\{checkbox\}/g) || []).length;
 
-  // ══════════════════════════════════════════════
-  //  HELPERS
-  // ══════════════════════════════════════════════
+
+
+
 
   const formatDateString = (dateInput) => {
     if (!dateInput) return null;
@@ -55,9 +55,9 @@ export default function Contract() {
     return `${day}/${month}/${year}`;
   };
 
-  // ══════════════════════════════════════════════
-  //  DATA LOADING
-  // ══════════════════════════════════════════════
+
+
+
 
   const loadContract = useCallback(async () => {
     try {
@@ -95,12 +95,12 @@ export default function Contract() {
       const userData = result?.data || result?.user || result;
       setUser(userData);
 
-      // Check if user already signed
+
       if (userData?.signed === true || userData?.signature_path) {
         setUserAlreadySigned(true);
       }
 
-      // Check if admin already signed
+
       if (userData?.admin_signed === true || userData?.admin_signature_path) {
         setAdminAlreadySigned(true);
         setIsAdminAgreed(true);
@@ -127,9 +127,9 @@ export default function Contract() {
     loadUser();
   }, [loadUser]);
 
-  // ══════════════════════════════════════════════
-  //  CHECKBOX MANAGEMENT
-  // ══════════════════════════════════════════════
+
+
+
 
   useEffect(() => {
     if (!totalCheckboxes) {
@@ -137,7 +137,7 @@ export default function Contract() {
       return;
     }
 
-    // If user already signed, mark all checkboxes as checked
+
     const allSigned = userAlreadySigned;
 
     setCheckedBoxes((prev) => {
@@ -149,7 +149,7 @@ export default function Contract() {
     });
   }, [totalCheckboxes, userAlreadySigned]);
 
-  // Sync DOM checkboxes with state
+
   useEffect(() => {
     const container = contractContentRef.current;
     if (!container) return;
@@ -162,15 +162,15 @@ export default function Contract() {
       const index = Number(checkbox.getAttribute("data-checkbox-index"));
       checkbox.checked = !!checkedBoxes[index];
 
-      // All checkboxes are read-only for admin (user already dealt with them)
+
       checkbox.disabled = true;
       checkbox.style.cursor = "default";
     });
   }, [checkedBoxes, contractText]);
 
-  // ══════════════════════════════════════════════
-  //  CONTRACT HTML PROCESSING
-  // ══════════════════════════════════════════════
+
+
+
 
   const getProcessedContractHtml = useCallback(() => {
     let html = contractText || "";
@@ -181,7 +181,7 @@ export default function Contract() {
     console.log("HAS {email}:", html.includes("{email}"));
     console.log("HAS &#123;email&#125;:", html.includes("&#123;email&#125;"));
 
-    // ✅ Step 1: normalize placeholders (in case backend encoded them)
+
     html = html
       .replace(/&#123;/g, "{")
       .replace(/&#125;/g, "}")
@@ -202,7 +202,7 @@ export default function Contract() {
     const emptyField = (width = "140px") =>
       `<span style="display:inline-block;min-width:${width};border-bottom:1.5px solid #ccc;color:#999;padding:0 4px;">&nbsp;</span>`;
 
-    // ✅ Step 2: checkboxes
+
     let checkboxIndex = 0;
     html = html.replace(/\{checkbox\}/g, () => {
       const currentIndex = checkboxIndex++;
@@ -222,7 +222,7 @@ export default function Contract() {
     `;
     });
 
-    // ✅ Step 3: fill user data
+
     if (user) {
       const todayStr = formatDateString(new Date()) || "____/____/________";
       const nameStr = user?.full_name || user?.name || user?.user_name || "";
@@ -244,7 +244,7 @@ export default function Contract() {
         birthStr ? highlight(birthStr) : emptyField("120px")
       );
 
-      // ✅ الإيميل بيتعامل معاه بشكل خاص
+
       html = html.replace(
         /\{email\}/g,
         emailStr ? highlight(emailStr) : emptyField("180px")
@@ -265,18 +265,18 @@ export default function Contract() {
     return html;
   }, [contractText, checkedBoxes, user]);
 
-  // ══════════════════════════════════════════════
-  //  PRINT
-  // ══════════════════════════════════════════════
+
+
+
 
   const handlePrintContract = () => {
-    // Get user signature
+
     let userSignatureUri = null;
     if (user?.signature_path) {
       userSignatureUri = user.signature_path;
     }
 
-    // Get admin signature
+
     let adminSignatureUri = null;
     if (adminAlreadySigned && user?.admin_signature_path) {
       adminSignatureUri = user.admin_signature_path;
@@ -393,11 +393,10 @@ export default function Contract() {
             <!-- User Signature -->
             <div class="signature-section">
               <h3>🖊️ توقيع العميل</h3>
-              ${
-                userSignatureUri
-                  ? `<div class="signature-img-wrapper"><img src="${userSignatureUri}" alt="توقيع العميل" /></div>`
-                  : `<div class="no-signature">لم يتم التوقيع بعد</div>`
-              }
+              ${userSignatureUri
+        ? `<div class="signature-img-wrapper"><img src="${userSignatureUri}" alt="توقيع العميل" /></div>`
+        : `<div class="no-signature">لم يتم التوقيع بعد</div>`
+      }
               <div class="signature-detail"><span class="signature-detail-label">الاسم</span><span class="signature-detail-value">${user?.full_name || user?.name || "---"}</span></div>
               <div class="signature-detail"><span class="signature-detail-label">البريد</span><span class="signature-detail-value">${user?.email || "---"}</span></div>
             </div>
@@ -405,11 +404,10 @@ export default function Contract() {
             <!-- Admin Signature -->
             <div class="signature-section">
               <h3>🏢 توقيع الإدارة</h3>
-              ${
-                adminSignatureUri
-                  ? `<div class="signature-img-wrapper"><img src="${adminSignatureUri}" alt="توقيع الإدارة" /></div>`
-                  : `<div class="no-signature">لم يتم التوقيع بعد</div>`
-              }
+              ${adminSignatureUri
+        ? `<div class="signature-img-wrapper"><img src="${adminSignatureUri}" alt="توقيع الإدارة" /></div>`
+        : `<div class="no-signature">لم يتم التوقيع بعد</div>`
+      }
               <div class="signature-detail"><span class="signature-detail-label">الجهة</span><span class="signature-detail-value">مكتب ست الشام للزواج</span></div>
               <div class="signature-detail"><span class="signature-detail-label">التاريخ</span><span class="signature-detail-value">${todayStr}</span></div>
             </div>
@@ -428,9 +426,9 @@ export default function Contract() {
     printWindow.document.close();
   };
 
-  // ══════════════════════════════════════════════
-  //  ADMIN AGREE
-  // ══════════════════════════════════════════════
+
+
+
 
   const handleAdminAgreeChange = () => {
     if (adminAlreadySigned) {
@@ -446,9 +444,9 @@ export default function Contract() {
     setIsAdminAgreed((prev) => !prev);
   };
 
-  // ══════════════════════════════════════════════
-  //  ADMIN SIGN & SAVE
-  // ══════════════════════════════════════════════
+
+
+
 
   const handleAdminSign = async () => {
     if (adminAlreadySigned) {
@@ -483,7 +481,7 @@ export default function Contract() {
         .getCanvas()
         .toDataURL("image/png");
 
-      // Save to API
+
       await contractService.signContractAsAdmin(id, {
         admin_signature: signatureDataUri,
         admin_agreed: true,
@@ -501,7 +499,7 @@ export default function Contract() {
     } catch (err) {
       console.error("Admin sign error:", err);
 
-      // لو مفيش endpoint بعد، خزّن محلي مؤقتاً
+
       const signatureDataUri = adminSignatureRef.current
         .getCanvas()
         .toDataURL("image/png");
@@ -537,9 +535,9 @@ export default function Contract() {
     }
   };
 
-  // ══════════════════════════════════════════════
-  //  LOADING
-  // ══════════════════════════════════════════════
+
+
+
 
   if (profileLoading || contractLoading) {
     return (
@@ -579,9 +577,9 @@ export default function Contract() {
     );
   }
 
-  // ══════════════════════════════════════════════
-  //  RENDER
-  // ══════════════════════════════════════════════
+
+
+
 
   return (
     <div
@@ -629,12 +627,11 @@ export default function Contract() {
           <button
             onClick={handlePrintContract}
             className={`flex items-center gap-2 px-4 py-2.5 rounded-xl font-bold text-sm transition-all duration-300 border-2 flex-shrink-0 mt-2
-              ${
-                user?.signature_path ||
+              ${user?.signature_path ||
                 (!isAdminSignatureEmpty && isAdminAgreed) ||
                 adminAlreadySigned
-                  ? "bg-[#023048] border-[#023048] text-white hover:bg-[#034a6d] hover:shadow-lg"
-                  : "bg-gray-100 border-gray-200 text-gray-400 cursor-not-allowed"
+                ? "bg-[#023048] border-[#023048] text-white hover:bg-[#034a6d] hover:shadow-lg"
+                : "bg-gray-100 border-gray-200 text-gray-400 cursor-not-allowed"
               }`}
           >
             <Printer className="w-4 h-4 md:w-5 md:h-5" />
@@ -645,11 +642,10 @@ export default function Contract() {
         {/* ── STATUS BADGES ── */}
         <div className="flex flex-wrap gap-3 mb-4 shrink-0">
           <div
-            className={`flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-bold ${
-              userAlreadySigned
+            className={`flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-bold ${userAlreadySigned
                 ? "bg-green-50 border border-green-300 text-green-700"
                 : "bg-red-50 border border-red-300 text-red-600"
-            }`}
+              }`}
           >
             <span>{userAlreadySigned ? "✅" : "❌"}</span>
             <span>
@@ -659,11 +655,10 @@ export default function Contract() {
           </div>
 
           <div
-            className={`flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-bold ${
-              adminAlreadySigned
+            className={`flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-bold ${adminAlreadySigned
                 ? "bg-green-50 border border-green-300 text-green-700"
                 : "bg-amber-50 border border-amber-300 text-amber-700"
-            }`}
+              }`}
           >
             <span>{adminAlreadySigned ? "✅" : "🔶"}</span>
             <span>
@@ -766,16 +761,14 @@ export default function Contract() {
           <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
             {/* Admin Agree Checkbox */}
             <div
-              className={`flex items-center gap-3 ${
-                adminAlreadySigned ? "cursor-default" : "cursor-pointer"
-              }`}
+              className={`flex items-center gap-3 ${adminAlreadySigned ? "cursor-default" : "cursor-pointer"
+                }`}
               onClick={handleAdminAgreeChange}
             >
               <div className="relative w-5 h-5 md:w-6 md:h-6 flex items-center justify-center shrink-0">
                 <div
-                  className={`w-full h-full rounded-full border border-gray-400 flex items-center justify-center transition-all ${
-                    isAdminAgreed ? "border-[#D4AF5B]" : ""
-                  }`}
+                  className={`w-full h-full rounded-full border border-gray-400 flex items-center justify-center transition-all ${isAdminAgreed ? "border-[#D4AF5B]" : ""
+                    }`}
                 >
                   {isAdminAgreed && (
                     <div className="w-2.5 h-2.5 md:w-3 md:h-3 bg-[#D4AF5B] rounded-full" />
@@ -798,14 +791,14 @@ export default function Contract() {
               {(user?.signature_path ||
                 (!isAdminSignatureEmpty && isAdminAgreed) ||
                 adminAlreadySigned) && (
-                <button
-                  onClick={handlePrintContract}
-                  className="flex items-center gap-1.5 px-4 py-2.5 rounded-md text-sm font-bold border-2 border-[#023048] text-[#023048] hover:bg-[#023048] hover:text-white transition-all"
-                >
-                  <Printer className="w-4 h-4" />
-                  <span>طباعة</span>
-                </button>
-              )}
+                  <button
+                    onClick={handlePrintContract}
+                    className="flex items-center gap-1.5 px-4 py-2.5 rounded-md text-sm font-bold border-2 border-[#023048] text-[#023048] hover:bg-[#023048] hover:text-white transition-all"
+                  >
+                    <Printer className="w-4 h-4" />
+                    <span>طباعة</span>
+                  </button>
+                )}
 
               {/* Main Button */}
               {/* <button

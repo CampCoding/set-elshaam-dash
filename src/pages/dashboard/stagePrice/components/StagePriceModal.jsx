@@ -1,4 +1,4 @@
-// src/pages/dashboard/stagePrice/components/StagePriceModal.jsx
+
 
 import { useEffect } from "react";
 import { Modal, Form, Input, Select, InputNumber } from "antd";
@@ -37,7 +37,7 @@ const StagePriceModal = ({
     form
       .validateFields()
       .then((values) => {
-        // ✅ بيبعت بالظبط زي الـ API body
+
         const payload = {
           title: values.title,
           description: values.description,

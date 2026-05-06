@@ -1,4 +1,4 @@
-// src/pages/auth/Signup.jsx
+
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { Checkbox } from "antd";

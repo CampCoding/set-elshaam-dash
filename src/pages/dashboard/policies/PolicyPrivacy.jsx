@@ -158,24 +158,24 @@ const PolicyPrivacy = () => {
                 </div>
               ),
             },
-            // {
-            //   key: "en",
-            //   label: (
-            //     <span className="flex items-center gap-2 px-4 text-left" dir="ltr">
-            //       <Languages size={16} />
-            //       English
-            //     </span>
-            //   ),
-            //   children: (
-            //     <div className="p-2" dir="ltr">
-            //       <JoditEditor
-            //         value={data.privacy_en}
-            //         config={configEn}
-            //         onBlur={(newContent) => setData(prev => ({ ...prev, privacy_en: newContent }))}
-            //       />
-            //     </div>
-            //   ),
-            // },
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
           ]}
         />
       </Card>

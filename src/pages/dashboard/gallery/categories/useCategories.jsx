@@ -1,4 +1,4 @@
-// src/pages/dashboard/gallery/categories/useCategories.jsx
+
 import { useState } from "react";
 import { message, Modal } from "antd";
 import { mockCategories } from "../mockData";
@@ -29,13 +29,13 @@ export const useCategories = () => {
         item.id === editingRecord.id ? { ...item, ...values } : item
       );
       setData(updated);
-      // تحديث الموك داتا
+
       mockCategories.length = 0;
       mockCategories.push(...updated);
       message.success("تم تعديل التصنيف بنجاح");
     } else {
       const newRecord = {
-        id: `cat_${Date.now()}`, // توليد ID وهمي
+        id: `cat_${Date.now()}`,
         ...values,
       };
       setData([newRecord, ...data]);

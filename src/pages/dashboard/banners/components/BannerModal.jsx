@@ -1,4 +1,4 @@
-// src/pages/dashboard/banners/components/BannerModal.jsx
+
 import { useEffect, useState } from "react";
 import { Modal, Form, Input, Select, Upload, message, Image, Radio, Switch } from "antd";
 import { Plus, Trash2, Upload as UploadIcon, Layout, Film, Image as ImageIcon } from "lucide-react";

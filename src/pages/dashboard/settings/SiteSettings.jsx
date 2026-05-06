@@ -1,4 +1,4 @@
-// src/pages/dashboard/settings/SiteSettings.jsx
+
 import { Card, Input, Button, Upload, Image, Space, Typography, Spin, Divider, Badge } from "antd";
 import { Settings, Upload as UploadIcon, Save, Image as ImageIcon, Type, Layout, Globe, Smartphone } from "lucide-react";
 import { useSiteSettings } from "./useSiteSettings";

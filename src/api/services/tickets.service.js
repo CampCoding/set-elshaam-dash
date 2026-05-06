@@ -15,7 +15,7 @@ export const ticketsService = {
   },
 
   replyTicket: async (id, data) => {
-    // data can be FormData if it has attachments
+
     const response = await axiosInstance.post(
       ADMIN_TICKETS_ENDPOINTS.REPLY_TICKET(id),
       data,

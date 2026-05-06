@@ -1,4 +1,4 @@
-// src/pages/dashboard/banners/useBanners.jsx
+
 import { useState, useEffect } from "react";
 import { message, Modal } from "antd";
 import bannersService from "../../../api/services/banners.service";
@@ -7,7 +7,7 @@ export const useBanners = () => {
   const [data, setData] = useState([]);
   const [loading, setLoading] = useState(false);
 
-  // Modal States
+
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [editingRecord, setEditingRecord] = useState(null);
 

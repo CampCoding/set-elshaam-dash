@@ -1,4 +1,4 @@
-// src/pages/dashboard/settings/useSiteSettings.jsx
+
 import { useState, useEffect } from "react";
 import { message } from "antd";
 import settingsService from "../../../api/services/settings.service";
@@ -13,21 +13,21 @@ export const useSiteSettings = () => {
     try {
       const res = await settingsService.getSettings();
       const data = res.data || {};
-      
-      // If there is a 'settings' array, use it as the primary source
+
+
       if (Array.isArray(data.settings)) {
-        // Map settings and ensure logos are treated correctly
+
         const mapped = data.settings.map(s => ({
           key: s.key,
           value: s.value,
-          // If it's a logo, the value is the image URL
+
           image: (s.key.includes('logo') || s.key.includes('favicon')) ? s.value : null
         }));
         setSettings(mapped);
       } else if (Array.isArray(data)) {
         setSettings(data);
       } else if (typeof data === "object") {
-        // Fallback for other structures
+
         const transformed = Object.entries(data).map(([key, value]) => ({
           key,
           value: typeof value === "object" ? (value.value || JSON.stringify(value)) : value,

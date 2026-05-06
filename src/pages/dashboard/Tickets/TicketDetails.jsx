@@ -75,7 +75,7 @@ const TicketDetails = () => {
       await ticketsService.replyTicket(id, formData);
       setReplyMessage("");
       setSelectedFiles([]);
-      fetchTicketDetails(); // Refresh to show new message
+      fetchTicketDetails();
     } catch (error) {
       console.error("Error sending reply:", error);
     } finally {

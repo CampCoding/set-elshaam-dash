@@ -1,4 +1,4 @@
-// src/pages/dashboard/gallery/items/GalleryItemModal.jsx
+
 import { useEffect, useState } from "react";
 import {
   Modal,
@@ -46,7 +46,7 @@ const GalleryItemModal = ({ visible, onCancel, onSave, initialData }) => {
         const isPredefined = CATEGORIES.includes(categoryValue);
 
         if (isPredefined && categoryValue !== OTHER_VALUE) {
-          // التصنيف موجود في القائمة المحددة مسبقاً
+
           form.setFieldsValue({
             category_ar: categoryValue,
             custom_category: "",
@@ -54,7 +54,7 @@ const GalleryItemModal = ({ visible, onCancel, onSave, initialData }) => {
           });
           setIsOtherCategory(false);
         } else {
-          // التصنيف مخصص (غير موجود في القائمة) → نختار "أخرى" ونملأ الحقل المخصص
+
           form.setFieldsValue({
             category_ar: OTHER_VALUE,
             custom_category: categoryValue === OTHER_VALUE ? "" : categoryValue,
@@ -104,14 +104,14 @@ const GalleryItemModal = ({ visible, onCancel, onSave, initialData }) => {
     form
       .validateFields()
       .then((values) => {
-        // لو المستخدم اختار "أخرى" → نستبدل category_ar بالقيمة المخصصة
+
         const finalValues = { ...values };
 
         if (values.category_ar === OTHER_VALUE) {
           finalValues.category_ar = values.custom_category?.trim();
         }
 
-        // حذف الحقل المؤقت
+
         delete finalValues.custom_category;
 
         onSave(finalValues);

@@ -1,11 +1,11 @@
-// src/pages/dashboard/packages/components/PackageModal.jsx
+
 import { useEffect } from "react";
 import { Modal, Form, Input, Select, Switch } from "antd";
 import { PackagePlus, PackageCheck } from "lucide-react";
 
 const { Option } = Select;
 
-// قائمة افتراضية للميزات - يمكن استبدالها بجلب الخدمات من الـ API لاحقاً
+
 const defaultFeatures = [
   "البحث عن شريك",
   "حجز صالة الأفراح",

@@ -1,8 +1,8 @@
-// src/routes/AppRoutes.jsx
+
 import { Routes, Route, Navigate } from "react-router-dom";
 import { Suspense } from "react";
 import { useAuth } from "../hooks/useAuth";
-import { authRoutes, getAppRoutes, adminRoutes } from "./routes-data"; // <-- أضفنا استدعاء adminRoutes
+import { authRoutes, getAppRoutes, adminRoutes } from "./routes-data";
 import DashboardLayout from "../components/layout/DashboardLayout";
 import Loading from "../components/common/Loading";
 import ProtectedRoute from "./ProtectedRoute";
@@ -17,7 +17,7 @@ const PublicRoute = ({ children }) => {
 };
 
 const AppRoutes = () => {
-  // جلب كل المسارات الخاصة بالأدمن (المسطحة/Flattened)
+
   const protectedRoutes = getAppRoutes();
 
   return (

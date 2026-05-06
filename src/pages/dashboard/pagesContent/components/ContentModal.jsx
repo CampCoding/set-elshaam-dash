@@ -1,4 +1,4 @@
-// src/pages/dashboard/pagesContent/components/ContentModal.jsx
+
 import { useEffect, useState } from "react";
 import {
   Modal,

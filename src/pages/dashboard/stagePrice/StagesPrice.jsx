@@ -1,4 +1,4 @@
-// src/pages/dashboard/stagePrice/StagesPrice.jsx
+
 
 import { Tag, Space, Button, Tooltip } from "antd";
 import { Edit, Trash2, Euro } from "lucide-react";

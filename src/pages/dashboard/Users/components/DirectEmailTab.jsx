@@ -45,7 +45,7 @@ const DirectEmailTab = ({ userId, emails, onRefresh, loading }) => {
       formData.append("subject", subject);
       formData.append("message", messageText);
       fileList.forEach((file) => {
-        // Since we return false in beforeUpload, 'file' is the raw File object
+
         formData.append("attachments", file);
       });
 
@@ -109,14 +109,14 @@ const DirectEmailTab = ({ userId, emails, onRefresh, loading }) => {
               className="rounded-lg"
             />
           </div>
-          
+
           <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
             <Upload {...uploadProps}>
               <Button icon={<AttachmentIcon size={14} className="ml-1" />} className="flex items-center rounded-lg">
                 إرفاق ملفات
               </Button>
             </Upload>
-            
+
             <Button
               type="primary"
               icon={<Send size={16} className="ml-2" />}
@@ -151,7 +151,7 @@ const DirectEmailTab = ({ userId, emails, onRefresh, loading }) => {
 
           return (
             <Card className="mb-3 rounded-xl hover:shadow-md transition-shadow border-gray-100 p-0 overflow-hidden">
-               <Collapse
+              <Collapse
                 ghost
                 expandIcon={({ isActive }) => <ChevronDown size={16} className={`transition-transform ${isActive ? 'rotate-180' : ''}`} />}
                 expandIconPosition="end"
@@ -184,23 +184,23 @@ const DirectEmailTab = ({ userId, emails, onRefresh, loading }) => {
                     <Paragraph className="text-gray-600 whitespace-pre-wrap text-sm leading-relaxed">
                       {item.message}
                     </Paragraph>
-                    
+
                     {attachments.length > 0 && (
                       <div className="mt-4 pt-3 border-t border-dashed border-gray-100">
-                         <Text strong className="block mb-2 text-xs text-gray-400">المرفقات المرسلة:</Text>
-                         <div className="flex flex-wrap gap-2">
-                            {attachments.map((url, idx) => (
-                              <Button
-                                key={idx}
-                                icon={<AttachmentIcon size={12} />}
-                                size="small"
-                                className="text-[10px] rounded-md flex items-center gap-1"
-                                onClick={() => window.open(url, '_blank')}
-                              >
-                                {url.split('/').pop()}
-                              </Button>
-                            ))}
-                         </div>
+                        <Text strong className="block mb-2 text-xs text-gray-400">المرفقات المرسلة:</Text>
+                        <div className="flex flex-wrap gap-2">
+                          {attachments.map((url, idx) => (
+                            <Button
+                              key={idx}
+                              icon={<AttachmentIcon size={12} />}
+                              size="small"
+                              className="text-[10px] rounded-md flex items-center gap-1"
+                              onClick={() => window.open(url, '_blank')}
+                            >
+                              {url.split('/').pop()}
+                            </Button>
+                          ))}
+                        </div>
                       </div>
                     )}
                   </div>

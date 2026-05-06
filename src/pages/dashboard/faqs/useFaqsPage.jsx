@@ -1,4 +1,4 @@
-// src/pages/dashboard/faqs/useFaqsPage.jsx
+
 import { useState, useEffect } from "react";
 import { message, Modal } from "antd";
 import faqsService from "../../../api/services/faqs.service";
@@ -12,7 +12,7 @@ export const useFaqsPage = () => {
     total: 0,
   });
 
-  // Modal States
+
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [editingRecord, setEditingRecord] = useState(null);
 
@@ -55,8 +55,8 @@ export const useFaqsPage = () => {
 
   const handleSave = async (values) => {
     setLoading(true);
-    
-    // Mapping UI fields to API fields
+
+
     const payload = {
       question_ar: values.question_ar || values.question,
       answer_ar: values.answer_ar || values.answer,

@@ -1,4 +1,4 @@
-// src/pages/dashboard/stagePrice/useStagesPrice.jsx
+
 
 import { useState, useEffect } from "react";
 import { message, Modal } from "antd";

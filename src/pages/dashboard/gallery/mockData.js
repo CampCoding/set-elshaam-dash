@@ -1,4 +1,4 @@
-// src/pages/dashboard/gallery/mockData.js
+
 
 export let mockCategories = [
   { id: "suits", label: "بدلات افراح" },

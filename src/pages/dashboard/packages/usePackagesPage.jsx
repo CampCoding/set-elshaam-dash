@@ -1,4 +1,4 @@
-// src/pages/dashboard/packages/usePackagesPage.jsx
+
 import { useState, useEffect } from "react";
 import { message, Modal } from "antd";
 import packagesService from "../../../api/services/packages.service";
@@ -7,7 +7,7 @@ export const usePackagesPage = () => {
   const [data, setData] = useState([]);
   const [loading, setLoading] = useState(false);
 
-  // Modal States
+
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [editingRecord, setEditingRecord] = useState(null);
 
@@ -45,8 +45,8 @@ export const usePackagesPage = () => {
 
   const handleSave = async (values) => {
     setLoading(true);
-    
-    // Mapping UI fields to API fields
+
+
     const payload = {
       name_ar: values.name_ar || values.name,
       features_ar: values.features_ar || values.services || [],

@@ -1,4 +1,4 @@
-// src/pages/dashboard/Profiles/useProfilesPage.js
+
 import { useState, useEffect, useCallback, useMemo, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { message, Modal } from "antd";
@@ -6,7 +6,7 @@ import useDebounce from "../../../hooks/useDebounce";
 import useUrlFilters from "../../../hooks/useUrlFilters";
 import { profilesService } from "../../../api/services/profiles.service";
 
-// Configuration for URL filters
+
 const URL_FILTERS_CONFIG = {
   defaultValues: {
     page: 1,
@@ -28,7 +28,7 @@ export const useProfilesPage = () => {
   const navigate = useNavigate();
   const isFirstRender = useRef(true);
 
-  // URL Filters Hook
+
   const {
     params: urlParams,
     setParams,
@@ -37,24 +37,24 @@ export const useProfilesPage = () => {
     activeFiltersCount,
   } = useUrlFilters(URL_FILTERS_CONFIG);
 
-  // Data States
+
   const [data, setData] = useState([]);
   const [loading, setLoading] = useState(false);
   const [total, setTotal] = useState(0);
 
-  // Modal States
+
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [editingRecord, setEditingRecord] = useState(null);
 
-  // Payment Modal States
+
   const [isPaymentModalVisible, setIsPaymentModalVisible] = useState(false);
   const [paymentRecord, setPaymentRecord] = useState(null);
 
-  // Local search state (for input control)
+
   const [searchValue, setSearchValue] = useState(urlParams.search || "");
   const debouncedSearch = useDebounce(searchValue, 500);
 
-  // Derived filters object (for UI)
+
   const filters = useMemo(
     () => ({
       gender: urlParams.gender,
@@ -68,7 +68,7 @@ export const useProfilesPage = () => {
     [urlParams]
   );
 
-  // Table params (for DataTable)
+
   const tableParams = useMemo(
     () => ({
       page: urlParams.page || 1,
@@ -78,7 +78,7 @@ export const useProfilesPage = () => {
     [urlParams.page, urlParams.limit]
   );
 
-  // Build API params
+
   const buildApiParams = useCallback(() => {
     const apiParams = {
       page: urlParams.page || 1,
@@ -86,12 +86,12 @@ export const useProfilesPage = () => {
       type: "main",
     };
 
-    // Add search
+
     if (urlParams.search) {
       apiParams.search = urlParams.search;
     }
 
-    // Add filters (only non-null values)
+
     Object.entries(filters).forEach(([key, value]) => {
       if (value !== null && value !== undefined && value !== "") {
         apiParams[key] = value;
@@ -101,7 +101,7 @@ export const useProfilesPage = () => {
     return apiParams;
   }, [urlParams, filters]);
 
-  // Fetch Profiles
+
   const fetchProfiles = useCallback(async () => {
     setLoading(true);
     try {
@@ -118,26 +118,26 @@ export const useProfilesPage = () => {
     }
   }, [buildApiParams]);
 
-  // Fetch on URL params change
+
   useEffect(() => {
     fetchProfiles();
   }, [fetchProfiles]);
 
-  // Sync debounced search to URL
+
   useEffect(() => {
-    // Skip first render to avoid unnecessary URL update
+
     if (isFirstRender.current) {
       isFirstRender.current = false;
       return;
     }
 
-    // Only update if value actually changed
+
     if (debouncedSearch !== (urlParams.search || "")) {
       setParams({ search: debouncedSearch || null }, { resetPage: true });
     }
   }, [debouncedSearch]);
 
-  // Sync URL search to local state when URL changes externally
+
   useEffect(() => {
     const urlSearch = urlParams.search || "";
     if (urlSearch !== searchValue && !isFirstRender.current) {
@@ -145,14 +145,14 @@ export const useProfilesPage = () => {
     }
   }, [urlParams.search]);
 
-  // ============ Handlers ============
 
-  // Search handler
+
+
   const handleSearch = useCallback((value) => {
     setSearchValue(value);
   }, []);
 
-  // Filter change handler
+
   const handleFilterChange = useCallback(
     (key, value) => {
       setParams({ [key]: value ?? null }, { resetPage: true });
@@ -160,13 +160,13 @@ export const useProfilesPage = () => {
     [setParams]
   );
 
-  // Reset all filters
+
   const handleResetFilters = useCallback(() => {
     setSearchValue("");
     resetParams();
   }, [resetParams]);
 
-  // Table pagination change
+
   const handleTableChange = useCallback(
     (pagination) => {
       setParams({
@@ -177,12 +177,12 @@ export const useProfilesPage = () => {
     [setParams]
   );
 
-  // Refresh data
+
   const handleRefresh = useCallback(() => {
     fetchProfiles();
   }, [fetchProfiles]);
 
-  // ============ Modal Handlers ============
+
 
   const handleOpenAdd = useCallback(() => {
     setEditingRecord(null);
@@ -300,30 +300,30 @@ export const useProfilesPage = () => {
   );
 
   return {
-    // Data
+
     data,
     loading,
     total,
 
-    // Search
+
     searchValue,
     handleSearch,
 
-    // Table
+
     tableParams,
     handleTableChange,
 
-    // Filters
+
     filters,
     handleFilterChange,
     handleResetFilters,
     handleRefresh,
 
-    // Filter indicators
+
     hasActiveFilters,
     activeFiltersCount,
 
-    // Modal
+
     isModalVisible,
     editingRecord,
     handleOpenAdd,
@@ -331,13 +331,13 @@ export const useProfilesPage = () => {
     handleCloseModal,
     handleSave,
 
-    // Actions
+
     handleDelete,
     handleToggleVerify,
     handleToggleBlock,
     handleViewProfile,
 
-    // Payment Modal
+
     isPaymentModalVisible,
     paymentRecord,
     handleOpenPayment,

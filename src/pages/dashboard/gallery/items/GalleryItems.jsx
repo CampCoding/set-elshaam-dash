@@ -1,4 +1,4 @@
-// src/pages/dashboard/gallery/items/GalleryItems.jsx
+
 import { Tag, Space, Button, Tooltip, Image } from "antd";
 import { Edit, Trash2, Images, Eye } from "lucide-react";
 import DataTable, {

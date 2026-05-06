@@ -1,4 +1,4 @@
-// src/pages/dashboard/pagesContent/usePagesContent.jsx
+
 import { useState, useEffect } from "react";
 import { message, Modal } from "antd";
 import pagesContentService from "../../../api/services/pagesContent.service";
@@ -7,7 +7,7 @@ export const usePagesContent = () => {
   const [data, setData] = useState([]);
   const [loading, setLoading] = useState(false);
 
-  // Modal States
+
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [editingRecord, setEditingRecord] = useState(null);
 
@@ -47,7 +47,7 @@ export const usePagesContent = () => {
     setLoading(true);
     const formData = new FormData();
 
-    // Appending text fields
+
     formData.append("title_ar", values.title_ar);
     formData.append("title_en", values.title_en);
     formData.append("sub_title_ar", values.sub_title_ar);
@@ -59,7 +59,7 @@ export const usePagesContent = () => {
     formData.append("button_link", values.button_link);
     formData.append("media_type", values.media_type);
 
-    // Appending Files
+
     if (values.main_media_file) {
       formData.append("main_media", values.main_media_file);
     }
@@ -72,7 +72,7 @@ export const usePagesContent = () => {
 
     try {
       if (editingRecord) {
-        // Use POST with _method=PUT for multipart/form-data compatibility
+
         await pagesContentService.updateContent(editingRecord.id, formData);
         message.success("تم تعديل المحتوى بنجاح");
       } else {

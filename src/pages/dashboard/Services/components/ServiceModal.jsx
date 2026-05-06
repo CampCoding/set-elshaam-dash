@@ -1,4 +1,4 @@
-// src/pages/dashboard/services/components/ServiceModal.jsx
+
 import { useEffect, useState } from "react";
 import {
   Modal,
@@ -26,7 +26,7 @@ import faqsService from "../../../../api/services/faqs.service";
 const { TextArea } = Input;
 const { Option } = Select;
 
-// ✅ مكوّن صورة واحدة مع زر حذف
+
 const ImageItem = ({ src, onRemove, isServer, removing }) => (
   <div className="relative aspect-square rounded-lg overflow-hidden border-2 border-gray-200 group">
     <Image
@@ -58,19 +58,19 @@ const ServiceModal = ({
   onSave,
   initialData,
   loading,
-  onRemoveServerImage, // ✅ prop جديد
+  onRemoveServerImage,
 }) => {
   const [form] = Form.useForm();
 
-  // صور السلايدر
-  // serverSliderUrls = URLs موجودة على السيرفر
-  // newSliderUrls    = URLs محلية (blob) للصور الجديدة
+
+
+
   const [serverSliderUrls, setServerSliderUrls] = useState([]);
   const [newSliderUrls, setNewSliderUrls] = useState([]);
   const [uploading, setUploading] = useState(false);
-  const [removingSlider, setRemovingSlider] = useState(null); // index اللي بيتمسح
+  const [removingSlider, setRemovingSlider] = useState(null);
 
-  // صور المعرض
+
   const [serverGalleryUrls, setServerGalleryUrls] = useState([]);
   const [newGalleryUrls, setNewGalleryUrls] = useState([]);
   const [galleryUploading, setGalleryUploading] = useState(false);
@@ -94,9 +94,9 @@ const ServiceModal = ({
       if (initialData) {
         const descriptionList = initialData.description_ar
           ? initialData.description_ar
-              .split("\n")
-              .filter((t) => t.trim())
-              .map((text) => ({ text }))
+            .split("\n")
+            .filter((t) => t.trim())
+            .map((text) => ({ text }))
           : [{ text: "" }];
 
         form.setFieldsValue({
@@ -109,19 +109,19 @@ const ServiceModal = ({
           faqs: initialData.faqs || [],
         });
 
-        // ✅ فصل صور السيرفر عن الجديدة
+
         const slider = Array.isArray(initialData.slider_images)
           ? initialData.slider_images.map((img) =>
-              typeof img === "string" ? img : img.path
-            )
+            typeof img === "string" ? img : img.path
+          )
           : [];
         setServerSliderUrls(slider);
         setNewSliderUrls([]);
 
         const gallery = Array.isArray(initialData.gallery_images)
           ? initialData.gallery_images.map((img) =>
-              typeof img === "string" ? img : img.path
-            )
+            typeof img === "string" ? img : img.path
+          )
           : [];
         setServerGalleryUrls(gallery);
         setNewGalleryUrls([]);
@@ -140,7 +140,7 @@ const ServiceModal = ({
     }
   }, [visible, initialData, form]);
 
-  // ✅ مسح صورة سيرفر من السلايدر
+
   const handleRemoveServerSlider = async (url, index) => {
     if (!initialData?.id || !onRemoveServerImage) return;
     setRemovingSlider(index);
@@ -151,7 +151,7 @@ const ServiceModal = ({
     setRemovingSlider(null);
   };
 
-  // ✅ مسح صورة سيرفر من الجاليري
+
   const handleRemoveServerGallery = async (url, index) => {
     if (!initialData?.id || !onRemoveServerImage) return;
     setRemovingGallery(index);
@@ -162,7 +162,7 @@ const ServiceModal = ({
     setRemovingGallery(null);
   };
 
-  // مسح صورة جديدة (لسه مرفعتش) من السلايدر
+
   const handleRemoveNewSlider = (index) => {
     setNewSliderUrls((prev) => prev.filter((_, i) => i !== index));
     const currentFiles = form.getFieldValue("slider_files") || [];
@@ -172,7 +172,7 @@ const ServiceModal = ({
     message.success("تم حذف الصورة");
   };
 
-  // مسح صورة جديدة من الجاليري
+
   const handleRemoveNewGallery = (index) => {
     setNewGalleryUrls((prev) => prev.filter((_, i) => i !== index));
     const currentFiles = form.getFieldValue("gallery_files") || [];

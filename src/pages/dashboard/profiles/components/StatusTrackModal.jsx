@@ -24,10 +24,10 @@ import {
   ChevronDown,
 } from "lucide-react";
 import dayjs from "dayjs";
-import api from "../../../../api/axios"; // ✅
+import api from "../../../../api/axios";
 const { TextArea } = Input;
 
-// ==================== Config ====================
+
 const STATUS_TRACK = [
   {
     key: "reviewing",
@@ -98,20 +98,20 @@ const INITIAL_HISTORY = [
   },
 ];
 
-// ==================== StatusTrackModal ====================
+
 const StatusTrackModal = ({ visible, onCancel, record }) => {
   const [currentStatus, setCurrentStatus] = useState("searching");
   const [history, setHistory] = useState(INITIAL_HISTORY);
   const [selectedNewStatus, setSelectedNewStatus] = useState(null);
   const [adminNote, setAdminNote] = useState("");
   const [isUpdating, setIsUpdating] = useState(false);
-  const [loadingData, setLoadingData] = useState(false); // ✅ جديد
+  const [loadingData, setLoadingData] = useState(false);
 
   useEffect(() => {
     if (visible && record) {
       const trackingHistory = record.user_tracking_history || [];
 
-      // ✅ فلتر الـ null entries
+
       const validHistory = trackingHistory
         .filter((item) => item.status !== null)
         .map((item, i) => ({
@@ -126,7 +126,7 @@ const StatusTrackModal = ({ visible, onCancel, record }) => {
 
       setHistory(validHistory);
 
-      // ✅ آخر status هو الحالي
+
       const lastValid = [...trackingHistory]
         .reverse()
         .find((item) => item.status !== null);
@@ -146,7 +146,7 @@ const StatusTrackModal = ({ visible, onCancel, record }) => {
         }
       );
 
-      // ✅ أضف للـ history locally
+
       const newEntry = {
         id: history.length + 1,
         statusKey: selectedNewStatus,

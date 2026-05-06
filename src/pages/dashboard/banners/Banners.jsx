@@ -1,4 +1,4 @@
-// src/pages/dashboard/banners/Banners.jsx
+
 import { Tag, Space, Button, Tooltip, Image as AntImage, Badge, Typography } from "antd";
 import { Edit, Trash2, Layout, ImageIcon, Film, Monitor } from "lucide-react";
 import DataTable, { getColumnSearchProps } from "../../../components/common/DataTable";

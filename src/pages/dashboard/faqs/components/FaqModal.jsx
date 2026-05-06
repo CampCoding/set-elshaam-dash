@@ -1,4 +1,4 @@
-// src/pages/dashboard/faqs/components/FaqModal.jsx
+
 import { useEffect } from "react";
 import { Modal, Form, Input, InputNumber } from "antd";
 import { MessageCircleQuestion } from "lucide-react";

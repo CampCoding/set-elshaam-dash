@@ -1,4 +1,4 @@
-// src/pages/dashboard/gallery/categories/Categories.jsx
+
 import { Space, Button, Tooltip } from "antd";
 import { Edit, Trash2, Layers } from "lucide-react";
 import DataTable, {

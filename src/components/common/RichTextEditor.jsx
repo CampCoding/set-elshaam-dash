@@ -1,4 +1,4 @@
-// src/components/common/RichTextEditor.jsx
+
 import React, { useMemo } from 'react';
 import JoditEditor from 'jodit-react';
 
@@ -64,7 +64,7 @@ const RichTextEditor = ({ value, onChange, placeholder }) => {
         config={config}
         tabIndex={1}
         onBlur={(newContent) => onChange(newContent)}
-        onChange={() => {}}
+        onChange={() => { }}
       />
     </div>
   );

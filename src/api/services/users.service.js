@@ -1,9 +1,9 @@
-// src/api/services/users.service.js
+
 import api from "../axios";
 import { ADMIN_USER_ENDPOINTS } from "../endpoints";
 
 export const usersService = {
-  // ============ GET ALL USERS ============
+
   getUsers: async (params = {}) => {
     try {
       const response = await api.get(ADMIN_USER_ENDPOINTS.GET_USERS(params));
@@ -14,7 +14,7 @@ export const usersService = {
     }
   },
 
-  // ============ GET USER BY ID ============
+
   getUserById: async (id) => {
     try {
       const response = await api.get(ADMIN_USER_ENDPOINTS.GET_USER_DETAILS(id));
@@ -25,7 +25,7 @@ export const usersService = {
     }
   },
 
-  // ============ CREATE USER ============
+
   createUser: async (userData) => {
     try {
       const isFormData = userData instanceof FormData;
@@ -44,7 +44,7 @@ export const usersService = {
     }
   },
 
-  // ============ UPDATE USER ============
+
   updateUser: async (id, userData) => {
     try {
       const isFormData = userData instanceof FormData;
@@ -63,7 +63,7 @@ export const usersService = {
     }
   },
 
-  // ============ DELETE USER ============
+
   deleteUser: async (id) => {
     try {
       const response = await api.delete(ADMIN_USER_ENDPOINTS.DELETE_USER(id));
@@ -74,7 +74,7 @@ export const usersService = {
     }
   },
 
-  // ============ TOGGLE BLOCK STATUS ============
+
   toggleBlock: async (id) => {
     try {
       const response = await api.patch(ADMIN_USER_ENDPOINTS.TOGGLE_BLOCK(id));
@@ -84,8 +84,8 @@ export const usersService = {
       throw error;
     }
   },
-  
-  // ============ SEND DIRECT EMAIL ============
+
+
   sendDirectEmail: async (id, formData) => {
     try {
       const response = await api.post(
@@ -99,7 +99,7 @@ export const usersService = {
     }
   },
 
-  // ============ LIST DIRECT EMAILS ============
+
   listDirectEmails: async (id) => {
     try {
       const response = await api.get(ADMIN_USER_ENDPOINTS.LIST_DIRECT_EMAILS(id));

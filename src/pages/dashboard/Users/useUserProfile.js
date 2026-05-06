@@ -14,8 +14,8 @@ export const useUserProfile = () => {
   const [activeTab, setActiveTab] = useState("main");
   const [isEditModalVisible, setIsEditModalVisible] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
-  
-  // Direct Emails State
+
+
   const [emails, setEmails] = useState([]);
   const [loadingEmails, setLoadingEmails] = useState(false);
 
@@ -136,7 +136,7 @@ export const useUserProfile = () => {
     handleDeleteFile,
     handleDeleteUser,
     refresh: fetchProfiles,
-    // Email related
+
     emails,
     loadingEmails,
     fetchEmails

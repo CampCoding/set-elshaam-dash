@@ -1,6 +1,6 @@
-// src/constants/userOptions.js
 
-// ============ الدول (أسماء) ============
+
+
 export const COUNTRIES = [
   { value: "egypt", label: "مصر" },
   { value: "saudi_arabia", label: "السعودية" },
@@ -40,7 +40,7 @@ export const COUNTRIES = [
   { value: "other", label: "أخرى" },
 ];
 
-// ============ الجنسيات (صفات) ============
+
 export const NATIONALITIES = [
   { value: "egyptian", label: "مصري" },
   { value: "saudi", label: "سعودي" },
@@ -80,14 +80,14 @@ export const NATIONALITIES = [
   { value: "other", label: "أخرى" },
 ];
 
-// ============ الديانات ============
+
 export const RELIGIONS = [
   { value: "muslim", label: "مسلم" },
   { value: "christian", label: "مسيحي" },
   { value: "other", label: "أخرى" },
 ];
 
-// ============ المذاهب ============
+
 export const SECTS_BY_RELIGION = {
   muslim: [
     { value: "sunni", label: "سني" },
@@ -107,13 +107,13 @@ export const SECTS_BY_RELIGION = {
   other: [{ value: "other", label: "أخرى" }],
 };
 
-// ============ الجنس ============
+
 export const GENDERS = [
   { value: "male", label: "ذكر" },
   { value: "female", label: "أنثى" },
 ];
 
-// ============ الحالة الاجتماعية ============
+
 export const MARITAL_STATUS = [
   { value: "single", label: "أعزب/عزباء" },
   { value: "married", label: "متزوج/ة" },
@@ -122,7 +122,7 @@ export const MARITAL_STATUS = [
   { value: "separated", label: "منفصل/ة" },
 ];
 
-// ============ نوع الإقامة ============
+
 export const RESIDENCY_TYPES = [
   { value: "temporary", label: "مؤقتة" },
   { value: "permanent", label: "دائمة" },
@@ -130,7 +130,7 @@ export const RESIDENCY_TYPES = [
   { value: "no_residency", label: "بدون إقامة" },
 ];
 
-// ============ المستوى التعليمي ============
+
 export const EDUCATION_LEVELS = [
   { value: "no_education", label: "بدون تعليم رسمي" },
   { value: "basic", label: "تعليم أساسي (ابتدائي وإعدادي)" },
@@ -142,7 +142,7 @@ export const EDUCATION_LEVELS = [
   { value: "other", label: "أخرى" },
 ];
 
-// ============ مصدر الدخل ============
+
 export const INCOME_SOURCES = [
   { value: "government", label: "من الحكومة" },
   { value: "private_work", label: "من عملي الخاص" },
@@ -152,27 +152,27 @@ export const INCOME_SOURCES = [
   { value: "other", label: "أخرى" },
 ];
 
-// ============ درجة الالتزام الديني ============
+
 export const RELIGION_COMMITMENT = [
   { value: "committed", label: "ملتزم بالصلاة" },
   { value: "sometimes", label: "بعض الأحيان" },
   { value: "never", label: "أبداً" },
 ];
 
-// ============ حالة الحجاب ============
+
 export const HIJAB_STATUS = [
   { value: "hijab_committed", label: "ملتزمة محجبة" },
   { value: "hijab_with_makeup", label: "محجبة مع مكياج" },
   { value: "no_hijab", label: "بدون حجاب" },
 ];
 
-// ============ نعم/لا ============
+
 export const YES_NO_OPTIONS = [
   { value: 1, label: "نعم" },
   { value: 0, label: "لا" },
 ];
 
-// ============ الفئات العمرية ============
+
 export const AGE_RANGES = [
   { value: "18-22", label: "18-22" },
   { value: "23-27", label: "23-27" },
@@ -185,7 +185,7 @@ export const AGE_RANGES = [
   { value: "60+", label: "60+" },
 ];
 
-// ============ ألوان البشرة ============
+
 export const SKIN_COLORS = [
   { value: "white", label: "أبيض" },
   { value: "wheat", label: "قمحي" },
@@ -195,7 +195,7 @@ export const SKIN_COLORS = [
   { value: "black", label: "أسود" },
 ];
 
-// ============ ألوان العيون ============
+
 export const EYE_COLORS = [
   { value: "black", label: "أسود" },
   { value: "brown", label: "بني" },
@@ -205,7 +205,7 @@ export const EYE_COLORS = [
   { value: "gray", label: "رمادي" },
 ];
 
-// ============ أنواع الشعر ============
+
 export const HAIR_TYPES = [
   { value: "straight", label: "ناعم" },
   { value: "wavy", label: "مموج" },
@@ -213,7 +213,7 @@ export const HAIR_TYPES = [
   { value: "bald", label: "أصلع" },
 ];
 
-// ============ Helper Functions ============
+
 export const getLabelByValue = (options, value) => {
   if (Array.isArray(options)) {
     const option = options.find((opt) => opt.value === value);

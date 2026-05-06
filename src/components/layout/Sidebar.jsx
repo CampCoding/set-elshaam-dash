@@ -1,4 +1,4 @@
-// src/components/layout/Sidebar.jsx
+
 import { useState, useEffect } from "react";
 import { NavLink, useLocation } from "react-router-dom";
 import { LogOut, X, ChevronDown } from "lucide-react";
@@ -10,10 +10,10 @@ const Sidebar = ({ isOpen, onClose, isMobile }) => {
   const location = useLocation();
   const sidebarItems = getSidebarItems();
 
-  // State للتحكم في القوائم المنسدلة (Dropdowns)
+
   const [openMenus, setOpenMenus] = useState({});
 
-  // عند تحميل الصفحة، نفتح الـ Dropdown لو المسار الحالي جواه
+
   useEffect(() => {
     const currentOpenMenus = {};
     sidebarItems.forEach((item) => {
@@ -77,7 +77,7 @@ const Sidebar = ({ isOpen, onClose, isMobile }) => {
             {sidebarItems.map((item) => {
               const Icon = item.icon;
 
-              // ✅ حالة وجود قائمة منسدلة (Children)
+
               if (item.children) {
                 const isMenuOpen = openMenus[item.path];
                 const isChildActive = location.pathname.startsWith(item.path);
@@ -86,35 +86,32 @@ const Sidebar = ({ isOpen, onClose, isMobile }) => {
                   <li key={item.path} className="flex flex-col">
                     <button
                       onClick={() => toggleMenu(item.path)}
-                      className={`flex items-center justify-between px-4 py-2.5 rounded-lg transition-all duration-300 w-full ${
-                        isChildActive || isMenuOpen
-                          ? "bg-white/10 text-white font-semibold" // لون الأب لو القائمة مفتوحة أو أحد الأبناء نشط
+                      className={`flex items-center justify-between px-4 py-2.5 rounded-lg transition-all duration-300 w-full ${isChildActive || isMenuOpen
+                          ? "bg-white/10 text-white font-semibold"
                           : "text-white/80 hover:bg-white/10"
-                      }`}
+                        }`}
                     >
                       <div className="flex items-center gap-3">
                         <Icon className="w-5 h-5 flex-shrink-0" />
                         <span className="truncate">{item.label}</span>
                       </div>
                       <ChevronDown
-                        className={`w-4 h-4 transition-transform duration-300 ${
-                          isMenuOpen ? "rotate-180" : ""
-                        }`}
+                        className={`w-4 h-4 transition-transform duration-300 ${isMenuOpen ? "rotate-180" : ""
+                          }`}
                       />
                     </button>
 
                     {/* العناصر الفرعية */}
                     <div
-                      className={`overflow-hidden transition-all duration-300 ease-in-out ${
-                        isMenuOpen
+                      className={`overflow-hidden transition-all duration-300 ease-in-out ${isMenuOpen
                           ? "max-h-48 opacity-100 mt-1"
                           : "max-h-0 opacity-0"
-                      }`}
+                        }`}
                     >
                       <ul className="ms-4 space-y-1 border-s-2 border-white/20">
                         {item.children.map((child) => {
                           const ChildIcon = child.icon;
-                          const childPath = `${item.path}/${child.path}`; // بناء المسار الكامل
+                          const childPath = `${item.path}/${child.path}`;
 
                           return (
                             <li key={childPath}>
@@ -122,10 +119,9 @@ const Sidebar = ({ isOpen, onClose, isMobile }) => {
                                 to={childPath}
                                 onClick={() => isMobile && onClose?.()}
                                 className={({ isActive }) =>
-                                  `flex items-center gap-3 px-3 py-2 rounded-lg transition-all duration-300 text-sm ${
-                                    isActive
-                                      ? "bg-white text-accent! font-semibold shadow-md"
-                                      : "text-white/70! hover:text-white! hover:bg-white/5!"
+                                  `flex items-center gap-3 px-3 py-2 rounded-lg transition-all duration-300 text-sm ${isActive
+                                    ? "bg-white text-accent! font-semibold shadow-md"
+                                    : "text-white/70! hover:text-white! hover:bg-white/5!"
                                   }`
                                 }
                               >
@@ -141,17 +137,16 @@ const Sidebar = ({ isOpen, onClose, isMobile }) => {
                 );
               }
 
-              // ✅ حالة الرابط العادي (بدون Dropdown)
+
               return (
                 <li key={item.path}>
                   <NavLink
                     to={item.path}
                     onClick={() => isMobile && onClose?.()}
                     className={({ isActive }) =>
-                      `flex items-center gap-3 px-4 py-2.5 rounded-lg transition-all duration-300 ${
-                        isActive
-                          ? "bg-white text-accent! font-semibold shadow-lg"
-                          : "text-white/80! hover:bg-white/10!"
+                      `flex items-center gap-3 px-4 py-2.5 rounded-lg transition-all duration-300 ${isActive
+                        ? "bg-white text-accent! font-semibold shadow-lg"
+                        : "text-white/80! hover:bg-white/10!"
                       }`
                     }
                   >

@@ -1,4 +1,4 @@
-// src/api/services/services.service.js
+
 import api from "../axios";
 import { ADMIN_SERVICES_ENDPOINTS } from "../endpoints";
 
@@ -43,7 +43,7 @@ const servicesService = {
     return response.data;
   },
 
-  // ✅
+
   removeImage: async (id, data) => {
     const response = await api.delete(
       ADMIN_SERVICES_ENDPOINTS.REMOVE_SERVICE_IMAGE(id),

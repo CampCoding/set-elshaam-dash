@@ -1,4 +1,4 @@
-// src/pages/dashboard/pagesContent/PagesContent.jsx
+
 import {
   Tag,
   Space,
@@ -201,8 +201,8 @@ const PagesContent = () => {
         data={data}
         loading={loading}
         searchPlaceholder="ابحث بالعنوان..."
-        // addButton={true}
-        // addButtonText="إضافة محتوى جديد"
+
+
         onAddClick={handleOpenAdd}
         emptyText="لا يوجد محتوى مضاف حتى الآن"
         emptyIcon={FileText}

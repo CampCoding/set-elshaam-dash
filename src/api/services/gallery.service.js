@@ -17,8 +17,8 @@ const galleryService = {
   },
 
   updateGallery: async (id, formData) => {
-    // Some APIs expect POST with _method=PUT for multipart/form-data
-    // but the user explicitly said PUT. If it fails, I might need to change it.
+
+
     const response = await api.put(ADMIN_GALLERY_ENDPOINTS.UPDATE_GALLERY(id), formData, {
       headers: {
         "Content-Type": "multipart/form-data",

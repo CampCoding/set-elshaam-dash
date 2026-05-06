@@ -1,4 +1,4 @@
-// src/pages/dashboard/Profiles/ProfilesPage.jsx
+
 import React, { useState, useMemo, useCallback } from "react";
 import {
   Tag,
@@ -98,7 +98,7 @@ const ProfilesPage = () => {
     return age;
   }, []);
 
-  // Filter options
+
   const verifiedOptions = [
     { value: 1, label: "موثق" },
     { value: 0, label: "غير موثق" },
@@ -109,7 +109,7 @@ const ProfilesPage = () => {
     { value: 1, label: "مدخن" },
   ];
 
-  // Actions Dropdown Menu
+
   const getActionItems = useCallback(
     (record) => [
       {
@@ -137,7 +137,7 @@ const ProfilesPage = () => {
     [handleViewProfile, handleToggleBlock, handleDelete]
   );
 
-  // Table Columns
+
   const columns = useMemo(
     () => [
       {

@@ -1,4 +1,4 @@
-// src/pages/dashboard/Home/Home.jsx
+
 import {
   Users,
   CreditCard,
@@ -50,7 +50,7 @@ const Home = () => {
 
   const stats = dashboardData;
 
-  // ==================== Stats Cards ====================
+
   const statsCards = [
     {
       label: "إجمالي المشتركين",
@@ -81,7 +81,7 @@ const Home = () => {
     },
   ];
 
-  // ==================== Payment Status Config ====================
+
   const getPaymentStatusTag = (status) => {
     switch (status?.toUpperCase()) {
       case "SUCCESS":
@@ -241,9 +241,8 @@ const Home = () => {
                       <div className="flex justify-between items-center mb-1.5">
                         <span className="flex items-center gap-2 font-bold text-gray-700 text-sm">
                           <span
-                            className={`w-2.5 h-2.5 rounded-full ${
-                              isSuccess ? "bg-green-500" : "bg-orange-400"
-                            }`}
+                            className={`w-2.5 h-2.5 rounded-full ${isSuccess ? "bg-green-500" : "bg-orange-400"
+                              }`}
                           />
                           {isSuccess ? "مدفوع" : "قيد الانتظار"}
                         </span>

@@ -1,4 +1,4 @@
-// src/api/services/news.service.js
+
 import api from "../axios";
 import { ADMIN_NEWS_ENDPOINTS } from "../endpoints";
 

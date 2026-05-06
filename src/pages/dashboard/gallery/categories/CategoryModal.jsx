@@ -1,4 +1,4 @@
-// src/pages/dashboard/gallery/categories/CategoryModal.jsx
+
 import { useEffect } from "react";
 import { Modal, Form, Input } from "antd";
 import { FolderPlus, FolderEdit } from "lucide-react";

@@ -32,7 +32,7 @@ import { message, Spin } from "antd";
 
 const { Text } = Typography;
 
-// ==================== Status Track Config ====================
+
 const STATUS_TRACK = [
   {
     key: "reviewing",
@@ -84,7 +84,7 @@ const STATUS_TRACK = [
   },
 ];
 
-// ==================== Status Track Modal ====================
+
 const StatusTrackModal = ({ visible, onCancel, record }) => {
   const [currentStatus, setCurrentStatus] = useState("searching");
   const [statusHistory, setStatusHistory] = useState([
@@ -271,9 +271,8 @@ const StatusTrackModal = ({ visible, onCancel, record }) => {
                   ),
                   children: (
                     <div
-                      className={`pb-2 ${
-                        index === 0 ? "opacity-100" : "opacity-70"
-                      }`}
+                      className={`pb-2 ${index === 0 ? "opacity-100" : "opacity-70"
+                        }`}
                     >
                       <div className="flex items-center gap-2 flex-wrap">
                         <Tag
@@ -309,31 +308,31 @@ const StatusTrackModal = ({ visible, onCancel, record }) => {
   );
 };
 
-// ==================== Payment Modal ====================
+
 const PaymentModal = ({ visible, onCancel, record, onSend }) => {
   const [loadingStageId, setLoadingStageId] = useState(null);
   const [stages, setStages] = useState([]);
   const [loadingStages, setLoadingStages] = useState(false);
   const [userPayments, setUserPayments] = useState([]);
 
-  // ── Price & Note state ──
+
   const [customPrices, setCustomPrices] = useState({});
-  const [customNotes, setCustomNotes] = useState({}); // ✅ notes per stage
+  const [customNotes, setCustomNotes] = useState({});
   const [editingStageId, setEditingStageId] = useState(null);
   const [tempPrice, setTempPrice] = useState(null);
-  const [tempNote, setTempNote] = useState(""); // ✅ temp note while editing
+  const [tempNote, setTempNote] = useState("");
 
-  // ── Status Track Modal ──
+
   const [isStatusModalVisible, setIsStatusModalVisible] = useState(false);
 
-  // ─────────────────────────────────────────────
-  // Price & Note handlers
-  // ─────────────────────────────────────────────
+
+
+
 
   const handleConfirmPrice = (stageId) => {
     if (tempPrice !== null && tempPrice !== undefined && tempPrice >= 0) {
       setCustomPrices((prev) => ({ ...prev, [stageId]: tempPrice }));
-      // ✅ save note alongside price
+
       setCustomNotes((prev) => ({ ...prev, [stageId]: tempNote }));
     }
     setEditingStageId(null);
@@ -344,12 +343,12 @@ const PaymentModal = ({ visible, onCancel, record, onSend }) => {
   const handleCancelEdit = () => {
     setEditingStageId(null);
     setTempPrice(null);
-    setTempNote(""); // ✅ clear note on cancel
+    setTempNote("");
   };
 
   const handleEditClick = (stage) => {
     setTempPrice(getFinalPrice(stage));
-    setTempNote(customNotes[stage.id] || ""); // ✅ pre-fill existing note
+    setTempNote(customNotes[stage.id] || "");
     setEditingStageId(stage.id);
   };
 
@@ -359,7 +358,7 @@ const PaymentModal = ({ visible, onCancel, record, onSend }) => {
       delete next[stageId];
       return next;
     });
-    // ✅ also clear saved note
+
     setCustomNotes((prev) => {
       const next = { ...prev };
       delete next[stageId];
@@ -367,9 +366,9 @@ const PaymentModal = ({ visible, onCancel, record, onSend }) => {
     });
   };
 
-  // ─────────────────────────────────────────────
-  // Data fetching
-  // ─────────────────────────────────────────────
+
+
+
 
   useEffect(() => {
     if (visible && record?.id) {
@@ -395,7 +394,7 @@ const PaymentModal = ({ visible, onCancel, record, onSend }) => {
 
   const handleSend = async (stage) => {
     const priceToSend = getFinalPrice(stage);
-    const noteToSend = customNotes[stage.id] || ""; // ✅ attach note
+    const noteToSend = customNotes[stage.id] || "";
 
     setLoadingStageId(stage.id);
     try {
@@ -403,7 +402,7 @@ const PaymentModal = ({ visible, onCancel, record, onSend }) => {
         userId: record.user_id,
         title: stage.title,
         price: priceToSend,
-        description: noteToSend, // ✅ sent to API
+        description: noteToSend,
       });
       message.success(`تم إرسال المطالبة: ${stage.title}`);
       await fetchData();
@@ -415,9 +414,9 @@ const PaymentModal = ({ visible, onCancel, record, onSend }) => {
     }
   };
 
-  // ─────────────────────────────────────────────
-  // Helpers
-  // ─────────────────────────────────────────────
+
+
+
 
   const getFinalPrice = (stage) =>
     customPrices[stage.id] !== undefined
@@ -431,9 +430,9 @@ const PaymentModal = ({ visible, onCancel, record, onSend }) => {
   const getPaymentForStage = (stage) =>
     userPayments.find((p) => p.title === stage.title);
 
-  // ─────────────────────────────────────────────
-  // Render
-  // ─────────────────────────────────────────────
+
+
+
 
   return (
     <>
@@ -507,34 +506,31 @@ const PaymentModal = ({ visible, onCancel, record, onSend }) => {
                   return (
                     <div
                       key={stage.id}
-                      className={`rounded-xl border-2 overflow-hidden transition-all ${
-                        isPaid
+                      className={`rounded-xl border-2 overflow-hidden transition-all ${isPaid
                           ? "border-green-200 bg-green-50/30"
                           : isPending
                             ? "border-orange-200 bg-orange-50/30"
                             : "border-gray-100 bg-white"
-                      }`}
+                        }`}
                     >
                       {/* ── Stage Header ── */}
                       <div
-                        className={`flex items-center justify-between px-4 py-3 ${
-                          isPaid
+                        className={`flex items-center justify-between px-4 py-3 ${isPaid
                             ? "bg-green-50"
                             : isPending
                               ? "bg-orange-50"
                               : "bg-gray-50"
-                        }`}
+                          }`}
                       >
                         {/* Left: badge + title */}
                         <div className="flex items-center gap-3">
                           <div
-                            className={`w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold ${
-                              isPaid
+                            className={`w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold ${isPaid
                                 ? "bg-green-500 text-white"
                                 : isPending
                                   ? "bg-orange-400 text-white"
                                   : "bg-gray-200 text-gray-600"
-                            }`}
+                              }`}
                           >
                             {isPaid ? (
                               <CheckCircle className="w-4 h-4" />
@@ -564,13 +560,12 @@ const PaymentModal = ({ visible, onCancel, record, onSend }) => {
                             </span>
                           )}
                           <span
-                            className={`font-bold text-base ${
-                              hasCustomPrice
+                            className={`font-bold text-base ${hasCustomPrice
                                 ? "text-green-600"
                                 : isPaid
                                   ? "text-green-600"
                                   : "text-primary"
-                            }`}
+                              }`}
                           >
                             {existingPayment
                               ? existingPayment.price

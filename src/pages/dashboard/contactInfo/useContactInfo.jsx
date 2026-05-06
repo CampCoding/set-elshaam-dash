@@ -1,4 +1,4 @@
-// src/pages/dashboard/contactInfo/useContactInfo.jsx
+
 import { useState, useEffect } from "react";
 import { message, Modal } from "antd";
 import contactInfoService from "../../../api/services/contactInfo.service";
@@ -7,7 +7,7 @@ export const useContactInfo = () => {
   const [data, setData] = useState([]);
   const [loading, setLoading] = useState(false);
 
-  // Modal States
+
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [editingRecord, setEditingRecord] = useState(null);
 
@@ -48,7 +48,7 @@ export const useContactInfo = () => {
     const formData = new FormData();
     formData.append("type", values.type);
     formData.append("value", values.value);
-    
+
     if (values.icon_file) {
       formData.append("icon", values.icon_file);
     }

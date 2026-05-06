@@ -8,7 +8,7 @@ const DashboardLayout = () => {
   const [isMobile, setIsMobile] = useState(window.innerWidth < 1024);
   const location = useLocation();
 
-  // تتبع حجم الشاشة
+
   useEffect(() => {
     const handleResize = () => {
       setIsMobile(window.innerWidth < 1024);
@@ -18,7 +18,7 @@ const DashboardLayout = () => {
     return () => window.removeEventListener("resize", handleResize);
   }, []);
 
-  // قفل الـ Sidebar لما تغير الصفحة في الموبايل
+
   useEffect(() => {
     if (isMobile) {
       setIsSidebarOpen(false);

@@ -1,4 +1,4 @@
-// src/api/services/packages.service.js
+
 import api from "../axios";
 import { ADMIN_PACKAGES_ENDPOINTS } from "../endpoints";
 

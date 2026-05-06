@@ -2,7 +2,7 @@ import api from "../axios";
 import { PROFILE_MANAGEMENT_ENDPOINTS } from "../endpoints";
 
 export const profileService = {
-  // ============ GET PROFILE ============
+
   getProfile: async (id, type = "main") => {
     try {
       const response = await api.get(PROFILE_MANAGEMENT_ENDPOINTS.GET_PROFILE(id, type));
@@ -13,7 +13,7 @@ export const profileService = {
     }
   },
 
-  // ============ UPSERT PROFILE (JSON or MULTIPART) ============
+
   upsertProfile: async (id, profileData, type = "main") => {
     try {
       const isFormData = profileData instanceof FormData;
@@ -33,7 +33,7 @@ export const profileService = {
     }
   },
 
-  // ============ DELETE PROFILE FILE ============
+
   deleteFile: async (id, fileData) => {
     try {
       const response = await api.delete(PROFILE_MANAGEMENT_ENDPOINTS.DELETE_FILE(id), {
@@ -46,7 +46,7 @@ export const profileService = {
     }
   },
 
-  // ============ GET TARGET PROFILE ============
+
   getTargetProfile: async (id) => {
     try {
       const response = await api.get(PROFILE_MANAGEMENT_ENDPOINTS.GET_TARGET_PROFILE(id));
@@ -57,7 +57,7 @@ export const profileService = {
     }
   },
 
-  // ============ UPSERT TARGET PROFILE ============
+
   upsertTargetProfile: async (id, targetData) => {
     try {
       const response = await api.post(

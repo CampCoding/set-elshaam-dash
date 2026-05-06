@@ -1,4 +1,4 @@
-// src/pages/dashboard/news/components/NewsModal.jsx
+
 import { useEffect, useState } from "react";
 import { Modal, Form, Input, Select, Upload, message, Image } from "antd";
 import { Plus, Trash2, Upload as UploadIcon, Newspaper, Tag, Link as LinkIcon } from "lucide-react";
@@ -81,7 +81,7 @@ const NewsModal = ({ visible, onCancel, onSave, initialData }) => {
           {/* Main Info */}
           <div className="space-y-4">
             <Form.Item name="title_ar" label="عنوان الخبر" rules={[{ required: true }]}><Input placeholder="العنوان الرئيسي للخبر" size="large" /></Form.Item>
-            
+
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <Form.Item name="slug" label="الرابط (Slug)" rules={[{ required: true }]}>
                 <Input prefix={<LinkIcon size={14} className="text-gray-400" />} placeholder="slug-name" size="large" />

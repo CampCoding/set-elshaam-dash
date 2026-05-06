@@ -1,4 +1,4 @@
-// src/pages/dashboard/services/useServicesPage.jsx
+
 import { useState, useEffect } from "react";
 import { message, Modal } from "antd";
 import servicesService from "../../../api/services/services.service";
@@ -72,7 +72,7 @@ export const useServicesPage = () => {
     setSelectedRecord(null);
   };
 
-  // ✅ مسح صورة من السيرفر
+
   const handleRemoveServerImage = async (serviceId, imagePath, type) => {
     try {
       await servicesService.removeImage(serviceId, {
@@ -81,7 +81,7 @@ export const useServicesPage = () => {
       });
       message.success("تم حذف الصورة بنجاح");
 
-      // تحديث الـ editingRecord محلياً بدون fetch جديد
+
       setEditingRecord((prev) => {
         if (!prev) return prev;
         if (type === "slider") {
@@ -200,7 +200,7 @@ export const useServicesPage = () => {
     handleCloseModal,
     handleSave,
     handleDelete,
-    handleRemoveServerImage, // ✅
+    handleRemoveServerImage,
     isDetailsModalVisible,
     selectedRecord,
     handleOpenDetails,

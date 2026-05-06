@@ -1,4 +1,4 @@
-// src/api/services/faqs.service.js
+
 import axiosInstance from "../axios";
 import { ADMIN_FAQ_ENDPOINTS } from "../endpoints";
 

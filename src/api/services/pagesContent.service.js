@@ -1,4 +1,4 @@
-// src/api/services/pagesContent.service.js
+
 import api from "../axios";
 import { ADMIN_PAGES_CONTENT_ENDPOINTS } from "../endpoints";
 

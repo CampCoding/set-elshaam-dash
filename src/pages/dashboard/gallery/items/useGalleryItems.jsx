@@ -1,4 +1,4 @@
-// src/pages/dashboard/gallery/items/useGalleryItems.jsx
+
 import { useState, useEffect } from "react";
 import { message, Modal } from "antd";
 import galleryService from "../../../../api/services/gallery.service";

@@ -230,7 +230,7 @@ const VariablesToolbar = ({
   );
 };
 
-// ─── Editor Section ────────────────────────────────────────────────────────
+
 const EditorSection = ({
   isEnglish,
   editorRef,
@@ -305,35 +305,35 @@ const EditorSection = ({
   );
 };
 
-// ─── Main Component ────────────────────────────────────────────────────────
+
 const Contract = () => {
-  // ── Arabic refs & state ──
+
   const editorAr = useRef(null);
   const contentArRef = useRef("");
   const [contentAr, setContentAr] = useState("");
 
-  // ── English refs & state ──
+
   const editorEn = useRef(null);
   const contentEnRef = useRef("");
   const [contentEn, setContentEn] = useState("");
 
-  // ── Shared state ──
+
   const [loading, setLoading] = useState(false);
   const [copiedVar, setCopiedVar] = useState(null);
   const [activeTab, setActiveTab] = useState("ar");
 
   const isEnglish = activeTab === "en";
 
-  // ── Fetch contracts ──
+
   const fetchContracts = async () => {
     try {
-      // Fetch Arabic contract
+
       const dataAr = await contractService.getContract("ar");
       const textAr = dataAr?.data?.contract_text || "";
       setContentAr(textAr);
       contentArRef.current = textAr;
 
-      // const dataEn = await contractService.getContract("en");
+
       const textEn = dataAr?.data?.contract_text_en || "";
       setContentEn(textEn);
       contentEnRef.current = textEn;
@@ -349,7 +349,7 @@ const Contract = () => {
     fetchContracts();
   }, []);
 
-  // ── Copy variable ──
+
   const copyVariable = (variableKey) => {
     const scrollY = window.scrollY;
     const scrollX = window.scrollX;
@@ -384,7 +384,7 @@ const Contract = () => {
     });
   };
 
-  // ── Save handler ──
+
   const handleSave = async () => {
     setLoading(true);
     try {
@@ -411,7 +411,7 @@ const Contract = () => {
     }
   };
 
-  // ── Save both ──
+
   const handleSaveBoth = async () => {
     setLoading(true);
     try {
@@ -434,7 +434,7 @@ const Contract = () => {
     }
   };
 
-  // ── Tab items ──
+
   const tabItems = [
     {
       key: "ar",
@@ -468,38 +468,38 @@ const Contract = () => {
         </div>
       ),
     },
-    // {
-    //   key: "en",
-    //   label: (
-    //     <span className="flex items-center gap-2 px-1 font-semibold">
-    //       <span className="text-base">🇬🇧</span>
-    //       <span>English</span>
-    //     </span>
-    //   ),
-    //   children: (
-    //     <div className="space-y-4 pt-4" dir="ltr">
-    //       <VariablesToolbar
-    //         isEnglish={true}
-    //         contentRef={contentEnRef}
-    //         content={contentEn}
-    //         copiedVar={copiedVar}
-    //         onCopy={copyVariable}
-    //       />
-    //       <EditorSection
-    //         isEnglish={true}
-    //         editorRef={editorEn}
-    //         content={contentEn}
-    //         onContentChange={(val) => {
-    //           contentEnRef.current = val;
-    //         }}
-    //         onBlur={(val) => {
-    //           contentEnRef.current = val;
-    //           setContentEn(val);
-    //         }}
-    //       />
-    //     </div>
-    //   ),
-    // },
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
   ];
 
   return (
@@ -588,11 +588,10 @@ const Contract = () => {
           tabBarExtraContent={
             <div className="flex items-center gap-2 py-3">
               <div
-                className={`flex items-center gap-1.5 text-xs font-medium px-3 py-1 rounded-full transition-all ${
-                  activeTab === "ar"
+                className={`flex items-center gap-1.5 text-xs font-medium px-3 py-1 rounded-full transition-all ${activeTab === "ar"
                     ? "bg-primary text-white"
                     : "bg-gray-100 text-gray-500"
-                }`}
+                  }`}
               >
                 <span>AR</span>
               </div>

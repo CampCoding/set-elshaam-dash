@@ -1,4 +1,4 @@
-// src/api/services/contactInfo.service.js
+
 import api from "../axios";
 import { ADMIN_CONTACT_INFO_ENDPOINTS } from "../endpoints";
 
@@ -24,7 +24,7 @@ const contactInfoService = {
   },
 
   updateContactInfo: async (id, formData) => {
-    // Using POST with _method=PUT for multipart/form-data compatibility
+
     const response = await api.patch(
       `${ADMIN_CONTACT_INFO_ENDPOINTS.UPDATE_CONTACT_INFO(id)}`,
       formData,

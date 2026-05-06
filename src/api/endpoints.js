@@ -1,12 +1,12 @@
-// src/api/endpoints.js
 
-// ============ ADMIN AUTH ============
+
+
 export const ADMIN_AUTH_ENDPOINTS = {
   LOGIN: "/admin/auth/login",
   PROFILE: "/admin/auth/profile",
 };
 
-// ============ ADMIN USERS ============
+
 export const ADMIN_USER_ENDPOINTS = {
   GET_USERS: (params = {}) => {
     const query = new URLSearchParams();
@@ -43,7 +43,7 @@ export const ADMIN_USER_ENDPOINTS = {
   LIST_DIRECT_EMAILS: (id) => `/admin/users/${id}/emails`,
 };
 
-// ============ PROFILE MANAGEMENT ============
+
 export const PROFILE_ENDPOINTS = {
   GET_PROFILES: (params = {}) => {
     const query = new URLSearchParams();
@@ -109,7 +109,7 @@ export const PROFILE_MANAGEMENT_ENDPOINTS = {
   UPSERT_TARGET_PROFILE: (id) => `/admin/users/${id}/profile/target`,
 };
 
-// ============ TICKETS MANAGEMENT ============
+
 export const ADMIN_TICKETS_ENDPOINTS = {
   GET_TICKETS: "/admin/tickets",
   GET_TICKET_DETAILS: (id) => `/admin/tickets/${id}`,
@@ -117,13 +117,13 @@ export const ADMIN_TICKETS_ENDPOINTS = {
   CLOSE_TICKET: (id) => `/admin/tickets/${id}/close`,
 };
 
-// ============ INFORMATION MANAGEMENT ============
+
 export const INFORMATION_ENDPOINTS = {
   GET_INFORMATION: "/information",
   UPDATE_INFORMATION: "/information",
 };
 
-// ============ SERVICES MANAGEMENT ============
+
 export const ADMIN_SERVICES_ENDPOINTS = {
   GET_SERVICES: (params = {}) => {
     const query = new URLSearchParams();
@@ -138,7 +138,7 @@ export const ADMIN_SERVICES_ENDPOINTS = {
   REMOVE_SERVICE_IMAGE: (id) => `/admin/services/${id}/remove-image`,
 };
 
-// ============ FAQ MANAGEMENT ============
+
 export const ADMIN_FAQ_ENDPOINTS = {
   GET_FAQS: (params = {}) => {
     const query = new URLSearchParams();
@@ -152,7 +152,7 @@ export const ADMIN_FAQ_ENDPOINTS = {
   DELETE_FAQ: (id) => `/admin/faqs/${id}`,
 };
 
-// ============ PACKAGES MANAGEMENT ============
+
 export const ADMIN_PACKAGES_ENDPOINTS = {
   GET_PACKAGES: "/admin/packages",
   CREATE_PACKAGE: "/admin/packages",
@@ -160,7 +160,7 @@ export const ADMIN_PACKAGES_ENDPOINTS = {
   DELETE_PACKAGE: (id) => `/admin/packages/${id}`,
 };
 
-// ============ PAGES CONTENT MANAGEMENT ============
+
 export const ADMIN_PAGES_CONTENT_ENDPOINTS = {
   GET_CONTENT: "/admin/pages/content",
   CREATE_CONTENT: "/admin/pages/content",
@@ -168,13 +168,13 @@ export const ADMIN_PAGES_CONTENT_ENDPOINTS = {
   DELETE_CONTENT: (id) => `/admin/pages/content/${id}`,
 };
 
-// ============ SITE SETTINGS MANAGEMENT ============
+
 export const ADMIN_SETTINGS_ENDPOINTS = {
   GET_SETTINGS: "/pages/settings",
   UPDATE_SETTING: "/admin/pages/settings",
 };
 
-// ============ CONTACT INFO MANAGEMENT ============
+
 export const ADMIN_CONTACT_INFO_ENDPOINTS = {
   GET_CONTACT_INFO: "/admin/pages/contact-info",
   CREATE_CONTACT_INFO: "/admin/pages/contact-info",
@@ -182,7 +182,7 @@ export const ADMIN_CONTACT_INFO_ENDPOINTS = {
   DELETE_CONTACT_INFO: (id) => `/admin/pages/contact-info/${id}`,
 };
 
-// ============ BANNERS MANAGEMENT ============
+
 export const ADMIN_BANNERS_ENDPOINTS = {
   GET_BANNERS: "/admin/banners",
   CREATE_BANNER: "/admin/banners",
@@ -190,7 +190,7 @@ export const ADMIN_BANNERS_ENDPOINTS = {
   DELETE_BANNER: (id) => `/admin/banners/${id}`,
 };
 
-// ============ NEWS MANAGEMENT ============
+
 export const ADMIN_NEWS_ENDPOINTS = {
   GET_NEWS: "/admin/news",
   CREATE_NEWS: "/admin/news",
@@ -198,7 +198,7 @@ export const ADMIN_NEWS_ENDPOINTS = {
   DELETE_NEWS: (id) => `/admin/news/${id}`,
 };
 
-// ============ GALLERY MANAGEMENT ============
+
 export const ADMIN_GALLERY_ENDPOINTS = {
   GET_GALLERY: "/admin/gallery",
   CREATE_GALLERY: "/admin/gallery",

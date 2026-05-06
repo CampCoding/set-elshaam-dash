@@ -1,4 +1,4 @@
-// src/pages/dashboard/faqs/Faqs.jsx
+
 import { Tag, Space, Button, Tooltip, Typography } from "antd";
 import { Edit, Trash2, MessageCircleQuestion } from "lucide-react";
 import DataTable, {

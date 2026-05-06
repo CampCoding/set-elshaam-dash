@@ -1,4 +1,4 @@
-// src/pages/dashboard/Users/UsersPage.jsx
+
 import React, { useMemo, useCallback } from "react";
 import {
   Tag,
@@ -55,7 +55,7 @@ const UsersPage = () => {
     handleRefresh,
   } = useUsersPage();
 
-  // Actions Dropdown Menu
+
   const getActionItems = useCallback(
     (record) => [
       {
@@ -93,7 +93,7 @@ const UsersPage = () => {
     [handleOpenDetails, handleOpenEdit, handleToggleBlock, handleDelete]
   );
 
-  // Table Columns with Built-in Filters
+
   const columns = useMemo(
     () => [
       {
@@ -387,8 +387,7 @@ const UsersPage = () => {
           ),
         }}
         rowClassName={(record, index) =>
-          `${index % 2 === 0 ? "bg-white" : "bg-gray-50/50"} ${
-            record.is_blocked ? "opacity-60" : ""
+          `${index % 2 === 0 ? "bg-white" : "bg-gray-50/50"} ${record.is_blocked ? "opacity-60" : ""
           }`
         }
       />

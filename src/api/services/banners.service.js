@@ -1,4 +1,4 @@
-// src/api/services/banners.service.js
+
 import api from "../axios";
 import { ADMIN_BANNERS_ENDPOINTS } from "../endpoints";
 
@@ -18,7 +18,7 @@ const bannersService = {
   },
 
   updateBanner: async (id, formData) => {
-    // Using POST with _method=PUT for multipart/form-data compatibility
+
     const response = await api.put(`${ADMIN_BANNERS_ENDPOINTS.UPDATE_BANNER(id)}`, formData, {
       headers: {
         "Content-Type": "multipart/form-data",

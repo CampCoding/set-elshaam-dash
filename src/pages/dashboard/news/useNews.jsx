@@ -1,4 +1,4 @@
-// src/pages/dashboard/news/useNews.jsx
+
 import { useState, useEffect } from "react";
 import { message, Modal } from "antd";
 import newsService from "../../../api/services/news.service";
@@ -7,7 +7,7 @@ export const useNews = () => {
   const [data, setData] = useState([]);
   const [loading, setLoading] = useState(false);
 
-  // Modal States
+
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [editingRecord, setEditingRecord] = useState(null);
 

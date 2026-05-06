@@ -1,4 +1,4 @@
-// src/pages/dashboard/contactInfo/components/ContactModal.jsx
+
 import { useEffect, useState } from "react";
 import { Modal, Form, Input, Select, Upload, message, Image, Switch } from "antd";
 import { Plus, Trash2, Upload as UploadIcon, Phone, Mail, Globe, CheckCircle2 } from "lucide-react";

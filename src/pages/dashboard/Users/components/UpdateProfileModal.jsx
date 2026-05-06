@@ -1,4 +1,4 @@
-// src/pages/dashboard/Users/components/UpdateProfileModal.jsx
+
 import {
   Modal,
   Form,
@@ -64,16 +64,16 @@ const UpdateProfileModal = ({
     }));
   };
 
-  // ✅ Helper: format date to YYYY-MM-DD for input[type="date"]
+
   const formatDateForInput = (dateValue) => {
     if (!dateValue) return undefined;
 
-    // If already in YYYY-MM-DD format
+
     if (/^\d{4}-\d{2}-\d{2}$/.test(dateValue)) {
       return dateValue;
     }
 
-    // Try parsing with dayjs
+
     const parsed = dayjs(dateValue);
     if (parsed.isValid()) {
       return parsed.format("YYYY-MM-DD");
@@ -86,16 +86,16 @@ const UpdateProfileModal = ({
     if (visible && initialData) {
       form.setFieldsValue({
         ...initialData,
-        // ✅ Format dates properly
+
         date_of_birth: formatDateForInput(initialData.date_of_birth),
         arrival_date_finland: formatDateForInput(
           initialData.arrival_date_finland
         ),
-        // Booleans
+
         info_correctness_pledge: !!initialData.info_correctness_pledge,
         contract_terms_accepted: !!initialData.contract_terms_accepted,
         gdpr_accepted: !!initialData.gdpr_accepted,
-        // Numeric conversions
+
         has_children:
           initialData.has_children !== undefined
             ? Number(initialData.has_children)

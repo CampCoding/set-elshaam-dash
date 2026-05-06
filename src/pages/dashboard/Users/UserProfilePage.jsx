@@ -1,4 +1,4 @@
-// src/pages/dashboard/Users/UserProfilePage.jsx
+
 
 import React, { useRef, useState, useCallback } from "react";
 import {
@@ -73,10 +73,10 @@ import {
 import PaymentModal from "../profiles/components/PaymentModal";
 import StatusTrackModal from "../profiles/components/StatusTrackModal";
 
-// ==================== Route Config ====================
+
 const CONTRACT_ROUTE = (userId) => `/users/${userId}/contract`;
 
-// ==================== Constants ====================
+
 const DOCUMENT_SECTIONS = [
   {
     key: "marital_status_docs",
@@ -138,24 +138,21 @@ const SOCIAL_MEDIA = [
   { value: "not_important", label: "غير مهم" },
 ];
 
-// ==================== Question Labels for Docs ====================
+
 const getDocumentQuestion = (questionKey, profile) => {
   switch (questionKey) {
     case "marital_status":
-      return `الحالة الاجتماعية: ${
-        getLabelByValue(MARITAL_STATUS, profile?.marital_status) || "غير محدد"
-      }`;
+      return `الحالة الاجتماعية: ${getLabelByValue(MARITAL_STATUS, profile?.marital_status) || "غير محدد"
+        }`;
     case "education_level":
-      return `المستوى التعليمي: ${
-        getLabelByValue(EDUCATION_LEVELS, profile?.education_level) ||
+      return `المستوى التعليمي: ${getLabelByValue(EDUCATION_LEVELS, profile?.education_level) ||
         "غير محدد"
-      }`;
+        }`;
     case "work_experience":
       return `الخبرات العملية: ${profile?.work_experience || "غير محدد"}`;
     case "has_criminal_record":
-      return `السجل الجنائي: ${
-        profile?.has_criminal_record ? "يوجد" : "لا يوجد"
-      }`;
+      return `السجل الجنائي: ${profile?.has_criminal_record ? "يوجد" : "لا يوجد"
+        }`;
     case "has_debts":
       return `الديون: ${profile?.has_debts ? "يوجد" : "لا يوجد"}`;
     default:
@@ -163,7 +160,7 @@ const getDocumentQuestion = (questionKey, profile) => {
   }
 };
 
-// ==================== Helpers ====================
+
 const ensureArray = (data) => {
   if (!data) return [];
   if (Array.isArray(data)) return data;
@@ -200,14 +197,14 @@ const getSectLabel = (religion, sect) => {
   return getLabelByValue(sects, sect);
 };
 
-// ✅ fallback helper عشان لو القيمة موجودة ومش متطابقة مع options ترجع القيمة نفسها
+
 const getOptionLabelOrValue = (options, value) => {
   if (value === null || value === undefined || value === "") return "غير محدد";
   if (!options) return value;
   return getLabelByValue(options, value) || value;
 };
 
-// ==================== UserProfilePage ====================
+
 const UserProfilePage = () => {
   const {
     id,
@@ -245,7 +242,7 @@ const UserProfilePage = () => {
     mainProfile?.admin_signed || mainProfile?.admin_signature_path
   );
 
-  // ✅ fallback keys للحقول اللي كانت ساعات مش بتظهر
+
   const residenceCountry =
     mainProfile?.country ||
     mainProfile?.residence_country ||
@@ -275,7 +272,7 @@ const UserProfilePage = () => {
     targetProfile?.target_employment_status ||
     targetProfile?.target_work;
 
-  // ==================== Open Contract Page ====================
+
   const handleOpenContract = useCallback(() => {
     if (!id) {
       message.warning("معرّف المستخدم غير موجود");
@@ -285,7 +282,7 @@ const UserProfilePage = () => {
     navigate(CONTRACT_ROUTE(id));
   }, [id, navigate]);
 
-  // ==================== Print Handler ====================
+
   const handlePrint = useReactToPrint({
     contentRef: printRef,
     documentTitle: `استمارة_${id}_ست_الشام`,
@@ -314,7 +311,7 @@ const UserProfilePage = () => {
     `,
   });
 
-  // ==================== PDF Export Handler ====================
+
   const handleExportPDF = useCallback(async () => {
     if (!printRef.current) {
       message.error("لا يوجد محتوى للتصدير");
@@ -401,7 +398,7 @@ const UserProfilePage = () => {
     }
   }, [mainProfile?.id]);
 
-  // ==================== Copy Profile ID ====================
+
   const handleCopyProfileId = useCallback(() => {
     const text = `رقم الاستمارة: #${id}
 للتواصل والاستفسار:
@@ -421,7 +418,7 @@ const UserProfilePage = () => {
       });
   }, [id]);
 
-  // ==================== Open Print then Export PDF ====================
+
   const handleOpenAndExportPDF = useCallback(() => {
     setIsPrintModalVisible(true);
     setTimeout(() => {
@@ -429,7 +426,7 @@ const UserProfilePage = () => {
     }, 800);
   }, [handleExportPDF]);
 
-  // ==================== Loading State ====================
+
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-[400px]">
@@ -438,7 +435,7 @@ const UserProfilePage = () => {
     );
   }
 
-  // ==================== Render Info Item ====================
+
   const renderInfoItem = (label, value, icon, options = null) => {
     let displayValue = value;
 
@@ -480,7 +477,7 @@ const UserProfilePage = () => {
     );
   };
 
-  // ==================== Render ====================
+
   return (
     <div className="space-y-6">
       {/* ==================== Header ==================== */}
@@ -789,8 +786,8 @@ const UserProfilePage = () => {
                               "تاريخ الوصول لفنلندا",
                               mainProfile?.arrival_date_finland
                                 ? dayjs(
-                                    mainProfile.arrival_date_finland
-                                  ).format("YYYY-MM-DD")
+                                  mainProfile.arrival_date_finland
+                                ).format("YYYY-MM-DD")
                                 : null,
                               <Calendar className="w-4 h-4" />
                             )}
@@ -1007,32 +1004,32 @@ const UserProfilePage = () => {
                       {/* How did you know us */}
                       {(mainProfile?.how_did_you_know_us ||
                         mainProfile?.friend_name) && (
-                        <div>
-                          <h3 className="text-lg font-bold text-primary flex items-center gap-2 mb-4">
-                            <Globe className="w-5 h-5" /> كيف عرفتنا؟
-                          </h3>
-                          <Row gutter={[16, 16]}>
-                            <Col xs={24} sm={12}>
-                              {renderInfoItem(
-                                "كيف عرفتنا؟",
-                                mainProfile?.how_did_you_know_us === "friend"
-                                  ? "عن طريق صديق"
-                                  : mainProfile?.how_did_you_know_us,
-                                <Info className="w-4 h-4" />
-                              )}
-                            </Col>
-                            {mainProfile?.how_did_you_know_us === "friend" && (
+                          <div>
+                            <h3 className="text-lg font-bold text-primary flex items-center gap-2 mb-4">
+                              <Globe className="w-5 h-5" /> كيف عرفتنا؟
+                            </h3>
+                            <Row gutter={[16, 16]}>
                               <Col xs={24} sm={12}>
                                 {renderInfoItem(
-                                  "اسم الصديق",
-                                  mainProfile?.friend_name,
-                                  <User className="w-4 h-4" />
+                                  "كيف عرفتنا؟",
+                                  mainProfile?.how_did_you_know_us === "friend"
+                                    ? "عن طريق صديق"
+                                    : mainProfile?.how_did_you_know_us,
+                                  <Info className="w-4 h-4" />
                                 )}
                               </Col>
-                            )}
-                          </Row>
-                        </div>
-                      )}
+                              {mainProfile?.how_did_you_know_us === "friend" && (
+                                <Col xs={24} sm={12}>
+                                  {renderInfoItem(
+                                    "اسم الصديق",
+                                    mainProfile?.friend_name,
+                                    <User className="w-4 h-4" />
+                                  )}
+                                </Col>
+                              )}
+                            </Row>
+                          </div>
+                        )}
                       {/* Education & Work */}
                       <div>
                         <h3 className="text-lg font-bold text-primary flex items-center gap-2 mb-4">
@@ -1115,29 +1112,29 @@ const UserProfilePage = () => {
                       {/* Gallery */}
                       {ensureArray(mainProfile?.user_gallery_photos).length >
                         0 && (
-                        <div>
-                          <h3 className="text-lg font-bold text-primary flex items-center gap-2 mb-4">
-                            <ImageIcon className="w-5 h-5" /> معرض الصور
-                          </h3>
-                          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
-                            {ensureArray(mainProfile.user_gallery_photos).map(
-                              (photo, i) => (
-                                <div
-                                  key={i}
-                                  className="rounded-xl overflow-hidden border border-gray-100 shadow-sm aspect-square"
-                                >
-                                  <Image
-                                    src={photo}
-                                    alt={`صورة ${i + 1}`}
-                                    className="w-full h-full object-cover"
-                                    width="100%"
-                                  />
-                                </div>
-                              )
-                            )}
+                          <div>
+                            <h3 className="text-lg font-bold text-primary flex items-center gap-2 mb-4">
+                              <ImageIcon className="w-5 h-5" /> معرض الصور
+                            </h3>
+                            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
+                              {ensureArray(mainProfile.user_gallery_photos).map(
+                                (photo, i) => (
+                                  <div
+                                    key={i}
+                                    className="rounded-xl overflow-hidden border border-gray-100 shadow-sm aspect-square"
+                                  >
+                                    <Image
+                                      src={photo}
+                                      alt={`صورة ${i + 1}`}
+                                      className="w-full h-full object-cover"
+                                      width="100%"
+                                    />
+                                  </div>
+                                )
+                              )}
+                            </div>
                           </div>
-                        </div>
-                      )}
+                        )}
 
                       {/* About Me */}
                       {mainProfile?.about_me_more && (
@@ -1248,23 +1245,23 @@ const UserProfilePage = () => {
 
                             {(mainProfile?.admin_signature_path ||
                               mainProfile?.admin_signed) && (
-                              <Card
-                                size="small"
-                                title="توقيع الإدارة"
-                                className="text-center rounded-xl overflow-hidden mt-4"
-                              >
-                                {mainProfile?.admin_signature_path ? (
-                                  <Image
-                                    src={mainProfile.admin_signature_path}
-                                    className="max-h-32 object-contain"
-                                  />
-                                ) : (
-                                  <div className="py-8 text-gray-400">
-                                    تم توقيع الإدارة
-                                  </div>
-                                )}
-                              </Card>
-                            )}
+                                <Card
+                                  size="small"
+                                  title="توقيع الإدارة"
+                                  className="text-center rounded-xl overflow-hidden mt-4"
+                                >
+                                  {mainProfile?.admin_signature_path ? (
+                                    <Image
+                                      src={mainProfile.admin_signature_path}
+                                      className="max-h-32 object-contain"
+                                    />
+                                  ) : (
+                                    <div className="py-8 text-gray-400">
+                                      تم توقيع الإدارة
+                                    </div>
+                                  )}
+                                </Card>
+                              )}
                           </Col>
                         </Row>
                       </div>
@@ -1635,24 +1632,24 @@ const UserProfilePage = () => {
                             {ensureArray(
                               targetProfile?.["target_house-tasks_preference"]
                             ).length > 0 && (
-                              <div className="mt-4 p-3 bg-gray-50 rounded-xl border border-gray-100">
-                                <div className="text-xs text-gray-400 font-medium mb-2 flex items-center gap-1">
-                                  <Home className="w-3 h-3" /> تفضيلات المهام
-                                  المنزلية
-                                </div>
-                                <div className="flex flex-wrap gap-2">
-                                  {ensureArray(
-                                    targetProfile[
+                                <div className="mt-4 p-3 bg-gray-50 rounded-xl border border-gray-100">
+                                  <div className="text-xs text-gray-400 font-medium mb-2 flex items-center gap-1">
+                                    <Home className="w-3 h-3" /> تفضيلات المهام
+                                    المنزلية
+                                  </div>
+                                  <div className="flex flex-wrap gap-2">
+                                    {ensureArray(
+                                      targetProfile[
                                       "target_house-tasks_preference"
-                                    ]
-                                  ).map((item, i) => (
-                                    <Tag key={i} className="rounded-full">
-                                      {item}
-                                    </Tag>
-                                  ))}
+                                      ]
+                                    ).map((item, i) => (
+                                      <Tag key={i} className="rounded-full">
+                                        {item}
+                                      </Tag>
+                                    ))}
+                                  </div>
                                 </div>
-                              </div>
-                            )}
+                              )}
                           </div>
 
                           <Card size="small" className="bg-gray-50">

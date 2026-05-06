@@ -1,4 +1,4 @@
-// src/pages/dashboard/Users/useUsersPage.js
+
 import { useState, useEffect, useCallback, useMemo } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { message, Modal } from "antd";
@@ -36,23 +36,23 @@ export const useUsersPage = () => {
   const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
 
-  // ========= Initial state from URL =========
+
   const initialState = useMemo(
     () => getStateFromSearchParams(searchParams),
-    // هنقرأ أول مرة فقط
+
     []
   );
 
-  // Data States
+
   const [data, setData] = useState([]);
   const [loading, setLoading] = useState(false);
   const [total, setTotal] = useState(0);
 
-  // Search State
+
   const [searchValue, setSearchValue] = useState(initialState.search);
   const debouncedSearch = useDebounce(searchValue, 500);
 
-  // Pagination & Filters
+
   const [tableParams, setTableParams] = useState({
     page: initialState.page,
     limit: initialState.limit,
@@ -64,11 +64,11 @@ export const useUsersPage = () => {
     sort_order: initialState.sort_order,
   });
 
-  // Modal States
+
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [editingRecord, setEditingRecord] = useState(null);
 
-  // ========= Build request params =========
+
   const requestParams = useMemo(() => {
     return cleanObject({
       ...tableParams,
@@ -76,7 +76,7 @@ export const useUsersPage = () => {
     });
   }, [tableParams, debouncedSearch]);
 
-  // ========= Sync URL search params =========
+
   useEffect(() => {
     const urlParams = cleanObject({
       ...tableParams,
@@ -86,7 +86,7 @@ export const useUsersPage = () => {
     setSearchParams(urlParams, { replace: true });
   }, [tableParams, debouncedSearch, setSearchParams]);
 
-  // ========= Fetch Users =========
+
   const fetchUsers = useCallback(async () => {
     setLoading(true);
     try {
@@ -106,29 +106,29 @@ export const useUsersPage = () => {
     fetchUsers();
   }, [fetchUsers]);
 
-  // ============ Table Change Handler ============
+
   const handleTableChange = useCallback((pagination, filters, sorter) => {
     setTableParams((prev) => ({
       ...prev,
       page: pagination.current || 1,
       limit: pagination.pageSize || 10,
 
-      // Filters
+
       gender: filters.gender?.[0] || null,
       has_profile: filters.has_profile?.[0] ?? null,
       is_verified: filters.is_verified?.[0] ?? null,
 
-      // Sorting
+
       sort_by: sorter?.field || "created_at",
       sort_order: sorter?.order === "ascend" ? "asc" : "desc",
     }));
   }, []);
 
-  // ============ Search Handler ============
+
   const handleSearch = useCallback((value) => {
     setSearchValue(value);
 
-    // رجع الصفحة لأول صفحة عند أي بحث
+
     setTableParams((prev) => (prev.page === 1 ? prev : { ...prev, page: 1 }));
   }, []);
 
@@ -137,7 +137,7 @@ export const useUsersPage = () => {
     setTableParams((prev) => (prev.page === 1 ? prev : { ...prev, page: 1 }));
   }, []);
 
-  // ============ Modal Handlers ============
+
   const handleOpenAdd = useCallback(() => {
     setEditingRecord(null);
     setIsModalVisible(true);
@@ -160,7 +160,7 @@ export const useUsersPage = () => {
     [navigate]
   );
 
-  // ============ CRUD Handlers ============
+
   const handleSave = useCallback(
     async (dataToSave) => {
       setLoading(true);

@@ -1,7 +1,7 @@
 const TOKEN_KEY = "set_elsham_admin_token";
 const USER_KEY = "set_elsham_admin_user";
 
-// ============ TOKEN ============
+
 export const getToken = () => {
   return localStorage.getItem(TOKEN_KEY);
 };
@@ -14,7 +14,7 @@ export const removeToken = () => {
   localStorage.removeItem(TOKEN_KEY);
 };
 
-// ============ USER ============
+
 export const getUser = () => {
   const user = localStorage.getItem(USER_KEY);
   return user ? JSON.parse(user) : null;
@@ -28,13 +28,13 @@ export const removeUser = () => {
   localStorage.removeItem(USER_KEY);
 };
 
-// ============ CLEAR ALL ============
+
 export const clearAuth = () => {
   removeToken();
   removeUser();
 };
 
-// ============ CHECK AUTH ============
+
 export const isAuthenticated = () => {
   const token = getToken();
   const user = getUser();
