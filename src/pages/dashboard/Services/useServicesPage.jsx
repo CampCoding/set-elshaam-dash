@@ -123,11 +123,8 @@ export const useServicesPage = () => {
     formData.append("cta_text_ar", values.cta_text_ar || "احجز الآن");
     formData.append("is_active", values.is_active ?? 1);
 
-    const description_ar =
-      values.descriptionList
-        ?.map((item) => item?.text?.trim())
-        .filter((t) => t)
-        .join("\n") || "";
+    // description_ar now comes as rich-text HTML from Jodit
+    const description_ar = values.descriptionHtml || "";
     formData.append("description_ar", description_ar);
 
     if (values.slider_files && values.slider_files.length > 0) {

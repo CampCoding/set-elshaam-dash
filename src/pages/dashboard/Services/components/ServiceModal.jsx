@@ -18,12 +18,11 @@ import {
   Image as ImageIcon,
   X,
   MessageCircleQuestion,
-  ServerCrash,
 } from "lucide-react";
 import Button from "../../../../components/common/Button";
+import JoditEditor from "../../../../components/common/JoditEditor";
 import faqsService from "../../../../api/services/faqs.service";
 
-const { TextArea } = Input;
 const { Option } = Select;
 
 
@@ -61,9 +60,7 @@ const ServiceModal = ({
   onRemoveServerImage,
 }) => {
   const [form] = Form.useForm();
-
-
-
+  const [descriptionHtml, setDescriptionHtml] = useState("");
 
   const [serverSliderUrls, setServerSliderUrls] = useState([]);
   const [newSliderUrls, setNewSliderUrls] = useState([]);
@@ -92,12 +89,9 @@ const ServiceModal = ({
       fetchFaqs();
 
       if (initialData) {
-        const descriptionList = initialData.description_ar
-          ? initialData.description_ar
-            .split("\n")
-            .filter((t) => t.trim())
-            .map((text) => ({ text }))
-          : [{ text: "" }];
+        // Load description_ar as HTML (may be plain text or HTML from Jodit)
+        const rawDesc = initialData.description_ar || "";
+        setDescriptionHtml(rawDesc);
 
         form.setFieldsValue({
           title_ar: initialData.title_ar,
@@ -105,10 +99,8 @@ const ServiceModal = ({
           slug: initialData.slug,
           cta_text_ar: initialData.cta_text_ar,
           is_active: initialData.is_active,
-          descriptionList,
           faqs: initialData.faqs || [],
         });
-
 
         const slider = Array.isArray(initialData.slider_images)
           ? initialData.slider_images.map((img) =>
@@ -127,9 +119,9 @@ const ServiceModal = ({
         setNewGalleryUrls([]);
       } else {
         form.resetFields();
+        setDescriptionHtml("");
         form.setFieldsValue({
           is_active: 1,
-          descriptionList: [{ text: "" }],
           faqs: [],
         });
         setServerSliderUrls([]);
@@ -238,13 +230,15 @@ const ServiceModal = ({
       .validateFields()
       .then((values) => {
         const allValues = form.getFieldsValue(true);
-        onSave({ ...allValues, ...values });
+        // Pass the rich-text HTML directly as description_ar
+        onSave({ ...allValues, ...values, descriptionHtml });
       })
       .catch((info) => console.log("Validate Failed:", info));
   };
 
   const handleCancel = () => {
     form.resetFields();
+    setDescriptionHtml("");
     setServerSliderUrls([]);
     setNewSliderUrls([]);
     setServerGalleryUrls([]);
@@ -392,45 +386,12 @@ const ServiceModal = ({
           <h4 className="text-sm font-bold text-gray-600 mb-4">
             الوصف التفصيلي
           </h4>
-          <Form.List name="descriptionList">
-            {(fields, { add, remove }) => (
-              <div className="space-y-3">
-                {fields.map((field, index) => (
-                  <div
-                    key={field.key}
-                    className="flex gap-2 items-start bg-white p-3 rounded-lg border border-gray-100"
-                  >
-                    <Form.Item
-                      {...field}
-                      name={[field.name, "text"]}
-                      className="flex-1 mb-0"
-                    >
-                      <TextArea
-                        placeholder={`الفقرة ${index + 1}...`}
-                        autoSize={{ minRows: 2 }}
-                      />
-                    </Form.Item>
-                    {fields.length > 1 && (
-                      <Button
-                        type="text"
-                        danger
-                        onClick={() => remove(field.name)}
-                      >
-                        <Trash2 className="w-4 h-4" />
-                      </Button>
-                    )}
-                  </div>
-                ))}
-                <Button
-                  onClick={() => add({ text: "" })}
-                  block
-                  icon={<Plus className="w-4 h-4" />}
-                >
-                  إضافة فقرة
-                </Button>
-              </div>
-            )}
-          </Form.List>
+          <JoditEditor
+            value={descriptionHtml}
+            onChange={(html) => setDescriptionHtml(html)}
+            placeholder="اكتب وصف الخدمة التفصيلي هنا... يمكنك استخدام التنسيق والقوائم"
+            height={300}
+          />
         </div>
 
         {/* معرض الصور */}

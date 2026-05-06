@@ -151,19 +151,12 @@ const ServiceDetailsModal = ({ visible, onClose, service }) => {
             الوصف التفصيلي
           </h3>
           <div className="bg-gray-50 rounded-xl p-5 border border-gray-100">
-            {service.description_ar || (service.description && service.description.length > 0) ? (
-              <div className="space-y-4">
-                {(service.description_ar ? service.description_ar.split("\n") : service.description).map((paragraph, index) => (
-                  <div key={index} className="flex gap-3">
-                    <span className="flex-shrink-0 w-6 h-6 bg-primary/10 text-primary rounded-full flex items-center justify-center text-xs font-bold">
-                      {index + 1}
-                    </span>
-                    <p className="text-gray-600 leading-relaxed flex-1">
-                      {paragraph}
-                    </p>
-                  </div>
-                ))}
-              </div>
+            {service.description_ar ? (
+              <div
+                className="prose prose-sm max-w-none text-gray-700 leading-relaxed rtl-content"
+                style={{ direction: "rtl", textAlign: "right" }}
+                dangerouslySetInnerHTML={{ __html: service.description_ar }}
+              />
             ) : (
               <p className="text-gray-400 text-center py-6">لا يوجد وصف متاح</p>
             )}
